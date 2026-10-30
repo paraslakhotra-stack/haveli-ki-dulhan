@@ -3,6 +3,7 @@ import { connect } from '/shared/net.js';
 import { h, clear, add } from '/shared/dom.js';
 import { setNames, face } from '/shared/photos.js';
 import { audio } from '/shared/audio.js';
+import { music } from '/shared/music.js';
 import { Backdrop, VW, VH } from '/tv/backdrops.js';
 import { ArenaRenderer } from '/tv/arena.js';
 import { HuntRenderer } from '/tv/hunt.js';
@@ -92,7 +93,14 @@ function applyAudio(v) {
   if (!audio.ready) return;
   const scene = sceneFor(v);
   audio.setScene(v.kind === 'arena' ? 'garden' : scene);
-  if (v.kind === 'arena' && v.step.sub === 'fight') audio.startCombat(); else audio.stopCombat();
+  const fighting = v.kind === 'arena' && v.step.sub === 'fight';
+  if (fighting) audio.startCombat(); else audio.stopCombat();
+  // The recorded theme carries the big moments; the live score fills the play in between.
+  const theme = ['lobby', 'chapterTitle', 'chapterEnd', 'credits'].includes(v.kind) || ((v.kind === 'hunt' || v.kind === 'arena') && v.step.sub === 'results');
+  music.playTheme(theme);
+  const PLAY = ['quiz', 'seance', 'trial', 'possess', 'toast', 'glass', 'unmask', 'crypt', 'brides', 'vowWrite'];
+  const cue = theme || fighting ? null : v.kind === 'hunt' ? 'hunt' : PLAY.includes(v.kind) ? (scene === 'chapel' ? 'mandap' : 'story') : null;
+  if (cue) music.play(cue); else music.stop();
 }
 
 function render(v) {

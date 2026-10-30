@@ -4,6 +4,7 @@
 // The whole floor plan is pre-rendered once; a pane is one blit of the map + a handful of sprites.
 import { nameOf, getPhoto } from '/shared/photos.js';
 import { audio } from '/shared/audio.js';
+import { music } from '/shared/music.js';
 import { RtBuffer, playerKey, idKey } from '/tv/rtclient.js';
 import * as SP from '/tv/sprites.js';
 import { GRID, COLS, ROWS, TILE, WORLD_W, WORLD_H, ROOMS, ITEMS } from '/shared/haveli-map.js';
@@ -181,10 +182,10 @@ export class HuntRenderer {
         this.fx.push({ k: 'burst', team: ev.team, x: ev.x, y: ev.y, life: 1.6, max: 1.6, item: ev.item });
         for (let i = 0; i < 24; i++) { const a = Math.random() * TAU; const sp = 60 + Math.random() * 200; this.parts.push({ x: ev.x, y: ev.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 60, life: 1.2, max: 1.2, c: i % 2 ? '255,214,120' : '243,156,18' }); }
         this.paneBanner(ev.team, `${ITEMS[ev.item]?.icon || '✨'} ${ITEMS[ev.item]?.name || ''} mil gaya!`);
-        audio.levelUp();
+        music.stinger('found');
         break;
       }
-      case 'wrong': this.paneBanner(ev.team, 'GALAT! Woh aa rahi hai…', '#ff5a6e'); audio.stinger(0.5); audio.whisper(0.9); break;
+      case 'wrong': this.paneBanner(ev.team, 'GALAT! Woh aa rahi hai…', '#ff5a6e'); music.stinger('wrong'); audio.whisper(0.9); break;
       case 'ghostTp': audio.ghungroo?.(0.8, 0, 3); break;
       case 'freeze': this.fx.push({ k: 'ring', x: ev.x, y: ev.y, c: '160,40,60', life: 0.9, max: 0.9, r: 90 }); audio.scream(0.4, 0); break;
       case 'finish': this.paneBanner(ev.team, ev.place === 1 ? '🏆 PEHLE POHONCHE!' : `🏁 #${ev.place} — poora shringar!`, '#ffd27a'); audio.bell(1); break;
@@ -220,6 +221,7 @@ export class HuntRenderer {
     for (const [id, gh] of ghosts) this.animate(`g${id}`, gh[1], gh[2], dt);
     ctx.fillStyle = '#000'; ctx.fillRect(0, 0, 1920, 1080);
     if (!meta) return;
+    if (meta.phase === 'hunt') music.setIntensity(1 - meta.left / 480); // the taal tightens as time runs out
     const teams = meta.teams;
     const stations = new Map((snap.tables.s || []).map((row) => [teams[row[0]], row]));
     const rects = paneRects(teams.length);
