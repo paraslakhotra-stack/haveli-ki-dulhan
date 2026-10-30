@@ -216,10 +216,12 @@ export function createServer({ fast = FAST, port = Number(opt('port', process.en
       }
     }
     const ip = lanAddress();
-    const url = `http://${ip}:${p}/play/`;
+    // Hosted (Render sets RENDER_EXTERNAL_URL; anything else can set PUBLIC_URL): phones join over https.
+    const publicBase = (process.env.PUBLIC_URL || process.env.RENDER_EXTERNAL_URL || '').replace(/\/+$/, '');
+    const url = publicBase ? `${publicBase}/play/` : `http://${ip}:${p}/play/`;
     game.joinInfo = { url, code: game.code, qr: await QRCode.toDataURL(url, { margin: 1, width: 360, color: { dark: '#14080aff', light: '#efe3c8ff' } }) };
     scheduleFlush();
-    return { port: p, ip, url };
+    return { port: p, ip, url, hosted: !!publicBase };
   }
 
   function close() {
@@ -233,12 +235,13 @@ export function createServer({ fast = FAST, port = Number(opt('port', process.en
 // ---------- CLI ----------
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const srv = createServer();
-  srv.listen().then(async ({ port, url }) => {
+  srv.listen().then(async ({ port, url, hosted }) => {
+    if (hosted) { log(`\n  HAVELI KI DULHAN is live.\n  TV:     ${url.replace(/\/play\/$/, '/tv/')}\n  Phones: ${url}\n`); return; }
     let qr = '';
     try { qr = await QRCode.toString(url, { type: 'terminal', small: true }); } catch { /* optional */ }
     log(`
   ╔══════════════════════════════════════════════════════════╗
-     N I G H T F A L L  —  The Blackthorn Wedding
+     H A V E L I   K I   D U L H A N  —  a Nightfall story
   ╚══════════════════════════════════════════════════════════╝
 
    1. On THIS laptop (plugged into the TV), open:
@@ -254,5 +257,5 @@ ${qr}`);
     console.error('Could not start the server:', e.message);
     process.exit(1);
   });
-  process.on('SIGINT', () => { log('\n  The manor sleeps. Goodnight.\n'); process.exit(0); });
+  process.on('SIGINT', () => { log('\n  The haveli sleeps. Shubh raatri.\n'); process.exit(0); });
 }

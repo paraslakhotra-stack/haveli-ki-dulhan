@@ -65,7 +65,7 @@ export const brides = {
     s.whispers = {};
     const ps = g.rng.shuffle(g.connectedPlayers());
     const truths = B.whispers.slice();
-    // Needed truths first, then a mix of Vesper's lies and spare truths.
+    // Needed truths first, then a mix of Chandravati's lies and spare truths.
     ps.forEach((p, i) => {
       const list = (s.whispers[p.id] = []);
       if (i < truths.length) list.push({ text: truths[i], red: false });

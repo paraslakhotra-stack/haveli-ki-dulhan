@@ -1,7 +1,7 @@
 // TV screens — one component per step kind. mount(root, view, ctx) → { update(view), destroy() }.
 import { h, clear, countdown, teamColor, add } from '/shared/dom.js';
 import { face, nameOf } from '/shared/photos.js';
-import { runeSvg, glassSvg, brideSvg, clockSvg, candleSvg } from '/shared/figures.js';
+import { runeSvg, glassSvg, brideSvg, clockSvg, diyaSvg } from '/shared/figures.js';
 import { audio, LULLABY } from '/shared/audio.js';
 
 const ORD = ['1st', '2nd', '3rd', '4th'];
@@ -44,20 +44,20 @@ function lobby(root, v, ctx) {
   add(root, box);
   let known = new Set();
   const left = h('div', { class: 'lobby-left' },
-    h('div', { class: 'logo' }, h('div', { class: 'logo-n' }, 'NIGHTFALL'), h('div', { class: 'logo-sub' }, 'The Blackthorn Wedding')),
+    h('div', { class: 'logo' }, h('div', { class: 'logo-n' }, 'HAVELI KI DULHAN'), h('div', { class: 'logo-sub' }, 'a Nightfall story')),
   );
   const invite = h('div', { class: 'invite' });
   add(left, invite);
   const grid = h('div', { class: 'gb-grid' });
   const foot = h('div', { class: 'gb-foot' });
-  add(box, left, h('div', { class: 'guestbook' }, h('div', { class: 'gb-title' }, 'The Guest Book'), grid, foot));
+  add(box, left, h('div', { class: 'guestbook' }, h('div', { class: 'gb-title' }, 'Haveli Ka Register'), grid, foot));
   const draw = (vv) => {
     clear(invite);
     add(invite, 
-      h('div', { class: 'inv-head' }, 'You are cordially invited'),
+      h('div', { class: 'inv-head' }, 'Aapko saadar aamantrit kiya jaata hai'),
       vv.join?.qr ? h('img', { class: 'qr', src: vv.join.qr, alt: 'Scan to join' }) : h('div', { class: 'qr qr-wait' }, '…'),
       h('div', { class: 'inv-url' }, vv.join?.url || ''),
-      h('div', { class: 'inv-steps' }, 'Scan  ·  Add your name & face  ·  Sign the guest book'),
+      h('div', { class: 'inv-steps' }, 'Scan karo  ·  Naam & selfie daalo  ·  Register mein sign karo'),
     );
     clear(grid);
     for (const p of vv.players) {
@@ -71,13 +71,13 @@ function lobby(root, v, ctx) {
       add(grid, card);
       if (isNew && known.size) audio.ui('join');
     }
-    if (!vv.players.length) add(grid, h('div', { class: 'gb-empty' }, 'The pages are empty… for now.'));
+    if (!vv.players.length) add(grid, h('div', { class: 'gb-empty' }, 'Register khaali hai… abhi ke liye.'));
     known = new Set(vv.players.map((p) => p.id));
     clear(foot);
     add(foot, 
-      h('span', {}, `${vv.players.length} ${vv.players.length === 1 ? 'guest has' : 'guests have'} signed`),
+      h('span', {}, `${vv.players.length} ${vv.players.length === 1 ? 'guest ne' : 'guests ne'} sign kiya`),
       h('span', { class: `heat ${vv.heat}` }, vv.heat === 'spicy' ? '🌶 Spicy' : '🕯 Mild'),
-      h('span', {}, vv.players.length ? 'The host sets up the night on their phone — then Begins.' : 'Everyone on the same Wi-Fi, then scan the code.'),
+      h('span', {}, vv.players.length ? 'Host apne phone pe raat set up karega — phir shuru.' : 'Phone se code scan karo — bas.'),
     );
   };
   draw(v);
@@ -115,19 +115,19 @@ function chapterTitle(root, v) {
   const s = v.step;
   const box = h('div', { class: 'screen chap' },
     h('div', { class: 'chap-clock', html: clockSvg(s.clock, 190) }),
-    s.numeral ? h('div', { class: 'chap-num' }, `Chapter ${s.numeral}`) : h('div', { class: 'chap-num' }, s.id === 'prologue' ? 'Prologue' : 'Epilogue'),
+    s.numeral ? h('div', { class: 'chap-num' }, `Chapter ${s.numeral}`) : h('div', { class: 'chap-num' }, s.id === 'prologue' ? 'Shuruaat' : 'Ant'),
     h('div', { class: 'chap-title' }, s.title),
     h('div', { class: 'chap-time' }, s.clock),
   );
   add(root, box);
-  audio.bell(1);
-  setTimeout(() => audio.bell(0.6), 2400);
+  audio.shankh(1);
+  setTimeout(() => audio.bell(0.6), 2800);
   return { update() {}, destroy() { box.remove(); } };
 }
 
 // ------------------------------------------------------------------ SORTING
 function sorting(root, v) {
-  const box = h('div', { class: 'screen sorting' }, header(v, 'The Sorting Candles', 'The candles choose your coven'));
+  const box = h('div', { class: 'screen sorting' }, header(v, 'Diyon Ka Faisla', 'Diye tumhari team chunenge'));
   const cols = h('div', { class: 'sort-cols' });
   add(box, cols);
   add(root, box);
@@ -135,7 +135,7 @@ function sorting(root, v) {
   for (const t of v.teams) {
     const list = h('div', { class: 'sort-list' });
     const col = h('div', { class: 'sort-col', style: { '--tc': t.color } },
-      h('div', { class: 'sort-candle', html: candleSvg(true, t.color, 120) }),
+      h('div', { class: 'sort-candle', html: diyaSvg(true, t.color, 120) }),
       h('div', { class: 'sort-name' }, `${t.glyph} ${t.name}`), list);
     colEls[t.id] = list;
     add(cols, col);
@@ -161,7 +161,7 @@ function seance(root, v, ctx) {
   const draw = (vv) => {
     clear(box);
     const s = vv.step;
-    add(box, header(vv, `Chapter I · The Séance Circle · Round ${s.round} of 2`, s.sub === 'reveal' ? 'The circle has spoken' : 'Describe the runes. Pass the candle.'));
+    add(box, header(vv, `Chapter I · Tantrik Rangoli · Round ${s.round} of 2`, s.sub === 'reveal' ? 'Rangoli jal uthi' : 'Symbols describe karo. Diya aage badhao.'));
     if (s.sub === 'play') add(box, timerBar(vv.remaining, s.length <= 4 ? 120000 : 150000));
     const lanes = h('div', { class: 'lanes' });
     let maxFrac = 0;
@@ -176,7 +176,7 @@ function seance(root, v, ctx) {
       }
       const status = t.done ? h('div', { class: 'lane-status done' }, `✦ Sigil complete — ${ORD[t.rank] || ''}`)
         : t.stunned ? h('div', { class: 'lane-status bad' }, '☠ The dead woke up — wait…')
-          : t.tapper ? h('div', { class: 'lane-status' }, face(t.tapper, 46), h('span', {}, `${nameOf(t.tapper)} holds the candle`)) : null;
+          : t.tapper ? h('div', { class: 'lane-status' }, face(t.tapper, 46), h('span', {}, `Diya ${nameOf(t.tapper)} ke paas`)) : null;
       add(lanes, h('div', { class: `lane ${t.done ? 'won' : ''} ${t.stunned ? 'stunned' : ''}`, style: { '--tc': col } },
         h('div', { class: 'lane-team' }, `${vv.teams.find((x) => x.id === t.id)?.glyph || ''} ${teamName(vv, t.id)}`),
         slots, status, t.mistakes ? h('div', { class: 'lane-miss' }, `${t.mistakes} ✗`) : null));
@@ -186,7 +186,7 @@ function seance(root, v, ctx) {
     ctx.backdrop.params.circleGlow = s.sub === 'reveal' ? 1 : maxFrac;
     if (s.sub === 'reveal' && s.results) {
       add(box, h('div', { class: 'results-row' }, s.results.map((r, i) => h('div', { class: 'res-chip', style: { '--tc': teamColor(vv, r.team) } },
-        h('b', {}, `${ORD[i]} · ${teamName(vv, r.team)}`), h('span', {}, r.done ? `${Math.round(r.time / 1000)}s` : `${r.progress}/${r.len} runes`), h('em', {}, `+${r.pts} each`)))));
+        h('b', {}, `${ORD[i]} · ${teamName(vv, r.team)}`), h('span', {}, r.done ? `${Math.round(r.time / 1000)}s` : `${r.progress}/${r.len} symbols`), h('em', {}, `+${r.pts} each`)))));
     }
   };
   draw(v);
@@ -215,7 +215,7 @@ function quiz(root, v) {
           R ? h('div', { class: 'acc-votes' }, '●'.repeat(votes)) : null));
       }
       add(box, grid);
-      if (R?.accused) add(box, h('div', { class: 'verdict' }, `The diary accuses… ${nameOf(R.accused)}`));
+      if (R?.accused) add(box, h('div', { class: 'verdict' }, `Diary ka ilzaam… ${nameOf(R.accused)}`));
     } else {
       const opts = h('div', { class: 'q-opts' });
       s.q.options.forEach((o, i) => {
@@ -249,7 +249,7 @@ function trial(root, v, ctx) {
     clear(box);
     add(box, header(vv, `Chapter III · Trial ${s.n} of ${s.total}`, s.title));
     if (s.sub === 'intro') {
-      add(box, h('div', { class: 'trial-how' }, s.how), h('div', { class: 'trial-ready' }, 'Eyes on your phones…'));
+      add(box, h('div', { class: 'trial-how' }, s.how), h('div', { class: 'trial-ready' }, 'Apne phone dekho…'));
       if (sub !== 'intro') { audio.lullaby({ notes: LULLABY.slice(0, 8), level: 0.8 }); }
     }
     if (s.sub === 'play') {
@@ -258,7 +258,7 @@ function trial(root, v, ctx) {
         const grid = h('div', { class: 'candles' });
         for (const p of vv.players.filter((x) => x.connected)) {
           const out = s.out?.includes(p.id);
-          add(grid, h('div', { class: `cand ${out ? 'out' : ''}` }, h('div', { html: candleSvg(!out, '#ffb35c', 110) }), face(p.id, 54), h('div', { class: 'cand-name' }, p.name)));
+          add(grid, h('div', { class: `cand ${out ? 'out' : ''}` }, h('div', { html: diyaSvg(!out, '#ffb35c', 110) }), face(p.id, 54), h('div', { class: 'cand-name' }, p.name)));
         }
         add(box, grid);
         if (enteringPlay) {
@@ -280,10 +280,10 @@ function trial(root, v, ctx) {
           add(box, h('div', { class: 'gallery' }, s.grid.map((c) => h('div', { class: 'frame' }, c.pid ? face(c.pid, 120, { possessed: c.possessed }) : h('div', { class: `ghost-portrait ${c.possessed ? 'poss' : ''}` })))));
           if (gsub !== 'show') audio.whisper(1);
         } else if (s.gsub === 'answer') {
-          add(box, h('div', { class: 'gallery-q' }, 'How many portraits were possessed?'), h('div', { class: 'answered' }, s.answered.map((pid) => face(pid, 44))));
+          add(box, h('div', { class: 'gallery-q' }, 'Kitni photos possessed thi?'), h('div', { class: 'answered' }, s.answered.map((pid) => face(pid, 44))));
         } else {
           add(box, h('div', { class: 'gallery' }, s.grid.map((c) => h('div', { class: `frame ${c.possessed ? 'marked' : ''}` }, c.pid ? face(c.pid, 120, { possessed: c.possessed }) : h('div', { class: `ghost-portrait ${c.possessed ? 'poss' : ''}` })))));
-          add(box, h('div', { class: 'gallery-q' }, `${s.answer} were possessed.`));
+          add(box, h('div', { class: 'gallery-q' }, `${s.answer} possessed thi.`));
           if (gsub !== 'result') audio.ui('ok');
         }
         gsub = s.gsub;
@@ -297,7 +297,7 @@ function trial(root, v, ctx) {
       const board = h('div', { class: 'board' });
       s.board.slice(0, 8).forEach((e, i) => add(board, h('div', { class: `bd-row ${i === 0 ? 'top' : ''}` }, h('span', { class: 'bd-rank' }, `${i + 1}`), face(e.pid, 52), h('span', { class: 'bd-name' }, nameOf(e.pid)), h('b', {}, `+${e.pts}`))));
       add(box, board);
-      if (s.blessing) add(box, h('div', { class: 'blessing' }, face(s.blessing.pid, 90, { ring: '#ffd27a' }), h('div', {}, h('div', { class: 'bl-name' }, `${nameOf(s.blessing.pid)} earns ${s.blessing.name}`), h('div', { class: 'bl-desc' }, `${s.blessing.desc} in the zombie fight`))));
+      if (s.blessing) add(box, h('div', { class: 'blessing' }, face(s.blessing.pid, 90, { ring: '#ffd27a' }), h('div', {}, h('div', { class: 'bl-name' }, `${nameOf(s.blessing.pid)} ko mila ${s.blessing.name}`), h('div', { class: 'bl-desc' }, `${s.blessing.desc} in the murda baraat`))));
       if (sub !== 'reveal') audio.ui('good');
     }
     sub = s.sub;
@@ -308,7 +308,7 @@ function trial(root, v, ctx) {
 
 // ------------------------------------------------------------------ POSSESS
 function possess(root, v) {
-  const box = h('div', { class: 'screen possess' }, header(v, 'Chapter IV · The Reception Hall', 'One of you drank the wine'));
+  const box = h('div', { class: 'screen possess' }, header(v, 'Chapter IV · Sangeet Ki Daawat', 'Tum mein se kisi ne thandai pi li'));
   const ring = h('div', { class: 'poss-ring' });
   const ps = v.players.filter((p) => p.connected);
   ps.forEach((p, i) => {
@@ -316,7 +316,7 @@ function possess(root, v) {
     const el = h('div', { class: 'poss-face', style: { left: `${50 + Math.cos(a) * 36}%`, top: `${50 + Math.sin(a) * 36}%`, animationDelay: `${(i * 0.37) % 2}s` } }, face(p.id, 110), face(p.id, 110, { possessed: true, cls: 'alt' }));
     add(ring, el);
   });
-  add(box, ring, h('div', { class: 'poss-hint' }, 'Look at your phone. Tell no one what it says.'));
+  add(box, ring, h('div', { class: 'poss-hint' }, 'Apna phone dekho. Kisi ko mat batana usme kya likha hai.'));
   add(root, box);
   audio.heartbeat(1.2);
   const hb = setInterval(() => audio.heartbeat(1), 1100);
@@ -334,14 +334,14 @@ function writeFlow(root, v, ctx) {
     const isVow = s.key === 'vow';
     if (s.sub === 'reveal' && lastSub === 'reveal') return; // the performance keeps running
     clear(box);
-    add(box, header(vv, isVow ? 'Chapter VI · The Vow of the Bachelors' : 'Chapter IV · The Toast', ''));
-    add(box, h('div', { class: 'prompt-card' }, isVow ? `I, ${vv.groom}, solemnly swear…` : s.prompt));
+    add(box, header(vv, isVow ? 'Chapter VI · Saat Vachan of the Bachelors' : 'Chapter IV · Sangeet Roast', ''));
+    add(box, h('div', { class: 'prompt-card' }, isVow ? `${vv.groom} ka vachan: main kasam khaata hoon ki…` : s.prompt));
     if (s.sub === 'write') {
       add(box, timerBar(vv.remaining, isVow ? 75000 : 60000));
       add(box, h('div', { class: 'answered big' }, vv.players.filter((p) => p.connected).map((p) => h('div', { class: `wr ${s.written.includes(p.id) ? 'done' : ''}` }, face(p.id, 70), h('div', {}, s.written.includes(p.id) ? '✓' : '✎')))));
     }
-    if (s.sub === 'vet') add(box, h('div', { class: 'vet-msg' }, 'The host is tasting every line for poison…'));
-    if (s.sub === 'empty') add(box, h('div', { class: 'vet-msg' }, 'Silence. Not a single word was spoken.'));
+    if (s.sub === 'vet') add(box, h('div', { class: 'vet-msg' }, 'Host har line mein zeher check kar raha hai…'));
+    if (s.sub === 'empty') add(box, h('div', { class: 'vet-msg' }, 'Sannata. Kisi ne ek shabd nahi bola.'));
     if (s.sub === 'vote' && s.answers) {
       add(box, timerBar(vv.remaining, 30000));
       add(box, h('div', { class: 'cards' }, s.answers.map((a, i) => h('div', { class: 'tcard' }, h('span', { class: 'tc-n' }, `${i + 1}`), h('span', {}, a.text)))));
@@ -356,7 +356,7 @@ function writeFlow(root, v, ctx) {
           ctx.narrator.speakText(a.text);
           audio.musicBoxNote(LULLABY[i % LULLABY.length] - 12, 0, 1);
         }, 1200 + i * 5200)));
-        timers.push(setTimeout(() => { add(list, h('div', { class: 'vow-amen' }, '…so help me Vesper.')); audio.bell(1); ctx.petals(); }, 1200 + s.answers.length * 5200));
+        timers.push(setTimeout(() => { add(list, h('div', { class: 'vow-amen' }, '…aur yeh vachan poore saat janam ke liye.')); audio.bell(1); ctx.petals(); }, 1200 + s.answers.length * 5200));
       } else {
         const sorted = s.answers.slice().sort((a, b) => b.votes - a.votes);
         add(box, h('div', { class: 'cards reveal' }, sorted.map((a) => h('div', { class: `tcard ${s.winners.includes(a.pid) ? 'win' : ''}` },
@@ -377,7 +377,7 @@ function glass(root, v) {
   const draw = (vv) => {
     const s = vv.step;
     clear(box);
-    add(box, header(vv, 'Chapter IV · The Poisoned Glass', s.sub === 'reveal' ? 'The poison is revealed' : 'Every member must choose the same glass'));
+    add(box, header(vv, 'Chapter IV · Zehreeli Thandai', s.sub === 'reveal' ? 'Zeher ka raaz khul gaya' : 'Team ke har member ko same glass chunna hoga'));
     if (s.sub === 'play') add(box, timerBar(vv.remaining, 150000));
     const lanes = h('div', { class: 'glass-lanes' });
     for (const t of s.teams) {
@@ -389,7 +389,7 @@ function glass(root, v) {
           h('div', { html: glassSvg(gl, { size: 92, highlight: t.answer === gl.pos ? '#9dff8a' : null, poisoned: t.answer === gl.pos }) }),
           h('div', { class: 'g-pos' }, gl.pos),
           h('div', { class: 'g-dots' }, '●'.repeat(counts[gl.pos] || 0))))),
-        h('div', { class: 'lane-status' }, t.done ? `✦ Found it — ${ORD[t.rank]}` : t.locked ? '☠ Wrong glass! Locked out…' : `${t.picks.length}/${t.members} have chosen`)));
+        h('div', { class: 'lane-status' }, t.done ? `✦ Found it — ${ORD[t.rank]}` : t.locked ? '☠ Wrong glass! Locked out…' : `${t.picks.length}/${t.members} ne chuna`)));
     }
     add(box, lanes);
   };
@@ -407,7 +407,7 @@ function unmask(root, v, ctx) {
     const s = vv.step;
     if (s.sub === 'reveal' && revealed) return;
     clear(box);
-    add(box, header(vv, 'Chapter IV · The Unmasking', s.sub === 'reveal' ? 'The verdict' : 'Who drank the wine?'));
+    add(box, header(vv, 'Chapter IV · Unmasking', s.sub === 'reveal' ? 'Faisla' : 'Thandai kisne pi?'));
     const grid = h('div', { class: 'accuse-grid' });
     for (const p of vv.players) {
       add(grid, h('div', { class: `acc-card ${s.voted.includes(p.id) ? 'voted' : ''}`, 'data-pid': p.id }, face(p.id, 110), h('div', { class: 'acc-name' }, p.name), h('div', { class: 'acc-votes' }, s.counts ? '●'.repeat(s.counts[p.id] || 0) : s.voted.includes(p.id) ? '✓' : '')));
@@ -420,11 +420,11 @@ function unmask(root, v, ctx) {
       timers.push(setTimeout(() => audio.heartbeat(1.5), 900));
       timers.push(setTimeout(() => {
         clear(box);
-        add(box, header(vv, 'Chapter IV · The Unmasking', s.caught ? 'CAUGHT.' : 'Vesper laughs…'));
+        add(box, header(vv, 'Chapter IV · Unmasking', s.caught ? 'PAKDE GAYE!' : 'Chandravati hans rahi hai…'));
         add(box, h('div', { class: 'unmask-big' },
-          h('div', {}, h('div', { class: 'um-label' }, 'You accused'), s.accused ? face(s.accused, 200) : h('div', {}, '—'), h('div', { class: 'um-name' }, s.accused ? nameOf(s.accused) : 'no one')),
-          h('div', {}, h('div', { class: 'um-label vesper-text' }, 'The possessed was'), face(s.possessed, 260, { possessed: true, ring: '#ff2a4a' }), h('div', { class: 'um-name' }, nameOf(s.possessed)))));
-        add(box, h('div', { class: 'verdict' }, s.caught ? 'The wine loses its grip. Every other coven gains 60 Souls.' : `${nameOf(s.possessed)} fooled you all — +300 points, and their coven takes 100 Souls.`));
+          h('div', {}, h('div', { class: 'um-label' }, 'Tumne ilzaam lagaya'), s.accused ? face(s.accused, 200) : h('div', {}, '—'), h('div', { class: 'um-name' }, s.accused ? nameOf(s.accused) : 'no one')),
+          h('div', {}, h('div', { class: 'um-label vesper-text' }, 'Possessed tha'), face(s.possessed, 260, { possessed: true, ring: '#ff2a4a' }), h('div', { class: 'um-name' }, nameOf(s.possessed)))));
+        add(box, h('div', { class: 'verdict' }, s.caught ? 'Thandai ka asar utar gaya. Baaki har team ko 60 Souls.' : `${nameOf(s.possessed)} ne sabko bewakoof banaya — +300 points, aur unki team ko 100 Souls.`));
         ctx.fx.scare({ pid: s.possessed, level: 0.8 });
       }, 2600));
     }
@@ -438,9 +438,9 @@ const forfeit = simple((box, v) => {
   const s = v.step;
   box.classList.add('forfeit');
   if (s.sub === 'none') return;
-  add(box, header(v, "Vesper's Dues", s.sub === 'passed' ? `${nameOf(s.pid)} passed. Vesper will remember.` : s.sub === 'done' ? 'Debt paid. +50 Souls to the coven.' : 'The lowest score of the chapter must pay'));
+  add(box, header(v, 'Chudail Ka Hisaab', s.sub === 'passed' ? `${nameOf(s.pid)} ne pass kiya. Chandravati yaad rakhegi.` : s.sub === 'done' ? 'Hisaab chukta. Team ko +50 Souls.' : 'Chapter ka sabse kam score hisaab chukaayega'));
   add(box, h('div', { class: 'ff-card' }, face(s.pid, 170, { ring: '#c8102e' }), h('div', { class: 'ff-name' }, nameOf(s.pid)), h('div', { class: 'ff-text' }, s.card),
-    h('div', { class: 'ff-state' }, s.sub === 'offer' ? 'Accept for +50 Souls — or pass. Your choice.' : s.sub === 'perform' ? 'PERFORM! The host taps done when it’s paid.' : '')));
+    h('div', { class: 'ff-state' }, s.sub === 'offer' ? 'Manzoor karo toh +50 Souls — ya pass. Tumhari marzi.' : s.sub === 'perform' ? 'KARO! Host done dabayega jab hisaab chukega.' : '')));
 });
 
 // ------------------------------------------------------------------ CHAPTER END
@@ -461,10 +461,10 @@ function chapterEnd(root, v) {
   const extra = h('div', { class: 'chend-extra' });
   if (s.result.relic) {
     const t = v.teams.find((x) => x.id === s.result.relic.team);
-    add(extra, h('div', { class: 'relic', style: { '--tc': t?.color } }, h('div', { class: 'relic-k' }, 'Relic won'), h('div', { class: 'relic-n' }, s.result.relic.name), h('div', { class: 'relic-d' }, `${t?.name}: ${s.result.relic.desc}`)));
+    add(extra, h('div', { class: 'relic', style: { '--tc': t?.color } }, h('div', { class: 'relic-k' }, 'Relic jeeta'), h('div', { class: 'relic-n' }, s.result.relic.name), h('div', { class: 'relic-d' }, `${t?.name}: ${s.result.relic.desc}`)));
   }
-  if (s.top.length) add(extra, h('div', { class: 'top3' }, h('div', { class: 'relic-k' }, 'Stars of the chapter'), h('div', { class: 'top3-row' }, s.top.map((tp) => h('div', {}, face(tp.id, 80), h('div', {}, nameOf(tp.id)), h('b', {}, tp.pts))))));
-  if (s.piece) add(extra, h('div', { class: 'relic piece' }, h('div', { class: 'relic-k' }, `Ring Piece ${s.piece}`), h('div', { class: 'relic-d' }, 'Its engravings were whispered to some of your phones. Keep them secret… until the chapel.')));
+  if (s.top.length) add(extra, h('div', { class: 'top3' }, h('div', { class: 'relic-k' }, 'Chapter ke stars'), h('div', { class: 'top3-row' }, s.top.map((tp) => h('div', {}, face(tp.id, 80), h('div', {}, nameOf(tp.id)), h('b', {}, tp.pts))))));
+  if (s.piece) add(extra, h('div', { class: 'relic piece' }, h('div', { class: 'relic-k' }, `Anguthi ka Tukda ${s.piece}`), h('div', { class: 'relic-d' }, 'Iske engravings kuch phones pe aa gaye hain. Secret rakho… mandap tak.')));
   add(box, extra);
   add(root, box);
   audio.ui('good');
@@ -476,7 +476,7 @@ const arena = simple((box, v) => {
   const s = v.step;
   box.classList.add('arena-ov');
   if (s.sub !== 'results' || !s.board) return;
-  add(box, h('div', { class: 'arena-res' }, h('div', { class: 'scr-title' }, 'The garden is clear'),
+  add(box, h('div', { class: 'arena-res' }, h('div', { class: 'scr-title' }, 'Baagh saaf hai'),
     h('div', { class: 'results-row' }, Object.entries(s.teamKills || {}).sort((a, b) => b[1] - a[1]).map(([t, n]) => h('div', { class: 'res-chip', style: { '--tc': teamColor(v, t) } }, h('b', {}, teamName(v, t)), h('span', {}, `${n} kills`)))),
     h('div', { class: 'board' }, s.board.slice(0, 6).map((b, i) => h('div', { class: `bd-row ${i === 0 ? 'top' : ''}` }, h('span', { class: 'bd-rank' }, i + 1), face(b.pid, 50), h('span', { class: 'bd-name' }, nameOf(b.pid)), h('b', {}, `${b.kills} 💀`))))));
 });
@@ -490,13 +490,13 @@ function crypt(root, v) {
   const draw = (vv) => {
     const s = vv.step;
     clear(box);
-    add(box, header(vv, 'Chapter VI · The Crypt', s.sub === 'solved' ? 'The crypt opens' : s.sub === 'failed' ? 'The lock seals forever' : 'Four digits. The engravings are on your phones.'));
+    add(box, header(vv, 'Chapter VI · Tijori Ka Taala', s.sub === 'solved' ? 'Tijori khul gayi' : s.sub === 'failed' ? 'Taala hamesha ke liye band' : 'Chaar digits. Engravings tumhare phones pe hain.'));
     const last = s.attempts[s.attempts.length - 1];
     const digits = s.code ? s.code.split('') : last ? last.code.split('') : ['?', '?', '?', '?'];
     add(box, h('div', { class: `door ${s.sub}` }, h('div', { class: 'dials' }, digits.map((d) => h('div', { class: 'dial' }, d)))));
     if (s.sub === 'play') {
       add(box, timerBar(vv.remaining, 200000));
-      add(box, h('div', { class: 'crypt-hint' }, `Share your engravings OUT LOUD. Anyone can enter the code. ${s.maxAttempts - s.attempts.length} attempts left.`));
+      add(box, h('div', { class: 'crypt-hint' }, `Engravings ZOR SE share karo. Koi bhi code daal sakta hai. ${s.maxAttempts - s.attempts.length} attempts baaki.`));
     }
     add(box, h('div', { class: 'attempts' }, s.attempts.map((a) => h('div', { class: `att ${s.code && a.code === s.code ? 'ok' : ''}` }, face(a.pid, 40), h('span', {}, a.code)))));
     if (s.attempts.length > lastN && s.sub === 'play') { audio.slam(0.6); audio.whisper(1); }
@@ -517,8 +517,8 @@ function brides(root, v, ctx) {
   const draw = (vv) => {
     const s = vv.step;
     clear(box);
-    const title = s.sub === 'vote' ? (s.round === 2 ? 'Last chance. Choose.' : 'Which bride is real?') : s.sub === 'right' ? `It's ${vv.bride}!` : s.sub === 'wrong' ? 'WRONG.' : 'Vesper wins…';
-    add(box, header(vv, 'Chapter VI · The Three Brides', title));
+    const title = s.sub === 'vote' ? (s.round === 2 ? 'Aakhri mauka. Chuno.' : 'Asli dulhan kaun hai?') : s.sub === 'right' ? `Yeh ${vv.bride} hai!` : s.sub === 'wrong' ? 'GALAT.' : 'Chandravati jeet gayi…';
+    add(box, header(vv, 'Chapter VI · Teen Dulhanein', title));
     const row = h('div', { class: 'bride-row' });
     s.brides.forEach((b, i) => {
       const removed = s.removed.includes(i);
@@ -530,7 +530,7 @@ function brides(root, v, ctx) {
         s.counts ? h('div', { class: 'acc-votes' }, '●'.repeat(s.counts[i] || 0)) : null));
     });
     add(box, row);
-    if (s.sub === 'vote') add(box, timerBar(vv.remaining, s.round === 2 ? 45000 : 60000), h('div', { class: 'answered' }, s.voted.map((pid) => face(pid, 40)), h('span', {}, 'White whispers are true. Red whispers lie.')));
+    if (s.sub === 'vote') add(box, timerBar(vv.remaining, s.round === 2 ? 45000 : 60000), h('div', { class: 'answered' }, s.voted.map((pid) => face(pid, 40)), h('span', {}, 'Safed whispers sach. Laal whispers jhooth.')));
     if (s.sub !== lastSub) {
       if (s.sub === 'right') { audio.ui('good'); audio.bell(1); }
       if (s.sub === 'wrong' || s.sub === 'lost') { ctx.fx.scare({ level: 1 }); }
@@ -548,11 +548,11 @@ function credits(root, v, ctx) {
   const box = h('div', { class: 'screen credits' });
   add(root, box);
   const roll = h('div', { class: 'roll' },
-    h('div', { class: 'roll-title' }, 'NIGHTFALL'), h('div', { class: 'roll-sub' }, 'The Blackthorn Wedding'),
+    h('div', { class: 'roll-title' }, 'HAVELI KI DULHAN'), h('div', { class: 'roll-sub' }, 'a Nightfall story'),
     h('div', { class: 'roll-k' }, 'Starring'),
-    s.cast.map((c) => h('div', { class: 'roll-row' }, face(c.id, 96, { ring: teamColor(v, c.team) }), h('div', {}, h('div', { class: 'roll-name' }, c.name), h('div', { class: 'roll-role' }, `${c.id === v.groomId ? 'The Groom · ' : ''}${teamName(v, c.team)} · ${c.stats.kills} kills`)))),
-    h('div', { class: 'roll-k' }, 'Special thanks'), h('div', { class: 'roll-name' }, `${v.bride}, for kicking down the chapel door`),
-    h('div', { class: 'roll-k' }, 'And'), h('div', { class: 'roll-name' }, 'Lady Vesper Blackthorn (1903 – forever)'));
+    s.cast.map((c) => h('div', { class: 'roll-row' }, face(c.id, 96, { ring: teamColor(v, c.team) }), h('div', {}, h('div', { class: 'roll-name' }, c.name), h('div', { class: 'roll-role' }, `${c.id === v.groomId ? 'Dulha · ' : ''}${teamName(v, c.team)} · ${c.stats.kills} kills`)))),
+    h('div', { class: 'roll-k' }, 'Shukriya'), h('div', { class: 'roll-name' }, `${v.bride}, mandap ka darwaza todne ke liye`),
+    h('div', { class: 'roll-k' }, 'And'), h('div', { class: 'roll-name' }, 'Rajkumari Chandravati of Kesargarh (1905 – hamesha)'));
   add(box, roll);
   const stage = h('div', { class: 'awards hidden' });
   add(box, stage);
@@ -564,7 +564,7 @@ function credits(root, v, ctx) {
     stage.classList.remove('hidden');
     s.awards.forEach((a, i) => timers.push(setTimeout(() => {
       clear(stage);
-      add(stage, h('div', { class: 'award' }, h('div', { class: 'aw-k' }, 'The award for'), h('div', { class: 'aw-t' }, a.title), face(a.pid, 220, { ring: '#ffd27a', possessed: a.id === 'firstdie' }), h('div', { class: 'aw-n' }, nameOf(a.pid))));
+      add(stage, h('div', { class: 'award' }, h('div', { class: 'aw-k' }, 'Award jaata hai'), h('div', { class: 'aw-t' }, a.title), face(a.pid, 220, { ring: '#ffd27a', possessed: a.id === 'firstdie' }), h('div', { class: 'aw-n' }, nameOf(a.pid))));
       audio.bell(0.7);
       if (a.id === 'mvp') ctx.petals();
     }, i * 4200)));
@@ -572,9 +572,9 @@ function credits(root, v, ctx) {
       clear(stage);
       const best = s.teams[0];
       const bt = v.teams.find((t) => t.id === best?.id);
-      add(stage, h('div', { class: 'trophy' }, h('div', { class: 'aw-k' }, 'The Blackthorn Trophy goes to'), h('div', { class: 'tr-cup' }, '🏆'), h('div', { class: 'aw-t', style: { color: bt?.color } }, bt?.name || ''),
+      add(stage, h('div', { class: 'trophy' }, h('div', { class: 'aw-k' }, 'Kesargarh Trophy jaati hai'), h('div', { class: 'tr-cup' }, '🏆'), h('div', { class: 'aw-t', style: { color: bt?.color } }, bt?.name || ''),
         h('div', { class: 'souls final' }, s.teams.map((t) => { const tt = v.teams.find((x) => x.id === t.id); return h('div', { class: 'soul-row', style: { '--tc': tt?.color } }, h('div', { class: 'sr-name' }, tt?.name), h('div', { class: 'sr-souls' }, `${t.souls} Souls`)); })),
-        h('div', { class: 'roll-sub' }, s.ending === 'win' ? `${v.bride} is safe. See you at the wedding.` : 'Vesper got her wedding. Better luck at yours.')));
+        h('div', { class: 'roll-sub' }, s.ending === 'win' ? `${v.bride} safe hai. Milte hain shaadi mein!` : 'Chandravati ki shaadi ho gayi. Apni waali mein better luck.')));
       ctx.petals(); audio.bell(1);
     }, s.awards.length * 4200 + 300));
   }, rollMs));

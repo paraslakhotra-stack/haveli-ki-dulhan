@@ -129,7 +129,7 @@ export class Game {
   }
 
   join({ name, photo }) {
-    if (this.players.size >= MAX_PLAYERS) return { error: 'The manor is full (16 guests max).' };
+    if (this.players.size >= MAX_PLAYERS) return { error: 'The haveli is full (16 guests max).' };
     let clean = cleanText(name, 16) || 'Guest';
     const taken = new Set(this.allPlayers().map((p) => p.name.toLowerCase()));
     if (taken.has(clean.toLowerCase())) {
@@ -191,7 +191,7 @@ export class Game {
     const ps = this.rng.shuffle(this.allPlayers());
     const count = ps.length >= 8 ? 3 : 2;
     this.teams = TEAMS.slice(0, count).map((t) => ({ ...t, souls: 0, relics: [] }));
-    // Keep the groom and host on different covens when possible — spreads the chaos.
+    // Keep the groom and host on different teams when possible — spreads the chaos.
     ps.forEach((p, i) => { p.team = this.teams[i % count].id; });
     this.changed();
   }
@@ -214,7 +214,7 @@ export class Game {
     const t = this.team(teamId);
     if (t) { t.souls += n; this.changed(); }
   }
-  // Team ranking for a chapter uses the AVERAGE of members' points so uneven covens stay fair.
+  // Team ranking for a chapter uses the AVERAGE of members' points so uneven teams stay fair.
   chapterRanking(chapterId) {
     return this.teams.map((t) => {
       const members = this.teamMembers(t.id);

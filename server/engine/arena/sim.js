@@ -7,11 +7,11 @@ export const H = 900;
 const PR = 18; // player radius
 
 export const WEAPONS = [
-  { id: 'revolver', name: 'Revolver', kind: 'shot', rate: 2.6, dmg: 24, pellets: 1, spread: 0.03, range: 390, at: 0 },
-  { id: 'shotgun', name: 'Shotgun', kind: 'shot', rate: 1.35, dmg: 15, pellets: 7, spread: 0.34, range: 310, at: 6 },
-  { id: 'tommy', name: 'Chicago Typewriter', kind: 'shot', rate: 9, dmg: 12, pellets: 1, spread: 0.11, range: 430, at: 16 },
-  { id: 'candle', name: 'Unity Candle', kind: 'flame', rate: 12, dmg: 7, range: 200, cone: 0.5, at: 30 },
-  { id: 'bell', name: 'Wedding Bell', kind: 'beam', rate: 2.2, dmg: 70, range: 720, at: 50 },
+  { id: 'revolver', name: 'Desi Katta', kind: 'shot', rate: 2.6, dmg: 24, pellets: 1, spread: 0.03, range: 390, at: 0 },
+  { id: 'shotgun', name: 'Dunali', kind: 'shot', rate: 1.35, dmg: 15, pellets: 7, spread: 0.34, range: 310, at: 6 },
+  { id: 'tommy', name: 'Tommy Gun', kind: 'shot', rate: 9, dmg: 12, pellets: 1, spread: 0.11, range: 430, at: 16 },
+  { id: 'candle', name: 'Phuljhadi Flamer', kind: 'flame', rate: 12, dmg: 7, range: 200, cone: 0.5, at: 30 },
+  { id: 'bell', name: 'Anaar Rocket', kind: 'beam', rate: 2.2, dmg: 70, range: 720, at: 50 },
 ];
 
 export const ZTYPES = {
@@ -46,17 +46,17 @@ const GATES = [
 function waveDefs(n, fast) {
   if (fast) {
     return [
-      { title: 'The Reception Line', spawn: { walker: 3 }, over: 1 },
-      { title: 'The Bridesmaids', spawn: { runner: 2, bridesmaid: 1 }, over: 1 },
-      { title: 'The Uncles', spawn: { bloater: 2 }, over: 1 },
-      { title: 'Edmund, the Groom of the Dead', boss: true, spawn: { walker: 2 }, over: 1 },
+      { title: 'The Baraat Arrives', spawn: { walker: 3 }, over: 1 },
+      { title: 'The Gossip Aunties', spawn: { runner: 2, bridesmaid: 1 }, over: 1 },
+      { title: 'Fufaji Is Angry', spawn: { bloater: 2 }, over: 1 },
+      { title: 'Kunwar Vikram, the Bhoot Dulha', boss: true, spawn: { walker: 2 }, over: 1 },
     ];
   }
   return [
-    { title: 'The Reception Line', spawn: { walker: 12 + 4 * n }, over: 26 },
-    { title: 'The Bridesmaids', spawn: { walker: 6 + 2 * n, runner: 5 + 2 * n, bridesmaid: 2 + Math.floor(n / 3) }, over: 30 },
-    { title: 'The Uncles', spawn: { walker: 8 + 2 * n, runner: 5 + 2 * n, bloater: 3 + n, bridesmaid: 2 }, over: 34 },
-    { title: 'Edmund, the Groom of the Dead', boss: true, spawn: { walker: 6 + 2 * n }, over: 45 },
+    { title: 'The Baraat Arrives', spawn: { walker: 12 + 4 * n }, over: 26 },
+    { title: 'The Gossip Aunties', spawn: { walker: 6 + 2 * n, runner: 5 + 2 * n, bridesmaid: 2 + Math.floor(n / 3) }, over: 30 },
+    { title: 'Fufaji Is Angry', spawn: { walker: 8 + 2 * n, runner: 5 + 2 * n, bloater: 3 + n, bridesmaid: 2 }, over: 34 },
+    { title: 'Kunwar Vikram, the Bhoot Dulha', boss: true, spawn: { walker: 6 + 2 * n }, over: 45 },
   ];
 }
 

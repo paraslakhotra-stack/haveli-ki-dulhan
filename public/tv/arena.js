@@ -6,9 +6,9 @@ import { audio } from '/shared/audio.js';
 const WW = 1600;
 const WH = 900;
 const S = 1.2; // world → stage scale
-const WEAPON_NAMES = ['REVOLVER', 'SHOTGUN', 'CHICAGO TYPEWRITER', 'UNITY CANDLE', 'WEDDING BELL'];
-const POWER_ICON = { coldfeet: '❄', prenup: '📜', lastdance: '💃', bestman: '👻', bouquet: '💐', grenade: '⚗' };
-const POWER_NAME = { coldfeet: 'COLD FEET', prenup: 'PRENUP', lastdance: 'LAST DANCE', bestman: 'BEST MAN', bouquet: 'BOUQUET TOSS' };
+const WEAPON_NAMES = ['DESI KATTA', 'DUNALI', 'TOMMY GUN', 'PHULJHADI FLAMER', 'ANAAR ROCKET'];
+const POWER_ICON = { coldfeet: '🏃', prenup: '🧿', lastdance: '💃', bestman: '👬', bouquet: '🎨', grenade: '🍋' };
+const POWER_NAME = { coldfeet: 'BHAAG MILKHA', prenup: 'NAZAR BATTU', lastdance: 'NAAGIN DANCE', bestman: 'BESTIE BHAI', bouquet: 'GULAAL BOMB' };
 const OBST = [
   { x: 800, y: 450, r: 62, kind: 'fountain' }, { x: 380, y: 230, r: 30, kind: 'statue' }, { x: 1220, y: 230, r: 30, kind: 'statue' },
   { x: 380, y: 670, r: 30, kind: 'statue' }, { x: 1220, y: 670, r: 30, kind: 'statue' }, { x: 560, y: 120, r: 22, kind: 'grave' },
@@ -67,12 +67,12 @@ export class ArenaRenderer {
       x.fillStyle = onPath ? `rgba(150,140,120,${r() * 0.25})` : `rgba(10,20,10,${r() * 0.35})`;
       x.fillRect(px, py, 2, 2);
     }
-    // roses scattered
+    // marigold (genda) beds scattered
     for (let i = 0; i < 70; i++) {
       const bx = r() * WW; const by = r() * WH;
       if (Math.abs(bx - 800) < 90 || Math.abs(by - 450) < 90) continue;
       x.fillStyle = 'rgba(10,30,14,.9)'; x.beginPath(); x.arc(bx, by, 12 + r() * 8, 0, Math.PI * 2); x.fill();
-      for (let k = 0; k < 4; k++) { x.fillStyle = `rgba(${150 + r() * 60},10,30,.9)`; x.beginPath(); x.arc(bx + (r() - 0.5) * 18, by + (r() - 0.5) * 18, 3 + r() * 2, 0, Math.PI * 2); x.fill(); }
+      for (let k = 0; k < 4; k++) { x.fillStyle = r() < 0.5 ? 'rgba(232,140,16,.95)' : 'rgba(250,190,50,.95)'; x.beginPath(); x.arc(bx + (r() - 0.5) * 18, by + (r() - 0.5) * 18, 3 + r() * 2, 0, Math.PI * 2); x.fill(); }
     }
     // hedge border with gaps at the gates
     const gates = [[0, 450], [WW, 450], [800, 0], [800, WH], [400, 0], [1200, WH]];
@@ -94,10 +94,13 @@ export class ArenaRenderer {
         x.fillStyle = '#1d2a36'; x.beginPath(); x.arc(o.x, o.y, o.r - 10, 0, Math.PI * 2); x.fill();
         x.fillStyle = '#7d786e'; x.beginPath(); x.arc(o.x, o.y, 14, 0, Math.PI * 2); x.fill();
       } else if (o.kind === 'statue') {
-        x.fillStyle = '#4e4b46'; x.fillRect(o.x - o.r, o.y - o.r, o.r * 2, o.r * 2);
-        x.fillStyle = '#8a857c'; x.beginPath(); x.arc(o.x, o.y, o.r * 0.55, 0, Math.PI * 2); x.fill();
-        x.fillStyle = '#9c968c';
-        for (const s of [-1, 1]) { x.beginPath(); x.ellipse(o.x + s * o.r * 0.7, o.y, o.r * 0.55, o.r * 0.22, s * 0.4, 0, Math.PI * 2); x.fill(); }
+        // a sandstone chhatri seen from above: square plinth, four pillars, a domed top with a finial
+        x.fillStyle = '#7a5a3a'; x.fillRect(o.x - o.r * 1.1, o.y - o.r * 1.1, o.r * 2.2, o.r * 2.2);
+        x.fillStyle = '#5a3f26'; for (const [px, py] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) x.fillRect(o.x + px * o.r * 0.8 - 4, o.y + py * o.r * 0.8 - 4, 8, 8);
+        const dg = x.createRadialGradient(o.x - 6, o.y - 6, 2, o.x, o.y, o.r * 0.9);
+        dg.addColorStop(0, '#d8b07a'); dg.addColorStop(1, '#8a6440');
+        x.fillStyle = dg; x.beginPath(); x.arc(o.x, o.y, o.r * 0.85, 0, Math.PI * 2); x.fill();
+        x.fillStyle = '#e2b84f'; x.beginPath(); x.arc(o.x, o.y, 3.5, 0, Math.PI * 2); x.fill();
       } else if (o.kind === 'grave') {
         x.fillStyle = '#5c5952'; x.beginPath(); x.roundRect(o.x - o.r, o.y - o.r * 0.6, o.r * 2, o.r * 1.2, 8); x.fill();
         x.strokeStyle = '#38362f'; x.lineWidth = 3; x.beginPath(); x.moveTo(o.x - 8, o.y); x.lineTo(o.x + 8, o.y); x.moveTo(o.x, o.y - 8); x.lineTo(o.x, o.y + 10); x.stroke();
@@ -187,7 +190,7 @@ export class ArenaRenderer {
         }
         case 'pickup': {
           const p = this.ents.p.get(ev.pid);
-          if (p) this.fx.push({ k: 'text', x: p.x, y: p.y - 40, text: POWER_NAME[ev.kind] || 'HOLY WATER', c: '#bfe6ff', life: 1.4, max: 1.4 });
+          if (p) this.fx.push({ k: 'text', x: p.x, y: p.y - 40, text: POWER_NAME[ev.kind] || 'NIMBU-MIRCHI BOMB', c: '#bfe6ff', life: 1.4, max: 1.4 });
           audio.pickup();
           break;
         }
@@ -204,11 +207,11 @@ export class ArenaRenderer {
           break;
         }
         case 'revive': { const p = this.ents.p.get(ev.pid); if (p) this.fx.push({ k: 'ring', x: p.x, y: p.y, c: '255,255,220', life: 0.7, max: 0.7, r: 90 }); audio.ui('ok'); break; }
-        case 'wave': this.banner(ev.boss ? 'THE GROOM OF THE DEAD' : `WAVE ${ev.n}`, 3.2, ev.boss ? '#ff3b5c' : '#efe6d8', 1, ev.title); audio.bell(0.8); audio.whisper(0.8); break;
+        case 'wave': this.banner(ev.boss ? 'BHOOT DULHA AA GAYA' : `WAVE ${ev.n}`, 3.2, ev.boss ? '#ff3b5c' : '#efe6d8', 1, ev.title); audio.bell(0.8); audio.whisper(0.8); break;
         case 'boss': audio.roar(1.4); audio.stinger(1); break;
         case 'bossDie': this.fx.push({ k: 'ring', x: ev.x, y: ev.y, c: '255,255,255', life: 2, max: 2, r: 700 }); this.shake = 30; audio.scream(1); audio.bell(1); break;
-        case 'bell': this.banner('THE BELL TOLLS', 2.4, '#efe6d8', 0.8, 'The rest of the dead burn'); audio.bell(1); break;
-        case 'victory': this.banner('THE GARDEN IS CLEAR', 4, '#ffd27a', 1, 'Run to the chapel!'); audio.bell(1); audio.ui('good'); break;
+        case 'bell': this.banner('GHANTA BAJ GAYA', 2.4, '#efe6d8', 0.8, 'Baaki murde jal gaye'); audio.bell(1); break;
+        case 'victory': this.banner('BAAGH SAAF HAI', 4, '#ffd27a', 1, 'Mandap ki taraf bhaago!'); audio.bell(1); audio.ui('good'); break;
         default:
       }
     }
@@ -336,7 +339,8 @@ export class ArenaRenderer {
     x.fillStyle = 'rgba(0,0,0,.4)'; x.beginPath(); x.ellipse(5, 7, 17 * big, 14 * big, 0, 0, Math.PI * 2); x.fill();
     x.rotate(z.ang);
     x.scale(big, big);
-    const cloth = z.type === 2 ? '#6b3a5c' : z.type === 3 ? '#6e7a3a' : z.type === 4 ? '#34303c' : (z.seed | 0) % 3 === 0 ? '#8a8174' : '#46434f';
+    const KURTA = ['#8a2a2a', '#9a7a3a', '#5a4a6a', '#3a5a4a', '#a08a6a'];
+    const cloth = z.type === 2 ? '#c2186a' : z.type === 3 ? '#a8946a' : z.type === 4 ? '#e2cfa0' : z.type === 1 ? '#2a8a4a' : KURTA[(z.seed | 0) % KURTA.length];
     const skin = z.type === 3 ? '#9aa86a' : '#7f9478';
     // arms reaching forward, swaying
     x.strokeStyle = skin; x.lineWidth = 5; x.lineCap = 'round';
@@ -345,14 +349,20 @@ export class ArenaRenderer {
     x.fillStyle = cloth;
     x.beginPath(); x.ellipse(0, 0, 11, 16, 0, 0, Math.PI * 2); x.fill();
     if (z.type === 4) { x.strokeStyle = '#6a6474'; x.lineWidth = 1.2; x.beginPath(); x.ellipse(0, 0, 11, 16, 0, 0, Math.PI * 2); x.stroke(); x.fillStyle = '#e8e2d4'; x.beginPath(); x.moveTo(-2, -5); x.lineTo(9, 0); x.lineTo(-2, 5); x.fill(); x.fillStyle = '#7a0a1a'; x.fillRect(4, -1.5, 5, 3); }
-    if (z.type === 2) { x.fillStyle = '#b88aa8'; x.beginPath(); x.ellipse(-4, 0, 12, 18, 0, 0, Math.PI * 2); x.globalAlpha = 0.5; x.fill(); x.globalAlpha = 1; }
-    if (z.type === 3) { x.fillStyle = '#b8c27a'; for (const [px, py] of [[3, -6], [-4, 5], [5, 7], [-2, -9]]) { x.beginPath(); x.arc(px, py, 2.4, 0, Math.PI * 2); x.fill(); } }
+    if (z.type === 2) { x.fillStyle = '#f2c44a'; x.globalAlpha = 0.7; x.beginPath(); x.moveTo(-8, -14); x.quadraticCurveTo(-16, 0, -6, 16); x.lineTo(-2, 14); x.quadraticCurveTo(-10, 0, -4, -14); x.fill(); x.globalAlpha = 1; } // aunty's saree pallu
+    if (z.type === 1) { x.fillStyle = '#9dff8a'; x.globalAlpha = 0.5; x.fillRect(-10, -2, 20, 3); x.globalAlpha = 1; } // naagin dancer's sequins
+    if (z.type === 3) { x.strokeStyle = '#6a5a3a'; x.lineWidth = 1.2; x.beginPath(); x.moveTo(-6, -12); x.lineTo(-6, 12); x.moveTo(4, -10); x.lineTo(4, 10); x.stroke(); x.fillStyle = '#4a3a2a'; x.fillRect(-4, -3, 6, 6); } // Fufaji's safari suit pockets
     // head
     if (z.type === 4) {
       x.rotate(-z.ang);
       const f = this.face(this.groomId || 'boss', 40, true);
       x.drawImage(f, -10, -10, 20, 20);
       x.strokeStyle = '#000'; x.lineWidth = 1.5; x.beginPath(); x.arc(0, 0, 10, 0, Math.PI * 2); x.stroke();
+      // a red safa with a kalgi plume, and a sehra of flowers
+      x.fillStyle = '#b0101f'; x.beginPath(); x.ellipse(0, -9, 12, 6, 0, Math.PI, 0); x.fill();
+      x.fillStyle = '#f2c44a'; x.beginPath(); x.arc(0, -12, 2.2, 0, Math.PI * 2); x.fill();
+      x.strokeStyle = '#ffffff'; x.lineWidth = 1.2; x.beginPath(); x.moveTo(0, -13); x.quadraticCurveTo(4, -20, 8, -19); x.stroke();
+      x.fillStyle = '#ffc93c'; for (let k = -2; k <= 2; k++) { x.beginPath(); x.arc(k * 4, -4, 1.4, 0, Math.PI * 2); x.fill(); }
       if (z.flags & 2) { // stunned: the heart glows — shoot it!
         x.globalCompositeOperation = 'lighter';
         const g = x.createRadialGradient(0, 8, 0, 0, 8, 16);
@@ -362,6 +372,8 @@ export class ArenaRenderer {
       }
     } else {
       x.fillStyle = skin; x.beginPath(); x.arc(4, 0, 7.5, 0, Math.PI * 2); x.fill();
+      if (z.type === 3) { x.strokeStyle = '#1a1210'; x.lineWidth = 2.2; x.beginPath(); x.moveTo(10, -5); x.quadraticCurveTo(13, 0, 10, 5); x.stroke(); } // Fufaji's moustache
+      if (z.type === 0 && (z.seed | 0) % 2 === 0) { x.fillStyle = '#c8102e'; x.beginPath(); x.ellipse(2, 0, 8, 8.5, 0, Math.PI * 0.5, Math.PI * 1.5); x.fill(); } // a baraati in his safa
       if (z.type === 2) { x.fillStyle = '#2a1a14'; x.beginPath(); x.arc(1, 0, 7, Math.PI * 0.5, Math.PI * 1.5); x.fill(); }
       x.fillStyle = z.flags & 1 ? '#ff2a4a' : '#e8f0c8';
       x.beginPath(); x.arc(8, -3, 1.4, 0, Math.PI * 2); x.arc(8, 3, 1.4, 0, Math.PI * 2); x.fill();
@@ -555,9 +567,9 @@ export class ArenaRenderer {
     x.fillText(snap.phase === 'warmup' ? `GET READY — ${snap.left}` : `WAVE ${Math.max(1, snap.wave)} / ${snap.waves}`, 1880, 50);
     if (snap.phase === 'warmup') {
       x.textAlign = 'center'; x.font = '700 40px Cinzel, serif'; x.fillStyle = '#efe6d8';
-      x.fillText('MOVE WITH YOUR THUMB — YOUR GUN AIMS ITSELF', 960, 960);
+      x.fillText('ANGOOTHE SE CHALO — GUN KHUD NISHANA LAGAYEGI', 960, 960);
       x.font = '400 26px Fell, serif'; x.fillStyle = '#b9ad9c';
-      x.fillText('Grab what the dead drop. Stand next to a fallen friend to revive them.', 960, 1010);
+      x.fillText('Murde jo giraayein, utha lo. Gire hue dost ke paas khade raho toh woh uth jaayega.', 960, 1010);
     }
     if (snap.boss) {
       const w = 900;
@@ -565,7 +577,7 @@ export class ArenaRenderer {
       x.fillStyle = '#5a0010'; x.fillRect(960 - w / 2, 1014, w, 26);
       x.fillStyle = snap.boss.state === 'stun' ? '#ff6a7a' : '#c8102e'; x.fillRect(960 - w / 2, 1014, (w * snap.boss.hp) / 100, 26);
       x.textAlign = 'center'; x.fillStyle = '#efe6d8'; x.font = '700 20px Cinzel, serif';
-      x.fillText(snap.boss.state === 'stun' ? 'EDMUND IS STUNNED — SHOOT HIS HEART!' : 'EDMUND, THE GROOM OF THE DEAD', 960, 1000);
+      x.fillText(snap.boss.state === 'stun' ? 'VIKRAM STUNNED HAI — DIL PE GOLI MAARO!' : 'KUNWAR VIKRAM, THE BHOOT DULHA', 960, 1000);
     }
     if (snap.slow) { x.fillStyle = 'rgba(80,120,255,.08)'; x.fillRect(0, 0, 1920, 1080); }
     // banners

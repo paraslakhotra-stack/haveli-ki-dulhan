@@ -72,9 +72,9 @@ select.field { appearance: none; }
 /* ---------- join ---------- */
 .join { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-top: 6vh; }
 .brand { text-align: center; }
-.brand-n { font: 900 46px var(--title); letter-spacing: .2em; text-shadow: 0 0 24px rgba(200,16,46,.6); animation: flicker 6s infinite; }
+.brand-n { font: 900 32px var(--title); letter-spacing: .06em; text-shadow: 0 0 24px rgba(200,16,46,.6); animation: flicker 6s infinite; }
 .brand-s { font: italic 22px var(--prose); color: var(--vesper); }
-.brand.small .brand-n { font-size: 26px; }
+.brand.small .brand-n { font-size: 22px; }
 .lede { font: italic 19px/1.4 var(--prose); text-align: center; color: var(--bone-dim); margin: 0 0 6px; }
 .join-photo { width: 150px; height: 150px; border-radius: 50%; border: 2px dashed rgba(255,179,92,.6); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 40px; overflow: hidden; background: rgba(255,179,92,.06); }
 .join-photo small { font: 13px var(--title); color: var(--candle); }

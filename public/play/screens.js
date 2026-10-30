@@ -1,15 +1,15 @@
 // Phone screens — one per step kind. mount(root, view, ctx) → { update(view), destroy(), fx(event) }.
 import { h, clear, add } from '/shared/dom.js';
 import { face, nameOf } from '/shared/photos.js';
-import { runeSvg, glassSvg, brideSvg, clockSvg, candleSvg } from '/shared/figures.js';
+import { runeSvg, glassSvg, brideSvg, clockSvg, diyaSvg } from '/shared/figures.js';
 import { audio, LULLABY } from '/shared/audio.js';
-import { drawVesper } from '/tv/fx.js';
+import { drawChudail } from '/tv/fx.js';
 import nipplejs from '/vendor/nipplejs.mjs';
 
 const ROMAN = ['I', 'II', 'III'];
 const card = (...kids) => h('div', { class: 'card' }, ...kids);
 const title = (kicker, text) => h('div', { class: 'p-head' }, h('div', { class: 'p-kicker' }, kicker), text ? h('div', { class: 'p-title' }, text) : null);
-const watch = (text = 'Eyes on the TV') => h('div', { class: 'watch' }, h('div', { class: 'eye' }, '👁'), h('div', {}, text));
+const watch = (text = 'TV pe nazar') => h('div', { class: 'watch' }, h('div', { class: 'eye' }, '👁'), h('div', {}, text));
 function timer(remaining) {
   const el = h('div', { class: 'p-timer' });
   const end = performance.now() + (remaining || 0);
@@ -41,19 +41,19 @@ function holdButton(el, onDown, onUp) {
 // ------------------------------------------------------------------ LOBBY
 const lobby = rerender((box, v, ctx) => {
   add(box, 
-    h('div', { class: 'brand small' }, h('div', { class: 'brand-n' }, 'NIGHTFALL')),
-    card(face(v.me.id, 120, { ring: '#ffb35c' }), h('div', { class: 'p-title' }, v.me.name), h('div', { class: 'fine' }, 'Your name is in the guest book.'),
+    h('div', { class: 'brand small' }, h('div', { class: 'brand-n' }, 'HAVELI KI DULHAN')),
+    card(face(v.me.id, 120, { ring: '#ffb35c' }), h('div', { class: 'p-title' }, v.me.name), h('div', { class: 'fine' }, 'Tumhara naam register mein hai.'),
       h('button', { class: 'btn ghost sm', onclick: ctx.changePhoto }, v.me.photo ? '📷 Retake photo' : '📷 Add your photo')),
   );
   if (v.me.isHost) {
-    add(box, card(h('div', { class: 'p-title' }, '♛ You are the host'), h('p', { class: 'fine' }, "Tell the manor who the groom is, then begin the night. You'll also get pause & skip controls."),
-      h('button', { class: 'btn big blood', onclick: () => document.getElementById('host-btn').click() }, 'Set up the night')));
+    add(box, card(h('div', { class: 'p-title' }, '♛ Tum host ho'), h('p', { class: 'fine' }, "Haveli ko batao dulha kaun hai, phir raat shuru karo. Tumhe pause & skip controls bhi milenge."),
+      h('button', { class: 'btn big blood', onclick: () => document.getElementById('host-btn').click() }, 'Raat set up karo')));
   } else {
-    add(box, watch('Waiting for the host to begin the night…'));
+    add(box, watch('Host ke shuru karne ka intezaar…'));
   }
-  add(box, h('details', { class: 'fold' }, h('summary', {}, '📲 Keep Nightfall on your home screen'),
+  add(box, h('details', { class: 'fold' }, h('summary', {}, '📲 Haveli Ki Dulhan ko home screen pe rakho'),
     h('p', { class: 'fine' }, 'iPhone: tap Share → "Add to Home Screen". Android: tap ⋮ → "Add to Home screen" / "Install app". It opens full-screen, like an app.')),
-  h('button', { class: 'link', onclick: () => { if (confirm('Leave the guest book?')) ctx.leave(); } }, 'Not you? Leave'));
+  h('button', { class: 'link', onclick: () => { if (confirm('Register se naam hatana hai?')) ctx.leave(); } }, 'Not you? Leave'));
 });
 
 // ------------------------------------------------------------------ STORY
@@ -61,7 +61,7 @@ function story(root, v, ctx) {
   const box = h('div', { class: 'p-screen story' });
   add(root, box);
   const line = h('div', { class: 'p-line' });
-  add(box, title(v.chapter.numeral ? `Chapter ${v.chapter.numeral}` : v.chapter.title, ''), watch('Eyes on the TV'), line);
+  add(box, title(v.chapter.numeral ? `Chapter ${v.chapter.numeral}` : v.chapter.title, ''), watch('TV pe nazar'), line);
   const timers = [];
   const lines = v.step.lines || [];
   const elapsed = Math.max(0, (v.step.total || 0) - (v.remaining ?? 0));
@@ -112,12 +112,12 @@ const chapterTitle = rerender((box, v) => {
 });
 
 function sorting(root, v, ctx) {
-  const box = h('div', { class: 'p-screen center' }, h('div', { html: candleSvg(true, '#ffb35c', 140) }), h('div', { class: 'p-title' }, 'The candles are choosing…'));
+  const box = h('div', { class: 'p-screen center' }, h('div', { html: diyaSvg(true, '#ffb35c', 140) }), h('div', { class: 'p-title' }, 'Diye decide kar rahe hain…'));
   add(root, box);
   const t = setTimeout(() => {
     const tc = v.me.teamColor || '#efe6d8';
     clear(box);
-    add(box, h('div', { html: candleSvg(true, tc, 160) }), h('div', { class: 'p-kicker' }, 'Your coven'), h('div', { class: 'p-title big', style: { color: tc } }, v.me.teamName || '—'), h('p', { class: 'fine' }, 'Find your coven-mates. You win and lose together tonight.'));
+    add(box, h('div', { html: diyaSvg(true, tc, 160) }), h('div', { class: 'p-kicker' }, 'Tumhari team'), h('div', { class: 'p-title big', style: { color: tc } }, v.me.teamName || '—'), h('p', { class: 'fine' }, 'Apni team dhoondo. Aaj raat jeet bhi saath, haar bhi saath.'));
     ctx.buzz([60, 40, 160]);
     audio.musicBoxNote(81, 0, 1.4);
   }, v.step.revealIn || 0);
@@ -127,8 +127,8 @@ function sorting(root, v, ctx) {
 const chapterEnd = rerender((box, v, ctx) => {
   const s = v.step;
   box.classList.add('center');
-  add(box, title(`${v.chapter.title} — complete`, s.rank != null ? `Your coven: ${['1st', '2nd', '3rd'][s.rank]}` : ''));
-  add(box, card(h('div', { class: 'big-num', style: { color: v.me.teamColor } }, `+${s.souls}`), h('div', { class: 'fine' }, 'Souls for your coven')));
+  add(box, title(`${v.chapter.title} — complete`, s.rank != null ? `Tumhari team: ${['1st', '2nd', '3rd'][s.rank]}` : ''));
+  add(box, card(h('div', { class: 'big-num', style: { color: v.me.teamColor } }, `+${s.souls}`), h('div', { class: 'fine' }, 'Souls for your team')));
   if (s.relic && s.relic.team === v.me.team) add(box, card(h('div', { class: 'p-kicker' }, 'Relic won'), h('div', { class: 'p-title' }, s.relic.name), h('div', { class: 'fine' }, s.relic.desc)));
   if (s.gotClue) {
     add(box, card(h('div', { class: 'p-kicker' }, `Ring Piece ${s.piece}`), h('div', {}, 'An engraving was whispered to you alone.'), h('button', { class: 'btn ghost sm', onclick: () => document.getElementById('inv-btn').click() }, '📜 Read it (keep it secret)')));
@@ -139,16 +139,16 @@ const chapterEnd = rerender((box, v, ctx) => {
 const forfeit = rerender((box, v, ctx) => {
   const s = v.step;
   if (s.sub === 'none') { add(box, watch()); return; }
-  add(box, title("Vesper's Dues", ''));
+  add(box, title('Chudail Ka Hisaab', ''));
   if (s.mine && s.sub === 'offer') {
     ctx.buzz([200, 100, 200]);
-    add(box, card(h('div', { class: 'p-kicker' }, 'The lowest score must pay…'), h('div', { class: 'ff' }, s.card),
-      h('div', { class: 'row' }, h('button', { class: 'btn blood', onclick: () => ctx.send({ type: 'forfeit', accept: true }) }, 'Accept (+50 Souls)'), h('button', { class: 'btn ghost', onclick: () => ctx.send({ type: 'forfeit', accept: false }) }, 'Pass'))));
+    add(box, card(h('div', { class: 'p-kicker' }, 'Sabse kam score waale ko hisaab chukaana hoga…'), h('div', { class: 'ff' }, s.card),
+      h('div', { class: 'row' }, h('button', { class: 'btn blood', onclick: () => ctx.send({ type: 'forfeit', accept: true }) }, 'Manzoor (+50 Souls)'), h('button', { class: 'btn ghost', onclick: () => ctx.send({ type: 'forfeit', accept: false }) }, 'Pass'))));
   } else if (s.sub === 'perform') {
-    add(box, card(h('div', { class: 'ff' }, s.card), h('div', { class: 'fine' }, s.mine ? 'Perform it now! Tap when the debt is paid.' : `${s.name} is paying their dues…`),
+    add(box, card(h('div', { class: 'ff' }, s.card), h('div', { class: 'fine' }, s.mine ? 'Abhi karo! Hisaab chukne pe tap karo.' : `${s.name} hisaab chuka rahe hain…`),
       s.mine || v.me.isHost ? h('button', { class: 'btn', onclick: () => ctx.send({ type: 'forfeitDone' }) }, '✓ Done') : null));
   } else {
-    add(box, card(face(s.pid, 90), h('div', { class: 'ff small' }, s.card), h('div', { class: 'fine' }, s.sub === 'passed' ? `${s.name} passed.` : s.sub === 'done' ? 'Debt paid.' : `${s.name} must decide…`)));
+    add(box, card(face(s.pid, 90), h('div', { class: 'ff small' }, s.card), h('div', { class: 'fine' }, s.sub === 'passed' ? `${s.name} passed.` : s.sub === 'done' ? 'Hisaab chukta.' : `${s.name} ko decide karna hai…`)));
   }
 });
 
@@ -161,14 +161,14 @@ function seance(root, v, ctx) {
   const draw = (vv) => {
     const s = vv.step;
     clear(box);
-    add(box, title(`The Séance · Round ${s.round}`, s.sub === 'reveal' ? 'The circle has spoken' : ''));
-    if (s.spectator || s.member === false) { add(box, watch('Help your coven by talking — you\'ll get runes next round.')); return; }
-    if (s.sub === 'reveal' || s.done) { add(box, card(h('div', { class: 'p-title' }, s.done ? '✦ Your sigil is complete' : 'The candle drowned in wax…'))); return; }
+    add(box, title(`Tantrik Rangoli · Round ${s.round}`, s.sub === 'reveal' ? 'Rangoli jal uthi' : ''));
+    if (s.spectator || s.member === false) { add(box, watch('Bol ke apni team ki madad karo — agle round mein tumhe bhi symbols milenge.')); return; }
+    if (s.sub === 'reveal' || s.done) { add(box, card(h('div', { class: 'p-title' }, s.done ? '✦ Tumhari rangoli poori!' : 'Diya bujh gaya…'))); return; }
     add(box, h('div', { class: 'p-row' }, timer(vv.remaining), h('div', { class: 'progress' }, Array.from({ length: s.length }, (_, i) => h('span', { class: i < s.progress ? 'on' : '' })))));
     if (s.clues.length) {
-      add(box, h('div', { class: 'pages' }, h('div', { class: 'p-kicker' }, 'Your torn diary pages — read them aloud'), s.clues.map((c) => h('div', { class: 'page' }, c.text))));
-    } else add(box, h('div', { class: 'fine center' }, 'You hold no pages this round — listen, and tap when you hold the candle.'));
-    const status = s.stunned ? h('div', { class: 'tapper bad' }, '☠ The dead are awake… wait') : s.isTapper ? h('div', { class: 'tapper me' }, '🕯 YOU hold the candle — tap the next rune') : h('div', { class: 'tapper' }, `🕯 ${s.tapperName} holds the candle — tell them what to tap`);
+      add(box, h('div', { class: 'pages' }, h('div', { class: 'p-kicker' }, 'Tumhare phate janam-patri pages — zor se padho'), s.clues.map((c) => h('div', { class: 'page' }, c.text))));
+    } else add(box, h('div', { class: 'fine center' }, 'Is round tumhare paas koi page nahi — suno, aur diya mile toh tap karo.'));
+    const status = s.stunned ? h('div', { class: 'tapper bad' }, '☠ Murde jaag gaye… ruko') : s.isTapper ? h('div', { class: 'tapper me' }, '🪔 Diya TUMHARE paas hai — agla symbol tap karo') : h('div', { class: 'tapper' }, `🪔 Diya ${s.tapperName} ke paas hai — unhe batao kya tap karna hai`);
     add(box, status);
     const pad = h('div', { class: `pad ${s.isTapper && !s.stunned ? 'live' : ''}` });
     for (const r of s.pad) {
@@ -209,14 +209,14 @@ const quiz = rerender((box, v, ctx) => {
       add(opts, b);
     });
     add(box, opts);
-    if (s.mine != null) add(box, h('div', { class: 'sealed' }, '🔒 Answer sealed in wax'));
+    if (s.mine != null) add(box, h('div', { class: 'sealed' }, '🔒 Jawaab seal ho gaya'));
   } else if (s.reveal) {
     const R = s.reveal;
-    if (s.qtype === 'accuse') add(box, card(face(R.accused, 100, { possessed: true }), h('div', { class: 'p-title' }, `${nameOf(R.accused)}`), h('div', { class: 'fine' }, R.gain ? `+${R.gain} — you agreed with the room` : 'The room disagreed with you.')));
+    if (s.qtype === 'accuse') add(box, card(face(R.accused, 100, { possessed: true }), h('div', { class: 'p-title' }, `${nameOf(R.accused)}`), h('div', { class: 'fine' }, R.gain ? `+${R.gain} — you agreed with the room` : 'Room tumse sehmat nahi tha.')));
     else {
       const right = s.mine != null && s.mine === R.correct;
       const label = s.q.options.find((o) => o.id === R.correct)?.label;
-      add(box, card(h('div', { class: `verdict ${right ? 'ok' : 'bad'}` }, right ? '✓ Correct' : s.mine == null ? '⌛ Too slow' : '✗ Wrong'), h('div', { class: 'fine' }, `Answer: ${label}`), R.gain ? h('div', { class: 'big-num' }, `+${R.gain}`) : null));
+      add(box, card(h('div', { class: `verdict ${right ? 'ok' : 'bad'}` }, right ? '✓ Sahi' : s.mine == null ? '⌛ Bahut slow' : '✗ Galat'), h('div', { class: 'fine' }, `Answer: ${label}`), R.gain ? h('div', { class: 'big-num' }, `+${R.gain}`) : null));
       if (right) { ctx.buzz([30, 30, 60]); audio.ui('good'); } else audio.ui('bad');
     }
   }
@@ -237,7 +237,7 @@ function trial(root, v, ctx) {
     key = k;
     clear(box);
     add(box, title(`Trial ${s.n} of ${s.total}`, s.title));
-    if (s.sub === 'intro') { add(box, card(h('div', { class: 'how' }, s.how)), h('div', { class: 'fine center' }, 'Get ready…')); return; }
+    if (s.sub === 'intro') { add(box, card(h('div', { class: 'how' }, s.how)), h('div', { class: 'fine center' }, 'Taiyaar ho jao…')); return; }
     if (s.sub === 'reveal') {
       add(box, card(h('div', { class: 'big-num' }, `#${s.rank}`), h('div', { class: 'fine' }, `of ${s.of} · +${s.pts} points`)));
       if (s.blessing) { add(box, card(h('div', { class: 'p-kicker' }, 'Blessing earned'), h('div', { class: 'p-title' }, s.blessing.name), h('div', { class: 'fine' }, `${s.blessing.desc} in the zombie fight`))); ctx.buzz([60, 40, 60, 40, 200]); }
@@ -252,7 +252,7 @@ function trial(root, v, ctx) {
 }
 
 function scareOverlay(box, ctx) {
-  const img = h('div', { class: 'phone-scare', style: { backgroundImage: `url(${drawVesper(500)})` } });
+  const img = h('div', { class: 'phone-scare', style: { backgroundImage: `url(${drawChudail(500)})` } });
   add(box, img);
   ctx.buzz([250, 50, 250]);
   audio.stinger(0.7);
@@ -262,11 +262,11 @@ function scareOverlay(box, ctx) {
 const TRIALS = {
   candle(box, v, ctx, start) {
     const s = v.step;
-    const btn = h('button', { class: 'candle-btn', html: candleSvg(true, '#ffb35c', 230) });
-    const msg = h('div', { class: 'fine center' }, 'Press and HOLD the flame.');
-    if (s.out) { add(box, card(h('div', { class: 'p-title' }, 'Your candle went out.'), h('div', { class: 'big-num' }, `${(s.score / 1000).toFixed(1)}s`))); return null; }
+    const btn = h('button', { class: 'candle-btn', html: diyaSvg(true, '#ffb35c', 230) });
+    const msg = h('div', { class: 'fine center' }, 'Lau ko daba ke RAKHO.');
+    if (s.out) { add(box, card(h('div', { class: 'p-title' }, 'Tumhara diya bujh gaya.'), h('div', { class: 'big-num' }, `${(s.score / 1000).toFixed(1)}s`))); return null; }
     let held = false;
-    const release = holdButton(btn, () => { held = true; ctx.send({ type: 'hold', on: true }); btn.classList.add('held'); msg.textContent = "Don't. Let. Go."; ctx.buzz(20); }, () => { if (!held) return; held = false; ctx.send({ type: 'hold', on: false }); btn.classList.remove('held'); btn.innerHTML = candleSvg(false, '#ffb35c', 230); msg.textContent = 'Your candle went out…'; audio.ui('bad'); });
+    const release = holdButton(btn, () => { held = true; ctx.send({ type: 'hold', on: true }); btn.classList.add('held'); msg.textContent = 'Chhodna. Mat.'; ctx.buzz(20); }, () => { if (!held) return; held = false; ctx.send({ type: 'hold', on: false }); btn.classList.remove('held'); btn.innerHTML = diyaSvg(false, '#ffb35c', 230); msg.textContent = 'Diya bujh gaya…'; audio.ui('bad'); });
     add(box, btn, msg);
     const timers = (s.scares || []).map((at) => setTimeout(() => scareOverlay(box, ctx), Math.max(0, at - (performance.now() - start))));
     return { destroy() { timers.forEach(clearTimeout); release(); } };
@@ -278,7 +278,7 @@ const TRIALS = {
     let input = [];
     let playing = false;
     let dead = s.failed;
-    const status = h('div', { class: 'p-title center' }, dead ? 'The box snapped shut.' : 'Listen…');
+    const status = h('div', { class: 'p-title center' }, dead ? 'Payal toot gayi.' : 'Suno…');
     const keys = h('div', { class: 'mb-keys' });
     const btns = colors.map((c, i) => {
       const b = h('button', { class: 'mb-key', style: { '--kc': c } });
@@ -295,7 +295,7 @@ const TRIALS = {
           ctx.send({ type: 'mb', level });
           status.textContent = `${level} notes ✓`;
           ctx.buzz(30);
-          if (level >= s.melody.length) { dead = true; status.textContent = 'You played the whole lullaby. She is… pleased.'; return; }
+          if (level >= s.melody.length) { dead = true; status.textContent = 'Poori taal baja di. Woh… khush hai.'; return; }
           setTimeout(playback, 700);
         }
       });
@@ -308,10 +308,10 @@ const TRIALS = {
       if (dead) return;
       playing = true;
       input = [];
-      status.textContent = 'Listen…';
+      status.textContent = 'Suno…';
       const n = level + 1;
       for (let k = 0; k < n; k++) timers.push(setTimeout(() => { light(s.melody[k]); audio.simonNote(s.melody[k]); }, 300 + k * 480));
-      timers.push(setTimeout(() => { playing = false; status.textContent = 'Your turn'; }, 300 + n * 480));
+      timers.push(setTimeout(() => { playing = false; status.textContent = 'Tumhari baari'; }, 300 + n * 480));
     }
     add(box, status, keys, h('div', { class: 'fine center' }, `Score: ${level}`));
     if (!dead) setTimeout(playback, 500);
@@ -324,12 +324,12 @@ const TRIALS = {
     const btn = h('button', { class: 'tap-btn' }, 'TAP!');
     btn.addEventListener('pointerdown', (e) => { e.preventDefault(); pending++; total++; n.textContent = total; btn.classList.remove('hit'); void btn.offsetWidth; btn.classList.add('hit'); if (total % 5 === 0) ctx.buzz(8); });
     const iv = setInterval(() => { while (pending > 0) { const k = Math.min(8, pending); pending -= k; ctx.send({ type: 'taps', n: k }); } }, 250);
-    add(box, n, btn, h('div', { class: 'fine center' }, 'Push her back up the chimney!'));
+    add(box, n, btn, h('div', { class: 'fine center' }, 'Chudail ko chimney mein waapas bhejo!'));
     return { destroy() { clearInterval(iv); } };
   },
   blink(box, v, ctx, start) {
     const s = v.step;
-    const stage = h('button', { class: 'blink-stage' }, h('div', { class: 'fine' }, 'Tap ONLY on the white sigil'));
+    const stage = h('button', { class: 'blink-stage' }, h('div', { class: 'fine' }, 'Sirf NAZAR charm pe tap karo'));
     add(box, stage);
     let active = null;
     const timers = [];
@@ -337,7 +337,7 @@ const TRIALS = {
       timers.push(setTimeout(() => {
         active = { i, real: c.real, t: performance.now(), done: false };
         clear(stage);
-        add(stage, c.real ? h('div', { class: 'sigil', html: runeSvg('eye', { size: 170, color: '#ffffff', glow: true, stroke: 7 }) }) : h('div', { class: 'vface', style: { backgroundImage: `url(${drawVesper(400)})` } }));
+        add(stage, c.real ? h('div', { class: 'sigil', html: runeSvg('nazar', { size: 170, color: '#9fd4ff', glow: true, stroke: 6 }) }) : h('div', { class: 'vface', style: { backgroundImage: `url(${drawChudail(400)})` } }));
         if (!c.real) audio.whisper(0.5);
         timers.push(setTimeout(() => { if (active?.i === i) { active = null; clear(stage); } }, 1100));
       }, Math.max(0, c.at - (performance.now() - start))));
@@ -349,15 +349,15 @@ const TRIALS = {
       const rt = performance.now() - active.t;
       ctx.send({ type: 'blink', i: active.i, rt: Math.round(rt) });
       clear(stage);
-      add(stage, h('div', { class: `blink-res ${active.real ? 'ok' : 'bad'}` }, active.real ? `${Math.round(rt)} ms` : 'You tapped HER.'));
+      add(stage, h('div', { class: `blink-res ${active.real ? 'ok' : 'bad'}` }, active.real ? `${Math.round(rt)} ms` : 'Tumne USKE pair pe tap kiya!'));
       if (!active.real) { ctx.buzz([300]); audio.stinger(0.5); } else { ctx.buzz(15); audio.ui('ok'); }
     });
     return { destroy() { timers.forEach(clearTimeout); } };
   },
   gallery(box, v, ctx) {
     const s = v.step;
-    if (s.gsub === 'show') { add(box, watch('Look at the TV! Count the possessed portraits.')); return null; }
-    if (s.gsub === 'result') { add(box, card(h('div', { class: `verdict ${s.mine === s.answer ? 'ok' : 'bad'}` }, s.mine === s.answer ? '✓ Correct' : '✗ Wrong'), h('div', { class: 'fine' }, `${s.answer} were possessed`))); return null; }
+    if (s.gsub === 'show') { add(box, watch('TV dekho! Possessed photos gino.')); return null; }
+    if (s.gsub === 'result') { add(box, card(h('div', { class: `verdict ${s.mine === s.answer ? 'ok' : 'bad'}` }, s.mine === s.answer ? '✓ Sahi' : '✗ Galat'), h('div', { class: 'fine' }, `${s.answer} were possessed`))); return null; }
     add(box, h('div', { class: 'q' }, `Round ${s.gr + 1}: how many were possessed?`));
     const opts = h('div', { class: 'opts num' });
     for (const n of s.options) {
@@ -375,10 +375,10 @@ const TRIALS = {
 function possess(root, v, ctx) {
   const box = h('div', { class: 'p-screen center' });
   add(root, box);
-  const hidden = h('div', { class: 'fate' }, h('div', { class: 'p-title' }, 'Hold to read your fate'), h('div', { class: 'fine' }, 'Hide your screen from everyone.'));
+  const hidden = h('div', { class: 'fate' }, h('div', { class: 'p-title' }, 'Apni kismat padhne ke liye dabaao'), h('div', { class: 'fine' }, 'Screen sabse chhupa ke rakho.'));
   const reveal = v.step.possessed
-    ? h('div', { class: 'fate red' }, h('div', { class: 'p-title big' }, 'YOU ARE POSSESSED'), h('p', {}, 'Vesper is inside you. Steer your coven to the WRONG glass. Do not get caught at the Unmasking.'), h('p', { class: 'fine' }, 'One of your clue pages will be her lie. Sell it.'))
-    : h('div', { class: 'fate' }, h('div', { class: 'p-title' }, 'You are… still yourself.'), h('p', {}, 'Probably. Someone in this room is not. Watch them.'));
+    ? h('div', { class: 'fate red' }, h('div', { class: 'p-title big' }, 'YOU ARE POSSESSED'), h('p', {}, 'Chandravati tumhare andar hai. Apni team ko GALAT glass tak le jao. Unmasking mein pakde mat jaana.'), h('p', { class: 'fine' }, 'Tumhare clues mein se ek uska jhooth hoga. Bech do usse.'))
+    : h('div', { class: 'fate' }, h('div', { class: 'p-title' }, 'Tum… abhi tak tum hi ho.'), h('p', {}, 'Shayad. Par is kamre mein koi hai jo ab khud nahi raha. Nazar rakho.'));
   reveal.classList.add('hidden');
   const btn = h('button', { class: 'hold-zone' }, hidden, reveal);
   holdButton(btn, () => { hidden.classList.add('hidden'); reveal.classList.remove('hidden'); if (v.step.possessed) { ctx.buzz([400, 100, 400]); audio.heartbeat(1); } }, () => { reveal.classList.add('hidden'); hidden.classList.remove('hidden'); });
@@ -402,10 +402,10 @@ function writeFlow(root, v, ctx) {
     }
     lastSub = s.sub;
     clear(box);
-    add(box, title(isVow ? 'The Vow of the Bachelors' : 'The Toast', ''));
-    add(box, h('div', { class: 'q' }, isVow ? `I, ${vv.groom}, solemnly swear…` : s.prompt));
+    add(box, title(isVow ? 'Saat Vachan of the Bachelors' : 'Sangeet Roast', ''));
+    add(box, h('div', { class: 'q' }, isVow ? `${vv.groom} ka vachan: main kasam khaata hoon ki…` : s.prompt));
     if (s.sub === 'write') {
-      const ta = h('textarea', { class: 'field', maxlength: '90', rows: '3', placeholder: isVow ? 'I promise to…' : 'Your answer (keep it office-safe!)' });
+      const ta = h('textarea', { class: 'field', maxlength: '90', rows: '3', placeholder: isVow ? 'Main kasam khaata hoon ki…' : 'Tumhara jawaab (office-safe rakhna!)' });
       ta.value = draft || s.mine || '';
       ta.addEventListener('input', () => { draft = ta.value; });
       const sendBtn = h('button', { class: 'btn' }, s.mine ? 'Update' : 'Seal it');
@@ -421,9 +421,9 @@ function writeFlow(root, v, ctx) {
           add(box, row);
         }
         add(box, h('button', { class: 'btn', onclick: () => ctx.send({ type: 'vetDone' }) }, 'Approve & continue'));
-      } else add(box, watch('The host is tasting every line for poison…'), s.hiddenMine ? h('div', { class: 'fine center' }, 'Yours was a little too spicy — it stays secret.') : null);
+      } else add(box, watch('Host har line mein zeher check kar raha hai…'), s.hiddenMine ? h('div', { class: 'fine center' }, 'Tumhaara thoda zyada spicy tha — woh secret hi rahega.') : null);
     } else if (s.sub === 'vote') {
-      add(box, timer(vv.remaining), h('div', { class: 'p-kicker' }, 'Vote for your favourite (not your own)'));
+      add(box, timer(vv.remaining), h('div', { class: 'p-kicker' }, 'Apna favourite chuno (apna nahi)'));
       for (const c of s.choices || []) {
         const b = h('button', { class: `tcard-btn ${s.myVote === c.pid ? 'chosen' : ''}` }, c.text);
         if (!s.myVote) b.addEventListener('click', () => { ctx.send({ type: 'vote', pid: c.pid }); audio.ui('tap'); });
@@ -432,7 +432,7 @@ function writeFlow(root, v, ctx) {
       }
       if (!(s.choices || []).length) add(box, watch());
     } else if (s.sub === 'reveal') {
-      add(box, isVow ? watch('Listen — your vow is being read aloud…') : card(h('div', { class: 'big-num' }, `${s.votesForMe || 0} 🍷`), h('div', { class: 'fine' }, 'votes for your toast')));
+      add(box, isVow ? watch('Suno — tumhare vachan padhe ja rahe hain…') : card(h('div', { class: 'big-num' }, `${s.votesForMe || 0} 🍷`), h('div', { class: 'fine' }, 'votes for your roast')));
     } else add(box, watch());
   };
   draw(v);
@@ -442,11 +442,11 @@ function writeFlow(root, v, ctx) {
 // ------------------------------------------------------------------ GLASS
 const glass = rerender((box, v, ctx) => {
   const s = v.step;
-  add(box, title('The Poisoned Glass', ''));
-  if (s.spectator || s.member === false) { add(box, watch('Help your coven out loud!')); return; }
-  if (s.sub === 'reveal' || s.done) { add(box, card(h('div', { class: 'p-title' }, s.done ? '✦ You found the poison' : 'Time ran out…'), h('div', { class: 'fine' }, `It was glass ${s.answer}.`))); return; }
+  add(box, title('Zehreeli Thandai', ''));
+  if (s.spectator || s.member === false) { add(box, watch('Zor se bol ke team ki madad karo!')); return; }
+  if (s.sub === 'reveal' || s.done) { add(box, card(h('div', { class: 'p-title' }, s.done ? '✦ Zeher mil gaya!' : 'Time khatam…'), h('div', { class: 'fine' }, `Glass number ${s.answer} tha.`))); return; }
   add(box, timer(v.remaining));
-  add(box, h('div', { class: 'pages' }, h('div', { class: 'p-kicker' }, 'Your clues'), s.clues.map((c) => h('div', { class: `page ${c.lie ? 'lie' : ''}` }, c.text, c.lie ? h('em', {}, " — Vesper's lie. Sell it.") : null))));
+  add(box, h('div', { class: 'pages' }, h('div', { class: 'p-kicker' }, 'Tumhare clues'), s.clues.map((c) => h('div', { class: `page ${c.lie ? 'lie' : ''}` }, c.text, c.lie ? h('em', {}, ' — Chandravati ka jhooth. Bech do.') : null))));
   const grid = h('div', { class: 'glasses' });
   for (const gl of s.glasses) {
     const pickers = s.picks.filter((p) => p.pos === gl.pos).map((p) => p.pid);
@@ -456,13 +456,13 @@ const glass = rerender((box, v, ctx) => {
     add(grid, b);
   }
   add(box, grid);
-  add(box, h('div', { class: 'fine center' }, s.lockMs > 0 ? '☠ Wrong glass! Locked out…' : 'The glass locks when EVERY coven member picks the same one.'));
+  add(box, h('div', { class: 'fine center' }, s.lockMs > 0 ? '☠ Galat glass! Thodi der ke liye lock…' : 'Glass tabhi lock hoga jab team ka HAR member the same one.'));
 });
 
 // ------------------------------------------------------------------ UNMASK
 const unmask = rerender((box, v, ctx) => {
   const s = v.step;
-  add(box, title('The Unmasking', s.sub === 'reveal' ? '' : 'Who drank the wine?'));
+  add(box, title('Unmasking', s.sub === 'reveal' ? '' : 'Thandai kisne pi?'));
   if (s.sub === 'none') { add(box, watch()); return; }
   if (s.sub === 'vote') {
     add(box, timer(v.remaining));
@@ -484,10 +484,10 @@ function arena(root, v, ctx) {
   const box = h('div', { class: 'p-screen pad-screen' });
   add(root, box);
   const hud = h('div', { class: 'hud' });
-  const zone = h('div', { class: 'stick-zone' }, h('div', { class: 'stick-hint' }, 'Drag here to move'));
+  const zone = h('div', { class: 'stick-zone' }, h('div', { class: 'stick-hint' }, 'Yahan drag karke chalo'));
   const powerBtn = h('button', { class: 'act power' });
   const throwBtn = h('button', { class: 'act throw' });
-  const down = h('div', { class: 'downed hidden' }, h('div', { class: 'p-title' }, "YOU'RE DOWN"), h('div', { class: 'fine' }, 'Crawl to a friend — or wait to rise again…'), h('div', { class: 'revive' }, h('div', {})));
+  const down = h('div', { class: 'downed hidden' }, h('div', { class: 'p-title' }, 'TUM GIR GAYE'), h('div', { class: 'fine' }, 'Kisi dost tak ghisatte jao — ya uthne ka intezaar karo…'), h('div', { class: 'revive' }, h('div', {})));
   add(box, hud, h('div', { class: 'pad-row' }, zone, h('div', { class: 'acts' }, powerBtn, throwBtn)), down);
   let mx = 0; let my = 0; let dirty = true; let lastHp = null;
   const manager = nipplejs.create({ zone, mode: 'dynamic', color: '#efe6d8', size: 140, multitouch: false, fadeTime: 120, restOpacity: 0.6 });
@@ -509,20 +509,20 @@ function arena(root, v, ctx) {
   }, 50);
   powerBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); ctx.send({ type: 'power' }); ctx.buzz([20, 30, 60]); });
   throwBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); ctx.send({ type: 'throw' }); ctx.buzz(30); });
-  const ICON = { coldfeet: '❄', prenup: '📜', lastdance: '💃', bestman: '👻', bouquet: '💐' };
-  const NAME = { coldfeet: 'Cold Feet', prenup: 'Prenup', lastdance: 'Last Dance', bestman: 'Best Man', bouquet: 'Bouquet' };
+  const ICON = { coldfeet: '🏃', prenup: '🧿', lastdance: '💃', bestman: '👬', bouquet: '🎨' };
+  const NAME = { coldfeet: 'Bhaag Milkha', prenup: 'Nazar Battu', lastdance: 'Naagin Dance', bestman: 'Bestie Bhai', bouquet: 'Gulaal Bomb' };
   let lastTier = null;
   const draw = (vv) => {
     const s = vv.step;
     if (s.sub === 'results') {
       stop();
       clear(box);
-      add(box, title('The garden is clear', ''), card(h('div', { class: 'big-num' }, `${s.kills ?? 0} 💀`), h('div', { class: 'fine' }, 'zombies put back in the ground')));
+      add(box, title('Baagh saaf hai', ''), card(h('div', { class: 'big-num' }, `${s.kills ?? 0} 💀`), h('div', { class: 'fine' }, 'murde waapas zameen mein')));
       return;
     }
     const u = s.hud;
     clear(hud);
-    if (!u) { add(hud, h('div', { class: 'fine' }, 'Joining the fight…')); return; }
+    if (!u) { add(hud, h('div', { class: 'fine' }, 'Jang mein shaamil ho rahe ho…')); return; }
     const hpPct = Math.max(0, Math.min(100, (u.hp / u.maxHp) * 100));
     add(hud, 
       h('div', { class: 'hud-top' }, h('span', {}, u.phase === 'warmup' ? 'GET READY' : `WAVE ${u.wave} · ${u.title}`), h('b', {}, `${u.kills} 💀`)),
@@ -531,10 +531,10 @@ function arena(root, v, ctx) {
       u.bossHp != null ? h('div', { class: 'hp boss' }, h('div', { class: 'hp-fill', style: { width: `${u.bossHp}%` } })) : null,
     );
     clear(powerBtn);
-    add(powerBtn, h('span', { class: 'ic' }, u.power ? ICON[u.power] : '✦'), h('small', {}, u.power ? NAME[u.power] : 'no power'));
+    add(powerBtn, h('span', { class: 'ic' }, u.power ? ICON[u.power] : '✦'), h('small', {}, u.power ? NAME[u.power] : 'koi power nahi'));
     powerBtn.disabled = !u.power || u.down;
     clear(throwBtn);
-    add(throwBtn, h('span', { class: 'ic' }, '⚗'), h('small', {}, `Holy water ×${u.grenades}`));
+    add(throwBtn, h('span', { class: 'ic' }, '🍋'), h('small', {}, `Nimbu-mirchi ×${u.grenades}`));
     throwBtn.disabled = !u.grenades || u.down;
     down.classList.toggle('hidden', !u.down);
     down.querySelector('.revive > div').style.width = `${u.revive}%`;
@@ -556,10 +556,10 @@ function crypt(root, v, ctx) {
   const draw = (vv) => {
     const s = vv.step;
     clear(box);
-    add(box, title('The Crypt', s.sub === 'solved' ? 'It opens!' : s.sub === 'failed' ? 'Sealed forever' : 'Share your engravings OUT LOUD'));
-    if (s.sub !== 'play') { add(box, card(h('div', { class: 'big-num' }, s.code || ''), h('div', { class: 'fine' }, s.sub === 'solved' ? 'The ring is whole again.' : 'The ring reforges itself… in agony.'))); return; }
+    add(box, title('Tijori Ka Taala', s.sub === 'solved' ? 'Khul gayi!' : s.sub === 'failed' ? 'Hamesha ke liye band' : 'Apne engravings ZOR SE share karo'));
+    if (s.sub !== 'play') { add(box, card(h('div', { class: 'big-num' }, s.code || ''), h('div', { class: 'fine' }, s.sub === 'solved' ? 'Anguthi phir se poori ho gayi.' : 'Anguthi khud jud gayi… dard ke saath.'))); return; }
     const inv = vv.inventory.filter((i) => i.kind === 'crypt');
-    add(box, h('div', { class: 'pages' }, h('div', { class: 'p-kicker' }, 'Your engravings'), inv.map((i) => h('div', { class: 'page' }, i.text))));
+    add(box, h('div', { class: 'pages' }, h('div', { class: 'p-kicker' }, 'Tumhare engravings'), inv.map((i) => h('div', { class: 'page' }, i.text))));
     const display = h('div', { class: 'code' }, [0, 1, 2, 3].map((i) => h('span', {}, code[i] || '·')));
     const keys = h('div', { class: 'keypad' });
     for (const k of ['1', '2', '3', '4', '5', '6', '7', '8', '9', '⌫', '0', '↵']) {
@@ -585,9 +585,9 @@ function crypt(root, v, ctx) {
 // ------------------------------------------------------------------ BRIDES
 const brides = rerender((box, v, ctx) => {
   const s = v.step;
-  add(box, title('The Three Brides', s.sub === 'vote' ? (s.round === 2 ? 'Last chance' : 'Which one is real?') : ''));
-  add(box, h('div', { class: 'whispers' }, s.whispers.map((w) => h('div', { class: `whisper ${w.red ? 'red' : ''}` }, w.diary ? h('small', {}, '📖 from the Lace Diary') : null, `“${w.text}”`))));
-  add(box, h('div', { class: 'fine center' }, 'White whispers are true. Red whispers are Vesper — and she lies.'));
+  add(box, title('Teen Dulhanein', s.sub === 'vote' ? (s.round === 2 ? 'Aakhri mauka' : 'Asli kaun hai?') : ''));
+  add(box, h('div', { class: 'whispers' }, s.whispers.map((w) => h('div', { class: `whisper ${w.red ? 'red' : ''}` }, w.diary ? h('small', {}, '📖 Janam-Patri se') : null, `“${w.text}”`))));
+  add(box, h('div', { class: 'fine center' }, 'Safed whispers sach hain. Laal whispers Chandravati ke hain — aur woh jhooth bolti hai.'));
   if (s.sub === 'vote') {
     const row = h('div', { class: 'bride-btns' });
     s.brides.forEach((b, i) => {
@@ -599,7 +599,7 @@ const brides = rerender((box, v, ctx) => {
     });
     add(box, timer(v.remaining), row);
   } else {
-    add(box, watch(s.sub === 'right' ? 'You found her!' : 'Look at the altar…'));
+    add(box, watch(s.sub === 'right' ? 'Mil gayi!' : 'Mandap ki taraf dekho…'));
     if (s.sub === 'wrong' || s.sub === 'lost') ctx.buzz([400, 100, 400]);
   }
 });
@@ -608,12 +608,12 @@ const brides = rerender((box, v, ctx) => {
 const credits = rerender((box, v, ctx) => {
   const s = v.step;
   box.classList.add('center');
-  add(box, title('Dawn', s.ending === 'win' ? 'You saved her.' : 'You survived. Mostly.'));
-  if (s.awards.length) add(box, card(h('div', { class: 'p-kicker' }, 'Your awards'), s.awards.map((a) => h('div', { class: 'p-title' }, `🏆 ${a}`))));
+  add(box, title('Vidaai', s.ending === 'win' ? 'Tumne usse bacha liya.' : 'Bach gaye. Zyaadatar.'));
+  if (s.awards.length) add(box, card(h('div', { class: 'p-kicker' }, 'Tumhare awards'), s.awards.map((a) => h('div', { class: 'p-title' }, `🏆 ${a}`))));
   add(box, card(h('div', { class: 'big-num' }, `${s.score}`), h('div', { class: 'fine' }, 'points tonight'),
     h('div', { class: 'stats' }, h('span', {}, `💀 ${s.stats.kills}`), h('span', {}, `🧠 ${s.stats.quiz}`), h('span', {}, `🍷 ${s.stats.toastVotes}`), h('span', {}, `🚑 ${s.stats.revives}`))));
   if (v.me.isHost) add(box, h('button', { class: 'btn ghost', onclick: () => { if (confirm('Start a brand new night?')) ctx.hostCmd('restart'); } }, '↺ Play again'));
-  add(box, h('p', { class: 'fine' }, 'See you at the wedding. 🥂'));
+  add(box, h('p', { class: 'fine' }, 'Milte hain shaadi mein! 🪔'));
 });
 
 export const PHONE_SCREENS = { lobby, story, chapterTitle, sorting, chapterEnd, forfeit, seance, quiz, trial, possess, toast: writeFlow, vowWrite: writeFlow, glass, unmask, arena, crypt, brides, credits };

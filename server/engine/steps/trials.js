@@ -2,11 +2,11 @@
 import { BLESSINGS } from '../../content/script.js';
 
 const SPEC = {
-  candle: { title: 'Hold the Candle', how: 'Keep your thumb on the flame. Whatever you see — do NOT let go.', play: 25000 },
-  musicbox: { title: 'The Music Box', how: 'Listen to the lullaby. Repeat it. One note longer every time.', play: 45000 },
-  banish: { title: 'Banish Her', how: 'TAP. As fast as you can. Every tap pushes your coven\'s ghost back up the chimney.', play: 10000 },
-  blink: { title: "Don't Blink", how: 'Tap ONLY when the white sigil appears. Tap on her face and you lose.', play: 22000 },
-  gallery: { title: 'The Portrait Gallery', how: 'Watch the TV. Count how many portraits are POSSESSED.', play: 0 },
+  candle: { title: 'Diya Pakdo', how: 'Diye ki lau pe angootha rakho. Kuch bhi dikhe — chhodna MAT.', play: 25000 },
+  musicbox: { title: 'Payal Ki Taal', how: 'Uski payal ki taal suno. Wahi bajao. Har baar ek beat lambi.', play: 45000 },
+  banish: { title: 'Nimbu-Mirchi Bhagao', how: 'TAP. Jitna tez ho sake. Har tap tumhari team ki chudail ko chimney mein waapas dhakelta hai.', play: 10000 },
+  blink: { title: 'Pairon Ko Mat Dekho', how: 'Sirf NAZAR charm aane pe tap karo. Uske ulte pair dikhe aur tapa… toh gaye.', play: 22000 },
+  gallery: { title: 'Shaadi Album', how: 'TV dekho. Ginti karo — kitni photos POSSESSED hain.', play: 0 },
 };
 
 function makeBlinkCues(rng) {

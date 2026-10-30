@@ -1,4 +1,4 @@
-// Chapter I — the Séance Circle: a coven communication puzzle.
+// Chapter I — Tantrik Rangoli: a team communication puzzle.
 import { makeSeance } from '../puzzles.js';
 
 function activeMembers(g, T) {

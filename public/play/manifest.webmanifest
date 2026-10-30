@@ -1,7 +1,7 @@
 {
-  "name": "Nightfall — The Blackthorn Wedding",
-  "short_name": "Nightfall",
-  "description": "A story-mode horror party game. Your phone is the controller; the TV shows the manor.",
+  "name": "Haveli Ki Dulhan — a Nightfall story",
+  "short_name": "Haveli",
+  "description": "A story-mode Indian horror party game. Your phone is the controller; the TV shows the haveli.",
   "start_url": "/play/",
   "scope": "/play/",
   "display": "standalone",

@@ -1,4 +1,4 @@
-// NIGHTFALL — the TV. Renders the shared screen; all game state lives on the server.
+// HAVELI KI DULHAN — the TV. Renders the shared screen; all game state lives on the server.
 import { connect } from '/shared/net.js';
 import { h, clear, add } from '/shared/dom.js';
 import { setNames, face } from '/shared/photos.js';
@@ -23,7 +23,7 @@ const fx = new ScreenFx({ stage, scare: $('scare'), grain: $('grain') });
 backdrop.onThunder = () => audio.thunder(0.9);
 backdrop.setScene('lobby');
 
-const petals = () => confetti({ particleCount: 160, spread: 140, startVelocity: 38, gravity: 0.55, ticks: 420, scalar: 1.3, colors: ['#ffffff', '#f6dbe2', '#e9b8c4', '#c8102e'], shapes: ['circle'], origin: { y: 0.35 }, zIndex: 50 });
+const petals = () => confetti({ particleCount: 160, spread: 140, startVelocity: 38, gravity: 0.55, ticks: 420, scalar: 1.3, colors: ['#f39c12', '#ffc93c', '#e8740c', '#c8102e', '#fff3d0'], shapes: ['circle'], origin: { y: 0.35 }, zIndex: 50 });
 const embers = () => { for (let i = 0; i < 4; i++) setTimeout(() => confetti({ particleCount: 60, spread: 180, startVelocity: 18, gravity: -0.15, ticks: 500, scalar: 0.7, colors: ['#ffd27a', '#ffb35c', '#fff3d0'], origin: { x: Math.random(), y: 1 }, zIndex: 50 }), i * 700); };
 const ctx = { backdrop, arena, narrator, fx, petals, embers };
 
@@ -155,6 +155,9 @@ addEventListener('keydown', (e) => {
   if ((e.key === 's' || e.key === 'S') && view.kind === 'lobby') host('start');
   if (document.getElementById('gate') && (e.key === 'Enter')) enter();
 });
+
+// Hosted on a free tier that sleeps when idle: a light ping every 4 minutes keeps the haveli awake mid-party.
+setInterval(() => { fetch('/health', { cache: 'no-store' }).catch(() => {}); }, 4 * 60 * 1000);
 
 // For tests: expose a tiny hook.
 window.__nightfall = { get view() { return view; }, enter, face };

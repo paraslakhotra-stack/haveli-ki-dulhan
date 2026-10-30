@@ -1,69 +1,73 @@
-# 🕯 NIGHTFALL — *The Blackthorn Wedding*
+# 🪔 HAVELI KI DULHAN — *a Nightfall story*
 
-A story-mode horror party game for a bachelor party.
-- The laptop shows the haunted manor on the TV.
-- Every guest's phone is their controller, like BombSquad Remote.
-- Guests don't download anything: they scan a QR code.
-
-About 60–80 minutes, 3–12 players (best with 6–10), split into 2–3 competing covens.
+A story-mode **Indian horror party game** for a bachelor party.
+- **The story:** a Punjabi groom's bachelor gang breaks down outside a haunted Rajasthani haveli, where Rajkumari Chandravati, the **Chudail Dulhan**, has been waiting for a dulha since 1925.
+- **How it plays:** the haveli appears on the TV, and every guest's phone is their controller, like BombSquad Remote. Guests just open a link or scan a QR code.
+- **Players:** 3–12 players (best with 6–10), split into 2–3 teams: Team Kaali Billi, Team Ullu and Team Naag.
+- **Length:** about 60–80 minutes.
+- **Language:** Hinglish, office-safe, and switchable between Mild and Spicy.
 
 > The full story, every narration line and all the content are in **[STORY.md](STORY.md)**.
 
 ---
 
-## Party-night setup (5 minutes)
+## Play online (Render): one link, anyone can start
 
-**You need:** a laptop (Mac or Windows) with **Node.js 18+**, an HDMI cable to the TV, and a Wi-Fi network that both the laptop and the guests' phones are on.
+**Deploy once (about 5 minutes):**
+1. Go to **[render.com](https://render.com)** and sign in with GitHub. Then choose **New → Blueprint** and pick this repo.
+2. Render reads `render.yaml` and creates the **haveli-ki-dulhan** web service. Click **Apply**.
+3. When it shows *Live*, your links are:
+   - **TV / laptop:** `https://<your-service>.onrender.com/tv`
+   - **Phones:** scan the QR code on the TV, or open `https://<your-service>.onrender.com/play`
 
-1. **Install once, before the party** (needs internet):
-   ```bash
-   cd nightfall
-   npm install
-   ```
-2. **Start the game.** On a Mac, double-click `start.command`. On Windows, double-click `start.bat`. Or run:
-   ```bash
-   npm start
-   ```
-   The terminal prints two addresses and a QR code.
-3. **Plug the laptop into the TV.** Open **http://localhost:3000/tv** in Chrome, press **F** for full screen, then click **Enter the Manor**. That click turns the sound on.
-4. **Guests scan the QR code on the TV.** They type a name, take a selfie and tap *Sign the Guest Book*.
-5. **The first person to join is the Host ♛.**
-   - The host taps **Set up the night** and chooses who the groom is and the bride's name.
-   - The host picks **Mild** or **Spicy**. Spicy is still office-safe.
-   - Optionally, the host fills in "How well do they know the groom?" questions.
-   - Then the host taps **Begin the Night**.
+**On the night:**
+1. Open the **/tv** link on whatever is connected to the TV: a laptop over HDMI, or a smart TV / Chromecast browser.
+2. Click **Haveli Mein Chalo** to turn the sound on, and press **F** for full screen.
+3. Guests scan the QR code and join from anywhere. They don't need the same Wi-Fi.
 
-Turn the volume **up**. The sound design does half the scaring.
+**Free plan tips:**
+- The server **sleeps after 15 minutes idle**, so open the /tv link about a minute before the party to wake it.
+- While the TV page is open, it pings the server so it stays awake.
+- If you want it to never sleep, switch the service to Render's *Starter* plan.
 
-### If phones can't connect
-- The phones must be on the **same Wi-Fi** as the laptop. Guest networks that isolate devices block the game; use the main network or a phone hotspot.
-- **Windows:** when the firewall pops up, click **Allow access** and tick *Private networks*.
-- **Mac:** click **Allow** on the *"node" wants to accept incoming connections* prompt.
-- If the printed address is wrong (VPNs and Docker can confuse it), find the laptop's Wi-Fi IP and have guests open `http://THAT-IP:3000/play`.
-- **Port busy?** The game automatically tries 3001, 3002 and so on, and prints the address it actually used.
+There is **one shared game** per deployment. If the host taps **Restart the night**, everything starts fresh.
 
-### "Install" on phones (optional)
-- **iPhone:** tap Share, then **Add to Home Screen**.
-- **Android:** tap ⋮, then **Add to Home screen** or **Install app**.
+## Play offline (laptop + Wi-Fi)
 
-The game then opens full screen like an app. It isn't required, though: the browser works fine.
+**Install once:**
+```bash
+npm install
+```
 
----
+**Start the game:** double-click `start.command` on a Mac or `start.bat` on Windows. Or run:
+```bash
+npm start
+```
+
+**Then:**
+1. Open **http://localhost:3000/tv** on the laptop connected to the TV.
+2. Phones on the **same Wi-Fi** scan the QR code.
+3. **Windows:** allow Node through the firewall. **Mac:** click "Allow incoming connections".
+
+**Everyone:**
+- The first person to join is the **Host ♛**.
+- The host taps **Raat set up karo**, chooses the dulha, the bride's name and Mild or Spicy, and can optionally fill in "How well do they know the groom?".
+- Then the host taps **Begin the Night**.
 
 ## The night
 
 | | Chapter | Games |
 |---|---|---|
-| ✦ | **The Invitation** | Sign the guest book with a selfie. The Sorting Candles pick the covens. |
-| I | **The Guest Book** | **Séance Circle**: a coven communication puzzle where clues are on other people's phones. |
-| II | **The Library of Whispers** | **Forbidden Quiz**: groom questions, horror trivia, and "Who among you…" votes. |
-| III | **The Nursery** | **Trials of Nerve**: Hold the Candle, The Music Box, Banish Her, Don't Blink and The Portrait Gallery. |
-| IV | **The Reception Hall** | **The Possessed** (a secret traitor), **The Toast** (roasts, with host veto), **The Poisoned Glass** (a coven logic puzzle) and **The Unmasking**. |
-| V | **The Dead Don't Dance** | **Zombie apocalypse.** Everyone fights on the TV with a phone thumbstick, earns weapons and powers, and faces the boss Edmund. |
-| VI | **The Midnight Vow** | **The Crypt Code**, where clues collected all night are shared out loud. Then **The Three Brides**: white whispers are true and red ones lie. Then **The Vow of the Bachelors**. |
-| ☀ | **Dawn** | Credits starring everyone's faces, awards, and the Blackthorn Trophy. |
+| ✦ | **Shaadi Ka Card** | Sign the haveli ka register with a selfie. The diyas pick your team. |
+| I | **Haveli Ka Darwaza** | **Tantrik Rangoli**: a team communication puzzle where the clues are on other people's phones. |
+| II | **Pothi Khana** | **Forbidden Quiz**: groom questions, shaadi trivia, Bollywood horror and "Kaun hai jo…?" votes. |
+| III | **Zenana Ka Jhoola** | **Trials of Nerve**: Diya Pakdo, Payal Ki Taal, Nimbu-Mirchi Bhagao, Pairon Ko Mat Dekho and Shaadi Album. |
+| IV | **Sangeet Ki Daawat** | **The Possessed** (a secret traitor), **Sangeet Roast** (with host veto), **Zehreeli Thandai** (a team logic puzzle) and the **Unmasking**. |
+| V | **Murda Baraat** | **Zombie baraat.** Everyone fights on the TV with a phone thumbstick against baraatis, Gossip Aunties and angry Fufajis, then the boss **Kunwar Vikram, the Bhoot Dulha**. Weapons level up from Desi Katta to Anaar Rocket. |
+| VI | **Aadhi Raat Ka Mandap** | **Tijori Ka Taala**: the clues collected all night, shared out loud. Then **Teen Dulhanein**: white whispers are true and red ones lie. Then the **Saat Vachan of the Bachelors**. |
+| ☀ | **Vidaai at Sunrise** | Credits starring everyone's faces, awards, and the Kesargarh Trophy. |
 
-The lowest scorer of chapters I–IV pays **Vesper's Dues**, a forfeit card. Players can always **pass**.
+The lowest scorer of chapters I–IV pays **Chudail Ka Hisaab**, a forfeit card. Players can always **pass**.
 
 ---
 

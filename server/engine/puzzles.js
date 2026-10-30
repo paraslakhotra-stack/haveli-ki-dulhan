@@ -1,8 +1,8 @@
 // Generators for the mystery puzzles. Every generator guarantees the puzzle has exactly one solution.
 import { RUNES, ORDINALS } from '../content/runes.js';
 
-// ---------- Séance Circle ----------
-// One sigil per coven: an ordered rune sequence, the pad of runes each member sees, and clue pages.
+// ---------- Tantrik Rangoli ----------
+// One rangoli per team: an ordered symbol sequence, the pad of runes each member sees, and clue pages.
 export function makeSeance(rng, memberIds, length) {
   const pool = rng.shuffle(RUNES);
   const seq = pool.slice(0, length).map((r) => r.id);
@@ -14,7 +14,7 @@ export function makeSeance(rng, memberIds, length) {
   seq.forEach((runeId, p) => {
     const holder = memberIds[(p + 1) % m];
     const rune = RUNES.find((r) => r.id === runeId);
-    clues[holder].push({ pos: p, text: `The ${ORDINALS[p]} mark she carved: ${rune.desc}.` });
+    clues[holder].push({ pos: p, text: `${ORDINALS[p]} nishaan: ${rune.desc}.` });
   });
   for (const id of memberIds) clues[id].sort((a, b) => a.pos - b.pos);
   const pads = {};
@@ -47,19 +47,20 @@ function pickClues(rng, candidates, answer, pool, { maxSingleElim = Infinity } =
 }
 
 // ---------- The Poisoned Glass ----------
-const WINES = ['red', 'white', 'rosé'];
+const DRINKS = ['rose', 'thandai', 'kesar'];
+const DRINK_TEXT = { rose: 'rose sharbat (pink)', thandai: 'thandai (white)', kesar: 'kesar doodh (saffron)' };
 const RIMS = ['gold', 'silver'];
 const MARKS = ['none', 'lipstick', 'crack'];
-const MARK_TEXT = { none: 'no mark', lipstick: 'a lipstick mark', crack: 'a crack' };
+const MARK_TEXT = { none: 'koi nishaan nahi (no mark)', lipstick: 'lipstick ka nishaan', crack: 'ek crack' };
 
 export function makeGlasses(rng) {
   for (let attempt = 0; attempt < 200; attempt++) {
     const glasses = [];
     for (let i = 0; i < 6; i++) {
-      glasses.push({ pos: i + 1, wine: rng.pick(WINES), rim: rng.pick(RIMS), mark: rng.pick(MARKS) });
+      glasses.push({ pos: i + 1, drink: rng.pick(DRINKS), rim: rng.pick(RIMS), mark: rng.pick(MARKS) });
     }
-    // Every wine, rim and mark must appear so the table looks varied and the clues have something to bite on.
-    const varied = WINES.every((w) => glasses.some((g) => g.wine === w))
+    // Every drink, rim and mark must appear so the table looks varied and the clues have something to bite on.
+    const varied = DRINKS.every((w) => glasses.some((g) => g.drink === w))
       && RIMS.every((r) => glasses.some((g) => g.rim === r))
       && MARKS.every((m) => glasses.some((g) => g.mark === m));
     if (!varied) continue;
@@ -77,29 +78,29 @@ function glassCluePool(glasses, t) {
   const truths = [];
   const lies = [];
   const add = (text, test) => (test(t) ? truths : lies).push({ text, test });
-  for (const w of WINES) {
-    add(`The poisoned glass holds ${w} wine.`, (g) => g.wine === w);
-    add(`The poisoned glass does NOT hold ${w} wine.`, (g) => g.wine !== w);
+  for (const w of DRINKS) {
+    add(`Zehreela glass mein ${DRINK_TEXT[w]} hai.`, (g) => g.drink === w);
+    add(`Zehreele glass mein ${DRINK_TEXT[w]} NAHI hai.`, (g) => g.drink !== w);
   }
-  for (const r of RIMS) add(`The poisoned glass has a ${r} rim.`, (g) => g.rim === r);
+  for (const r of RIMS) add(`Zehreele glass ka rim ${r === 'gold' ? 'sone (gold)' : 'chandi (silver)'} ka hai.`, (g) => g.rim === r);
   for (const m of MARKS) {
-    add(`The poisoned glass has ${MARK_TEXT[m]}.`, (g) => g.mark === m);
-    if (m !== 'none') add(`The poisoned glass does NOT have ${MARK_TEXT[m]}.`, (g) => g.mark !== m);
+    add(`Zehreele glass pe ${MARK_TEXT[m]} hai.`, (g) => g.mark === m);
+    if (m !== 'none') add(`Zehreele glass pe ${MARK_TEXT[m]} NAHI hai.`, (g) => g.mark !== m);
   }
-  add('The poisoned glass stands in an odd-numbered place.', (g) => g.pos % 2 === 1);
-  add('The poisoned glass stands in an even-numbered place.', (g) => g.pos % 2 === 0);
-  add('The poisoned glass is not at either end of the table.', (g) => g.pos !== 1 && g.pos !== 6);
-  add('The poisoned glass is in the left half of the table (1–3).', (g) => g.pos <= 3);
-  add('The poisoned glass is in the right half of the table (4–6).', (g) => g.pos >= 4);
-  for (const w of WINES) {
-    add(`Somewhere to the RIGHT of the poisoned glass is a glass of ${w} wine.`, (g) => glasses.some((o) => o.pos > g.pos && o.wine === w));
-    add(`Directly next to the poisoned glass is a glass of ${w} wine.`, (g) => glasses.some((o) => Math.abs(o.pos - g.pos) === 1 && o.wine === w));
+  add('Zehreela glass odd number pe rakha hai (1, 3, 5).', (g) => g.pos % 2 === 1);
+  add('Zehreela glass even number pe rakha hai (2, 4, 6).', (g) => g.pos % 2 === 0);
+  add('Zehreela glass table ke kisi bhi kinaare pe NAHI hai.', (g) => g.pos !== 1 && g.pos !== 6);
+  add('Zehreela glass table ke left half mein hai (1–3).', (g) => g.pos <= 3);
+  add('Zehreela glass table ke right half mein hai (4–6).', (g) => g.pos >= 4);
+  for (const w of DRINKS) {
+    add(`Zehreele glass ke RIGHT side mein kahin ${DRINK_TEXT[w]} ka glass hai.`, (g) => glasses.some((o) => o.pos > g.pos && o.drink === w));
+    add(`Zehreele glass ke bilkul bagal mein ${DRINK_TEXT[w]} ka glass hai.`, (g) => glasses.some((o) => Math.abs(o.pos - g.pos) === 1 && o.drink === w));
   }
   return { truths, lies };
 }
 
 // ---------- The Crypt Code ----------
-const ORD = ['first', 'second', 'third', 'fourth'];
+const ORD = ['pehla (1st)', 'doosra (2nd)', 'teesra (3rd)', 'chautha (4th)'];
 const PRIMES = new Set([2, 3, 5, 7]);
 
 export function makeCrypt(rng) {
@@ -148,20 +149,23 @@ function cryptPool(rng, code) {
 }
 
 // ---------- The Three Brides ----------
-const VEILS = ['long', 'short', 'torn'];
-const BOUQUETS = ['white roses', 'black roses', 'lilies'];
-const GLOVES = ['white', 'black'];
+const GHOONGHATS = ['long', 'short', 'torn'];
+const GHOONGHAT_TEXT = { long: 'lamba (long)', short: 'chhota (short)', torn: 'phata hua (torn)' };
+const VARMALAS = ['genda', 'gulab', 'mogra'];
+const VARMALA_TEXT = { genda: 'genda (orange marigold)', gulab: 'gulab (red rose)', mogra: 'mogra (white jasmine)' };
+const CHOODAS = ['red', 'white'];
+const CHOODA_TEXT = { red: 'laal (red)', white: 'safed (white)' };
 
 export function makeBrides(rng) {
   for (let attempt = 0; attempt < 200; attempt++) {
     const brides = [0, 1, 2].map((i) => ({
       idx: i,
-      veil: rng.pick(VEILS),
-      bouquet: rng.pick(BOUQUETS),
-      gloves: rng.pick(GLOVES),
-      locket: rng() < 0.5,
+      ghoonghat: rng.pick(GHOONGHATS),
+      varmala: rng.pick(VARMALAS),
+      chooda: rng.pick(CHOODAS),
+      nath: rng() < 0.5,
     }));
-    const key = (b) => `${b.veil}|${b.bouquet}|${b.gloves}|${b.locket}`;
+    const key = (b) => `${b.ghoonghat}|${b.varmala}|${b.chooda}|${b.nath}`;
     if (new Set(brides.map(key)).size < 3) continue;
     const real = brides[rng.int(3)];
     const truths = [];
@@ -170,18 +174,18 @@ export function makeBrides(rng) {
       if (test(real)) truths.push({ text: truthText, test });
       else lies.push({ text: lieText, test });
     };
-    for (const v of VEILS) add(`My veil is ${v}.`, `Your precious bride's veil is ${v}.`, (b) => b.veil === v);
-    for (const q of BOUQUETS) add(`I'm holding ${q}.`, `She is holding ${q}, darling.`, (b) => b.bouquet === q);
-    for (const h of GLOVES) add(`I'm wearing ${h} gloves.`, `Look for the ${h} gloves, darling.`, (b) => b.gloves === h);
-    add("I'm wearing my grandmother's locket.", 'She wears a locket around her neck.', (b) => b.locket);
-    add("I'm not wearing a locket — Vesper took it.", "She isn't wearing a locket.", (b) => !b.locket);
+    for (const v of GHOONGHATS) add(`Mera ghoonghat ${GHOONGHAT_TEXT[v]} hai.`, `Tumhari dulhan ka ghoonghat ${GHOONGHAT_TEXT[v]} hai, jaan.`, (b) => b.ghoonghat === v);
+    for (const q of VARMALAS) add(`Meri varmala ${VARMALA_TEXT[q]} ki hai.`, `Uski varmala ${VARMALA_TEXT[q]} ki hai…`, (b) => b.varmala === q);
+    for (const c of CHOODAS) add(`Mera chooda ${CHOODA_TEXT[c]} hai.`, `${CHOODA_TEXT[c]} chooda dhoondo, jaan.`, (b) => b.chooda === c);
+    add('Maine apni Nani ki nath pehni hai.', 'Usne naak mein nath pehni hai.', (b) => b.nath);
+    add('Meri nath gayab hai — Chandravati ne le li.', 'Usne nath nahi pehni.', (b) => !b.nath);
     const clues = pickClues(rng, brides, real, truths, { maxSingleElim: 1 });
     if (!clues) continue;
     // Lies must each point at a FALSE bride (so the red whispers are genuinely misleading).
     const usableLies = lies.filter((l) => brides.some((b) => b !== real && l.test(b)));
     if (usableLies.length < 2) continue;
     return {
-      brides: brides.map(({ idx, veil, bouquet, gloves, locket }) => ({ idx, veil, bouquet, gloves, locket })),
+      brides: brides.map(({ idx, ghoonghat, varmala, chooda, nath }) => ({ idx, ghoonghat, varmala, chooda, nath })),
       answer: real.idx,
       whispers: clues.map((c) => c.text),
       extraTruths: rng.shuffle(truths.filter((c) => !clues.includes(c))).map((c) => c.text),

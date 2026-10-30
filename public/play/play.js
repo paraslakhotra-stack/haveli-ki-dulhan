@@ -1,4 +1,4 @@
-// NIGHTFALL — the phone controller. Join, then follow whatever the server says this phone should show.
+// HAVELI KI DULHAN — the phone controller. Join, then follow whatever the server says this phone should show.
 import { connect } from '/shared/net.js';
 import { h, clear, add } from '/shared/dom.js';
 import { setNames, face, shrinkPhoto } from '/shared/photos.js';
@@ -72,7 +72,7 @@ function showJoin() {
   const file = h('input', { type: 'file', accept: 'image/*', capture: 'user', class: 'hidden' });
   const name = h('input', { class: 'field', maxlength: '16', placeholder: 'Your name', autocomplete: 'given-name', enterkeyhint: 'go' });
   const err = h('div', { class: 'err' });
-  const btn = h('button', { class: 'btn big' }, 'Sign the Guest Book');
+  const btn = h('button', { class: 'btn big' }, 'Register Mein Naam Likho');
   preview.addEventListener('click', () => file.click());
   file.addEventListener('change', async () => {
     const f = file.files?.[0];
@@ -85,7 +85,7 @@ function showJoin() {
   });
   const go = async () => {
     audio.unlock();
-    if (!name.value.trim()) { err.textContent = 'The guest book needs a name.'; name.focus(); return; }
+    if (!name.value.trim()) { err.textContent = 'Register ko naam chahiye.'; name.focus(); return; }
     btn.disabled = true;
     btn.textContent = 'Signing…';
     const r = await net.call('join', { name: name.value, photo });
@@ -96,18 +96,18 @@ function showJoin() {
       buzz([40, 60, 120]);
       if (view) render();
     } else {
-      err.textContent = r.error || 'Could not reach the manor. Same Wi-Fi as the TV?';
+      err.textContent = r.error || 'Haveli tak nahi pahunch paaye. Check your internet and try again.';
       btn.disabled = false;
-      btn.textContent = 'Sign the Guest Book';
+      btn.textContent = 'Register Mein Naam Likho';
     }
   };
   btn.addEventListener('click', go);
   name.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
   add(main, h('div', { class: 'join' },
-    h('div', { class: 'brand' }, h('div', { class: 'brand-n' }, 'NIGHTFALL'), h('div', { class: 'brand-s' }, 'The Blackthorn Wedding')),
-    h('p', { class: 'lede' }, 'You are cordially invited… to the groom\'s last night of freedom.'),
+    h('div', { class: 'brand' }, h('div', { class: 'brand-n' }, 'HAVELI KI DULHAN'), h('div', { class: 'brand-s' }, 'a Nightfall story')),
+    h('p', { class: 'lede' }, 'Aapko saadar aamantrit kiya jaata hai… dulhe ki azaadi ki aakhri raat par.'),
     preview, file, name, err, btn,
-    h('p', { class: 'fine' }, 'Your photo stays on this Wi-Fi — it only appears on the TV tonight.')));
+    h('p', { class: 'fine' }, 'Your photo only appears on the TV during tonight\'s game.')));
 }
 
 // Retake a photo from the lobby.
@@ -157,7 +157,7 @@ function renderTop() {
 }
 
 $('inv-btn').addEventListener('click', () => openSheet((box) => {
-  add(box, h('h2', {}, 'Ring engravings'), h('p', { class: 'fine' }, 'Secret clues to the crypt beneath the chapel. Guard them… until Chapter VI.'));
+  add(box, h('h2', {}, 'Anguthi ke engravings'), h('p', { class: 'fine' }, 'Secret clues to the tijori under the mandap. Guard them… until Chapter VI.'));
   for (const it of view.inventory.filter((i) => i.kind === 'crypt')) add(box, h('div', { class: 'engraving' }, h('small', {}, `Ring Piece ${it.piece}`), h('div', {}, it.text)));
 }));
 $('host-btn').addEventListener('click', () => openHostPanel(view, ctx));

@@ -1,0 +1,14 @@
+# Render Blueprint — one click: Render dashboard → New → Blueprint → pick this repo.
+services:
+  - type: web
+    name: haveli-ki-dulhan
+    runtime: node
+    plan: free            # free sleeps after 15 min idle (first open takes ~50s); "starter" never sleeps
+    region: singapore     # closest Render region to India
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"

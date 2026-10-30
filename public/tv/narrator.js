@@ -8,10 +8,10 @@ if (window.speechSynthesis) { loadVoices(); window.speechSynthesis.onvoiceschang
 
 function pickVoice(kind) {
   if (!voices.length) loadVoices();
-  const en = voices.filter((v) => /^en/i.test(v.lang));
+  const en = voices.filter((v) => /^(en|hi)/i.test(v.lang));
   const pref = kind === 'n'
-    ? [/Daniel/i, /Google UK English Male/i, /Ryan/i, /George/i, /Arthur/i, /Guy/i, /Male/i, /en-GB/i]
-    : [/Google UK English Female/i, /Sonia/i, /Hazel/i, /Serena/i, /Moira/i, /Samantha/i, /Libby/i, /Female/i, /Karen/i];
+    ? [/Rishi/i, /Ravi/i, /Prabhat/i, /Madhur/i, /en-IN.*Male/i, /Daniel/i, /Google UK English Male/i, /Ryan/i, /George/i, /Male/i]
+    : [/Veena/i, /Heera/i, /Neerja/i, /Swara/i, /Lekha/i, /Google हिन्दी/i, /en-IN/i, /Google UK English Female/i, /Sonia/i, /Samantha/i, /Female/i];
   for (const re of pref) { const v = en.find((x) => re.test(x.name) || re.test(x.lang)); if (v) return v; }
   return en[0] || voices[0] || null;
 }
@@ -38,7 +38,7 @@ export class Narrator {
         this.show(line, i);
         onLine?.(line, i);
         if (speak && this.enabled) this.say(line);
-        if (line.sp === 'v') audio.whisper(0.9, 0, 2.2);
+        if (line.sp === 'v') { audio.whisper(0.9, 0, 2.2); audio.ghungroo(0.9, Math.random() * 1.4 - 0.7, 3); }
         if (line.sp === 'b') audio.static(0.8, 0.8);
       }, Math.max(0, delay)));
     });

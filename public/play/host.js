@@ -59,7 +59,7 @@ function setupForm(box, v, ctx, st, sug) {
     msg.textContent = r.ok ? 'Saved ✓' : 'Could not save — are you still the host?';
     return r.ok;
   };
-  const begin = h('button', { class: 'btn big blood' }, '🕯 Begin the Night');
+  const begin = h('button', { class: 'btn big blood' }, '🪔 Begin the Night');
   begin.addEventListener('click', async () => {
     begin.disabled = true;
     if (await save()) {
@@ -72,7 +72,7 @@ function setupForm(box, v, ctx, st, sug) {
   add(box, 
     h('h2', {}, '♛ Host — set up the night'),
     h('label', {}, 'Who is the groom?'), groomSel, groomName,
-    h('label', {}, "The bride (she's the one Vesper takes)"), brideName,
+    h('label', {}, "The bride (she's the one Chandravati takes)"), brideName,
     h('label', {}, 'Heat level'), seg([['mild', '🕯 Mild'], ['spicy', '🌶 Spicy (office-safe)']], state.heat, (x) => { state.heat = x; }),
     h('label', {}, 'Spoken narration on the TV'), seg([[true, 'Voice on'], [false, 'Captions only']], state.narration, (x) => { state.narration = x; }),
     details,
@@ -99,7 +99,7 @@ function remote(box, v, ctx, st) {
       h('button', { class: 'btn', onclick: async () => { await ctx.hostCmd('skip'); } }, '⏭ Skip this step')),
     h('label', {}, 'Heat level'), seg([['mild', '🕯 Mild'], ['spicy', '🌶 Spicy']], st.heat, (x) => ctx.hostCmd('settings', { heat: x })),
     h('label', {}, 'Spoken narration'), seg([[true, 'Voice on'], [false, 'Captions only']], st.narration, (x) => ctx.hostCmd('settings', { narration: x })),
-    v.kind === 'sorting' || v.chapter?.id === 'prologue' ? h('button', { class: 'btn ghost', onclick: () => ctx.hostCmd('shuffle') }, '🔀 Reshuffle covens') : null,
+    v.kind === 'sorting' || v.chapter?.id === 'prologue' ? h('button', { class: 'btn ghost', onclick: () => ctx.hostCmd('shuffle') }, '🔀 Reshuffle teams') : null,
     jump,
     kickList(v, ctx),
     h('button', { class: 'btn ghost danger', onclick: async () => { if (confirm('Restart the whole night from the lobby? Scores will be lost.')) { await ctx.hostCmd('restart'); ctx.closeSheet(); } } }, '↺ Restart the night'),

@@ -1,11 +1,12 @@
 // NIGHTFALL sound engine — everything is synthesised live with the Web Audio API (no audio files).
-// A generated convolution reverb puts every sound in the same cold stone manor.
+// A generated convolution reverb puts every sound in the same echoing stone haveli.
+// The Indian palette — shehnai, tanpura, ghungroo/payal, shankh, dhol — is synthesised here too.
 // Weapon/impact one-shots are built with ZzFX (github.com/KilledByAPixel/ZzFX) and routed through our mix.
 
 const NOTE = (n) => 440 * Math.pow(2, (n - 69) / 12);
-// Vesper's Lullaby — A minor, music-box register (MIDI notes). The motif recurs all night.
-export const LULLABY = [76, 81, 84, 83, 81, 76, 77, 76, 74, 72, 71, 69, 72, 71, 69, 64];
-const SIMON_NOTES = [69, 72, 76, 81];
+// Chandravati's lori — a Bhairavi-flavoured lullaby (komal re, ga, dha, ni). The motif recurs all night.
+export const LULLABY = [76, 74, 72, 71, 72, 71, 69, 67, 65, 64, 65, 67, 69, 67, 65, 64];
+const SIMON_NOTES = [64, 67, 71, 76];
 
 class Engine {
   constructor() {
@@ -318,6 +319,77 @@ class Engine {
     }
   }
 
+  // ---------------- Indian palette ----------------
+  // Payal / ghungroo: clusters of tiny metallic bells, like slow footsteps in the dark.
+  ghungroo(level = 1, pan = Math.random() * 2 - 1, steps = 3) {
+    if (!this.ready) return;
+    const c = this.ctx;
+    const out = this.panner(pan, this.bus.amb);
+    for (let st = 0; st < steps; st++) {
+      for (let k = 0; k < 7; k++) {
+        const t = this.now + st * 0.48 + Math.random() * 0.05;
+        const o = c.createOscillator(); o.type = 'sine'; o.frequency.value = 4200 + Math.random() * 3200;
+        const g = c.createGain(); this.env(g.gain, t, { a: 0.001, d: 0.12 + Math.random() * 0.15, peak: 0.05 * level });
+        o.connect(g).connect(out); o.start(t); o.stop(t + 0.6);
+      }
+      const t = this.now + st * 0.48;
+      const n = this.noiseSrc(); const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 6000;
+      const ng = c.createGain(); this.env(ng.gain, t, { a: 0.001, d: 0.06, peak: 0.12 * level });
+      n.connect(hp).connect(ng).connect(out); n.start(t); n.stop(t + 0.2);
+    }
+  }
+  // Shehnai: a reedy double-reed voice with vibrato and meend (glides between notes).
+  shehnai(notes = LULLABY.slice(0, 8), { tempo = 0.55, level = 1, transpose = 0 } = {}) {
+    if (!this.ready) return;
+    const c = this.ctx; const t0 = this.now;
+    const o = c.createOscillator(); o.type = 'sawtooth';
+    const o2 = c.createOscillator(); o2.type = 'square';
+    const mix2 = c.createGain(); mix2.gain.value = 0.35;
+    const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1400; bp.Q.value = 1.6;
+    const pk = c.createBiquadFilter(); pk.type = 'peaking'; pk.frequency.value = 2600; pk.gain.value = 8;
+    const g = c.createGain(); g.gain.value = 0.0001;
+    const vib = c.createOscillator(); vib.frequency.value = 5.6; const vg = c.createGain(); vg.gain.value = 0; vib.connect(vg);
+    o.connect(bp); o2.connect(mix2).connect(bp); bp.connect(pk).connect(g).connect(this.bus.music);
+    vg.connect(o.frequency); vg.connect(o2.frequency);
+    let t = t0;
+    notes.forEach((n, i) => {
+      const f = NOTE(n + transpose);
+      if (i === 0) { o.frequency.setValueAtTime(f, t); o2.frequency.setValueAtTime(f, t); }
+      else { o.frequency.setTargetAtTime(f, t, 0.06); o2.frequency.setTargetAtTime(f, t, 0.06); }
+      vg.gain.setTargetAtTime(f * 0.012, t + tempo * 0.4, 0.15);
+      vg.gain.setTargetAtTime(0, t + tempo * 0.95, 0.03);
+      t += tempo * (i % 4 === 3 ? 1.6 : 1);
+    });
+    g.gain.setTargetAtTime(0.09 * level, t0, 0.12);
+    g.gain.setTargetAtTime(0.0001, t, 0.3);
+    for (const node of [o, o2, vib]) { node.start(t0); node.stop(t + 1.5); }
+  }
+  // Shankh (conch): a slow, swelling call for every new chapter.
+  shankh(level = 1) {
+    if (!this.ready) return;
+    const c = this.ctx; const t = this.now;
+    const o = c.createOscillator(); o.type = 'sawtooth';
+    o.frequency.setValueAtTime(NOTE(46), t); o.frequency.linearRampToValueAtTime(NOTE(46) * 1.03, t + 2.4);
+    const vib = c.createOscillator(); vib.frequency.value = 4.2; const vg = c.createGain(); vg.gain.value = 2.2; vib.connect(vg).connect(o.frequency);
+    const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(400, t); lp.frequency.linearRampToValueAtTime(1600, t + 1.4); lp.Q.value = 4;
+    const g = c.createGain(); const end = this.env(g.gain, t, { a: 0.9, d: 1.6, peak: 0.22 * level, sus: 0.85, hold: 1.8, rel: 0.6 });
+    const n = this.noiseSrc(); const nb = c.createBiquadFilter(); nb.type = 'bandpass'; nb.frequency.value = 900; nb.Q.value = 2; const ngain = c.createGain(); ngain.gain.value = 0.25;
+    n.connect(nb).connect(ngain).connect(g);
+    o.connect(lp).connect(g).connect(this.bus.music);
+    o.start(t); vib.start(t); n.start(t);
+    this.stopAt([o, vib, n], end);
+  }
+  // A dog howling somewhere out in the desert.
+  howl(level = 1, pan = Math.random() * 2 - 1) {
+    if (!this.ready) return;
+    const c = this.ctx; const t = this.now;
+    const o = c.createOscillator(); o.type = 'triangle';
+    o.frequency.setValueAtTime(480, t); o.frequency.linearRampToValueAtTime(880, t + 0.8); o.frequency.linearRampToValueAtTime(760, t + 1.9); o.frequency.linearRampToValueAtTime(520, t + 2.6);
+    const vib = c.createOscillator(); vib.frequency.value = 6; const vg = c.createGain(); vg.gain.value = 9; vib.connect(vg).connect(o.frequency);
+    const g = c.createGain(); const end = this.env(g.gain, t, { a: 0.35, d: 2, peak: 0.05 * level, sus: 0.8, hold: 1.9, rel: 0.6 });
+    o.connect(g).connect(this.panner(pan, this.bus.amb)); o.start(t); vib.start(t); this.stopAt([o, vib], end);
+  }
+
   // ---------------- ZzFX one-shots (weapons, impacts) ----------------
   zzfx(key, params, { level = 1, pan = 0, rate = 1, variants = 3 } = {}) {
     if (!this.ready || !this.zz) return;
@@ -369,18 +441,19 @@ class Engine {
       const old = this.ambience;
       old.out.gain.setTargetAtTime(0.0001, t, 1.2);
       clearInterval(old.timer);
+      clearInterval(old.tanTimer);
       setTimeout(() => this.stopAt(old.nodes, 0), 5000);
     }
     const cfg = {
-      manor: { root: 38, wind: 0.09, rain: 0.06, drone: 0.05, events: ['creak', 'thunder', 'whisper'] },
-      foyer: { root: 40, wind: 0.025, rain: 0.015, drone: 0.07, events: ['creak', 'whisper', 'knock'] },
-      library: { root: 36, wind: 0.02, rain: 0.02, drone: 0.06, events: ['whisper', 'creak', 'page'] },
-      nursery: { root: 45, wind: 0.02, rain: 0.01, drone: 0.05, events: ['lullaby', 'creak', 'whisper'] },
-      hall: { root: 33, wind: 0.02, rain: 0.01, drone: 0.08, events: ['groan', 'creak', 'whisper'] },
-      garden: { root: 31, wind: 0.08, rain: 0.03, drone: 0.07, events: ['groan', 'thunder', 'whisper'] },
-      chapel: { root: 41, wind: 0.04, rain: 0.0, drone: 0.05, choir: 0.05, events: ['bell', 'whisper'] },
-      dawn: { root: 45, wind: 0.03, rain: 0, drone: 0.03, major: true, events: [] },
-      lobby: { root: 38, wind: 0.06, rain: 0.05, drone: 0.04, events: ['creak', 'thunder'] },
+      manor: { root: 40, wind: 0.09, crickets: 0.006, drone: 0.04, tanpura: 0.05, events: ['howl', 'payal', 'whisper', 'thunder'] },
+      foyer: { root: 40, wind: 0.025, drone: 0.06, tanpura: 0.05, events: ['creak', 'whisper', 'payal', 'knock'] },
+      library: { root: 40, wind: 0.02, drone: 0.05, tanpura: 0.04, events: ['whisper', 'creak', 'payal'] },
+      nursery: { root: 40, wind: 0.02, drone: 0.04, tanpura: 0.04, events: ['lullaby', 'creak', 'payal', 'whisper'] },
+      hall: { root: 40, wind: 0.02, drone: 0.07, tanpura: 0.03, events: ['groan', 'shehnai', 'whisper', 'payal'] },
+      garden: { root: 40, wind: 0.08, crickets: 0.006, drone: 0.06, events: ['groan', 'howl', 'thunder', 'payal'] },
+      chapel: { root: 40, wind: 0.04, crickets: 0.004, drone: 0.04, tanpura: 0.06, choir: 0.03, events: ['bell', 'whisper', 'shehnai'] },
+      dawn: { root: 40, wind: 0.03, drone: 0.03, tanpura: 0.05, major: true, events: ['shehnai'] },
+      lobby: { root: 40, wind: 0.06, crickets: 0.006, drone: 0.03, tanpura: 0.04, events: ['howl', 'payal', 'thunder'] },
     }[name] || { root: 38, wind: 0.05, rain: 0.02, drone: 0.05, events: [] };
     const out = c.createGain(); out.gain.value = 0.0001; out.connect(this.bus.amb);
     out.gain.setTargetAtTime(1, t, 1.5);
@@ -416,6 +489,30 @@ class Engine {
         const g = c.createGain(); g.gain.value = cfg.choir; o.connect(g).connect(out); o.start(); vib.start(); nodes.push(o, vib);
       }
     }
+    // Tanpura: a slow cycle of plucked Pa – Sa – Sa – low Sa with a buzzing jawari tone.
+    let tanTimer = null;
+    if (cfg.tanpura) {
+      const seq = [cfg.root + 7, cfg.root + 12, cfg.root + 12, cfg.root];
+      let k = 0;
+      const shaper = this.shaper(4);
+      const tlp = c.createBiquadFilter(); tlp.type = 'lowpass'; tlp.frequency.value = 2200;
+      shaper.connect(tlp).connect(out);
+      tanTimer = setInterval(() => {
+        if (!this.ctx || document.hidden) return;
+        const tt = this.now;
+        const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = NOTE(seq[k++ % 4]);
+        const og = c.createGain(); this.env(og.gain, tt, { a: 0.02, d: 3.2, peak: cfg.tanpura });
+        o.connect(og).connect(shaper); o.start(tt); o.stop(tt + 7);
+      }, 1100);
+    }
+    if (cfg.crickets) {
+      const cr = c.createOscillator(); cr.frequency.value = 4400;
+      const cg = c.createGain(); cg.gain.value = 0;
+      const am = c.createOscillator(); am.type = 'square'; am.frequency.value = 28; const amg = c.createGain(); amg.gain.value = cfg.crickets;
+      const am2 = c.createOscillator(); am2.type = 'square'; am2.frequency.value = 0.6; const am2g = c.createGain(); am2g.gain.value = cfg.crickets;
+      am.connect(amg).connect(cg.gain); am2.connect(am2g).connect(cg.gain);
+      cr.connect(cg).connect(out); cr.start(); am.start(); am2.start(); nodes.push(cr, am, am2);
+    }
     // Random events keep the room alive.
     const timer = setInterval(() => {
       if (!cfg.events.length || document.hidden) return;
@@ -429,13 +526,17 @@ class Engine {
       if (e === 'bell') this.bell(0.35);
       if (e === 'lullaby') this.lullaby({ notes: LULLABY.slice(0, 6), level: 0.5, tempo: 0.5 });
       if (e === 'page') this.creak(0.3);
+      if (e === 'payal') this.ghungroo(0.8, Math.random() * 2 - 1, 2 + Math.floor(Math.random() * 3));
+      if (e === 'howl') this.howl(1);
+      if (e === 'shehnai') this.shehnai(LULLABY.slice(Math.floor(Math.random() * 6), 10), { level: 0.45, tempo: 0.7, transpose: -12 });
     }, 4000);
-    this.ambience = { out, nodes, timer };
+    this.ambience = { out, nodes, timer, tanTimer };
   }
   stopAmbience() {
     if (!this.ambience) return;
     this.ambience.out.gain.setTargetAtTime(0.0001, this.now, 0.5);
     clearInterval(this.ambience.timer);
+    clearInterval(this.ambience.tanTimer);
     const old = this.ambience; this.ambience = null; this.sceneName = null;
     setTimeout(() => this.stopAt(old.nodes, 0), 3000);
   }
@@ -458,15 +559,23 @@ class Engine {
     while (cb.next < this.now + 0.25) {
       const t = cb.next;
       const b = cb.beat % 16;
-      // Taiko-ish low drum on the downbeats, more hits as intensity rises.
-      if (b % 4 === 0 || (cb.intensity > 0.55 && b % 4 === 3) || (cb.intensity > 0.8 && b % 2 === 1)) {
-        const o = c.createOscillator(); o.frequency.setValueAtTime(b % 8 === 0 ? 72 : 96, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.22);
-        const g = c.createGain(); this.env(g.gain, t, { a: 0.003, d: 0.28, peak: b % 8 === 0 ? 0.9 : 0.55 });
-        o.connect(g).connect(cb.out); o.start(t); o.stop(t + 0.7);
+      // Dhol: the bass "dagga" on the bhangra pulse, the sharp "tilli" slaps on the off-beats.
+      const step8 = b % 8;
+      if ([0, 3, 6].includes(step8) || (cb.intensity > 0.75 && step8 === 7)) {
+        const o = c.createOscillator(); o.frequency.setValueAtTime(step8 === 0 ? 78 : 92, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.2);
+        const g = c.createGain(); this.env(g.gain, t, { a: 0.002, d: 0.26, peak: step8 === 0 ? 0.95 : 0.65 });
+        o.connect(g).connect(cb.out); o.start(t); o.stop(t + 0.6);
+      }
+      if ([2, 4, 6].includes(step8) || (cb.intensity > 0.5 && step8 % 2 === 1)) {
+        const n = this.noiseSrc(); const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2200; bp.Q.value = 1.2;
+        const g = c.createGain(); this.env(g.gain, t, { a: 0.001, d: 0.05, peak: 0.35 + cb.intensity * 0.2 });
+        const ring = c.createOscillator(); ring.frequency.value = 620; const rg = c.createGain(); this.env(rg.gain, t, { a: 0.001, d: 0.07, peak: 0.12 });
+        n.connect(bp).connect(g).connect(cb.out); ring.connect(rg).connect(cb.out);
+        n.start(t); n.stop(t + 0.2); ring.start(t); ring.stop(t + 0.2);
       }
       // Dissonant string ostinato.
       if (b % 2 === 0) {
-        const seq = [45, 45, 46, 45, 48, 45, 46, 44];
+        const seq = [40, 40, 41, 40, 43, 40, 41, 39];
         const n = seq[(cb.beat / 2) % 8 | 0];
         const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = NOTE(n);
         const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 500 + cb.intensity * 1600;

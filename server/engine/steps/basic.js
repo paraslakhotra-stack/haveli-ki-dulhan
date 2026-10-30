@@ -150,17 +150,17 @@ function awards(g) {
     return fn(sorted[0]) >= min ? sorted[0].id : null;
   };
   const list = [
-    { id: 'mvp', title: 'MVP of the Manor', pid: best((p) => p.score) },
-    { id: 'brain', title: 'Brain of the Manor', pid: best((p) => p.stats.quiz * 100 + p.stats.mystery) },
+    { id: 'mvp', title: 'MVP of the Haveli', pid: best((p) => p.score) },
+    { id: 'brain', title: 'Brain of the Haveli', pid: best((p) => p.stats.quiz * 100 + p.stats.mystery) },
     { id: 'slayer', title: 'Zombie Slayer', pid: best((p) => p.stats.kills) },
     { id: 'nerves', title: 'Nerves of Steel', pid: best((p) => p.stats.trials) },
-    { id: 'toast', title: 'Best Toast', pid: best((p) => p.stats.toastVotes) },
-    { id: 'suspicious', title: 'Most Suspicious', pid: best((p) => p.stats.suspicion) },
-    { id: 'medic', title: 'Guardian Angel', pid: best((p) => p.stats.revives) },
-    { id: 'brave', title: 'Braver Than Vesper', pid: best((p) => p.stats.forfeits) },
+    { id: 'toast', title: 'Best Roast', pid: best((p) => p.stats.toastVotes) },
+    { id: 'suspicious', title: 'Sabse Shady', pid: best((p) => p.stats.suspicion) },
+    { id: 'medic', title: 'Jaan Bachaane Waala', pid: best((p) => p.stats.revives) },
+    { id: 'brave', title: 'Chudail Se Bhi Bahadur', pid: best((p) => p.stats.forfeits) },
   ];
   const downed = ps.filter((p) => p.stats.firstDown != null).sort((a, b) => a.stats.firstDown - b.stats.firstDown);
-  if (downed.length) list.splice(3, 0, { id: 'firstdie', title: 'First to Die', pid: downed[0].id });
+  if (downed.length) list.splice(3, 0, { id: 'firstdie', title: 'Pehla Shikaar', pid: downed[0].id });
   return list.filter((a) => a.pid);
 }
 
