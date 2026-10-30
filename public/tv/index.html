@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nightfall — TV</title>
+  <meta name="theme-color" content="#06070c">
+  <link rel="stylesheet" href="/shared/theme.css">
+  <link rel="stylesheet" href="/tv/tv.css">
+  <link rel="icon" href="/play/icon.svg" type="image/svg+xml">
+</head>
+<body>
+  <div id="stage">
+    <canvas id="bg" width="1920" height="1080"></canvas>
+    <div id="ui"></div>
+    <div id="captions"></div>
+    <div id="hud">
+      <div id="chapter-tag"></div>
+      <div id="souls-mini"></div>
+      <div id="join-mini"></div>
+    </div>
+    <div id="scare"></div>
+    <canvas id="grain"></canvas>
+    <div id="vignette"></div>
+    <div id="pause" class="hidden"><div class="pause-t">PAUSED</div><div class="pause-s">The manor holds its breath…</div></div>
+    <div id="offline" class="hidden">Lost the manor… reconnecting</div>
+  </div>
+  <div id="gate">
+    <div class="gate-inner">
+      <div class="logo-n">NIGHTFALL</div>
+      <div class="logo-sub">The Blackthorn Wedding</div>
+      <button id="enter">Enter the Manor</button>
+      <div class="gate-hint">Turn the volume up. Lights down. Press F for full screen.</div>
+      <div class="gate-keys">Host keys — <b>Space</b> pause · <b>N</b> skip · <b>F</b> full screen</div>
+    </div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/tv/tv.js"></script>
+</body>
+</html>

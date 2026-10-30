@@ -202,7 +202,7 @@ Each trial's champion earns a **blessing** for the zombie chapter:
 - Each guest receives a whisper.
 - **White whispers** come from {BRIDE}, who is fighting to reach you, and they are true.
 - ***Red whispers*** come from Vesper, and every one of them is a lie.
-- The TV shows the three brides: veils, bouquets, ring hands, a locket. The room debates, then everyone votes.
+- The TV shows the three brides: long, short or torn veils, bouquets, white or black gloves, a locket. The room debates, then everyone votes.
 
 **Ending A, *The Vow* (correct bride):**
 - "{GROOM} lifts the veil. It's {BRIDE}. Warm, alive, furious, and laughing."

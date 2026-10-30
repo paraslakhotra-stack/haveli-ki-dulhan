@@ -535,7 +535,7 @@ export class ArenaSim {
       slow: this.t < this.slowUntil ? 1 : 0,
       p: [...this.players.values()].map((p) => [p.id, r(p.x), r(p.y), r(p.aim * 100), r((p.hp / p.maxHp) * 100),
         (p.down ? 1 : 0) | (this.t < p.shieldUntil ? 2 : 0) | (this.t < p.speedUntil ? 4 : 0) | (p.firing > 0 ? 8 : 0) | (this.t < p.allyUntil ? 16 : 0),
-        p.tier, r(p.revive * 50)]),
+        p.tier, r(p.revive * 50), p.kills, p.power || '', p.relics.includes('candle') ? 1 : 0]),
       z: this.zombies.map((z) => [z.id, ZTYPES[z.type].i, r(z.x), r(z.y), r(z.angle * 100), r((z.hp / z.maxHp) * 100),
         (this.t < z.frenzyUntil ? 1 : 0) | (z.state === 'stun' ? 2 : 0) | (z.state === 'tele' ? 4 : 0) | (z.state === 'charge' ? 8 : 0) | (z.hit && this.t - z.hit < 0.08 ? 16 : 0)]),
       k: this.pickups.map((k) => [k.id, k.kind, r(k.x), r(k.y)]),

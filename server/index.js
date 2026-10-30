@@ -10,6 +10,7 @@ import { Server } from 'socket.io';
 import QRCode from 'qrcode';
 import { Game } from './engine/game.js';
 import { STEPS } from './engine/steps/index.js';
+import { GROOM_QUESTION_SUGGESTIONS } from './content/quiz.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -39,7 +40,7 @@ export function lanAddress() {
   return cands[0]?.a || 'localhost';
 }
 
-export function createServer({ fast = FAST, port = Number(opt('port', process.env.PORT || 3000)), seed, restore = !flag('new') } = {}) {
+export function createServer({ fast = FAST, port = Number(opt('port', process.env.PORT || 3000)), seed, restore = !flag('new'), persist = !NO_SAVE } = {}) {
   const app = express();
   const server = http.createServer(app);
   const io = new Server(server, { maxHttpBufferSize: 2e5, pingInterval: 10000, pingTimeout: 20000 });
@@ -62,6 +63,7 @@ export function createServer({ fast = FAST, port = Number(opt('port', process.en
   app.use('/fonts/fell', express.static(nm('@fontsource/im-fell-english/files'), { maxAge: '7d' }));
   app.use('/fonts/elite', express.static(nm('@fontsource/special-elite/files'), { maxAge: '7d' }));
   app.use('/content/runes.js', (req, res) => res.type('application/javascript').sendFile(path.join(ROOT, 'server/content/runes.js')));
+  app.get('/content/suggestions.json', (req, res) => res.json(GROOM_QUESTION_SUGGESTIONS));
   app.use('/tv', express.static(path.join(ROOT, 'public/tv')));
   app.use('/play', express.static(path.join(ROOT, 'public/play')));
   app.use('/shared', express.static(path.join(ROOT, 'public/shared')));
@@ -81,7 +83,7 @@ export function createServer({ fast = FAST, port = Number(opt('port', process.en
     onFx: (e) => io.emit('fx', e),
     onStep: () => save(),
   });
-  if (restore && !NO_SAVE && fs.existsSync(SAVE_FILE)) {
+  if (restore && persist && fs.existsSync(SAVE_FILE)) {
     try {
       const data = JSON.parse(fs.readFileSync(SAVE_FILE, 'utf8'));
       const fresh = Date.now() - (data.savedAt || 0) < 8 * 3600 * 1000;
@@ -89,7 +91,7 @@ export function createServer({ fast = FAST, port = Number(opt('port', process.en
     } catch (e) { log('  (could not read the save file — starting fresh)'); }
   }
   function save() {
-    if (NO_SAVE) return;
+    if (!persist) return;
     try {
       if (game.step.kind === 'lobby') { if (fs.existsSync(SAVE_FILE)) fs.unlinkSync(SAVE_FILE); return; }
       fs.writeFileSync(SAVE_FILE, JSON.stringify(game.serialize()));

@@ -148,9 +148,9 @@ function cryptPool(rng, code) {
 }
 
 // ---------- The Three Brides ----------
-const VEILS = ['torn on the left', 'torn on the right', 'untorn'];
+const VEILS = ['long', 'short', 'torn'];
 const BOUQUETS = ['white roses', 'black roses', 'lilies'];
-const HANDS = ['left', 'right'];
+const GLOVES = ['white', 'black'];
 
 export function makeBrides(rng) {
   for (let attempt = 0; attempt < 200; attempt++) {
@@ -158,10 +158,10 @@ export function makeBrides(rng) {
       idx: i,
       veil: rng.pick(VEILS),
       bouquet: rng.pick(BOUQUETS),
-      ring: rng.pick(HANDS),
+      gloves: rng.pick(GLOVES),
       locket: rng() < 0.5,
     }));
-    const key = (b) => `${b.veil}|${b.bouquet}|${b.ring}|${b.locket}`;
+    const key = (b) => `${b.veil}|${b.bouquet}|${b.gloves}|${b.locket}`;
     if (new Set(brides.map(key)).size < 3) continue;
     const real = brides[rng.int(3)];
     const truths = [];
@@ -172,7 +172,7 @@ export function makeBrides(rng) {
     };
     for (const v of VEILS) add(`My veil is ${v}.`, `Your precious bride's veil is ${v}.`, (b) => b.veil === v);
     for (const q of BOUQUETS) add(`I'm holding ${q}.`, `She is holding ${q}, darling.`, (b) => b.bouquet === q);
-    for (const h of HANDS) add(`My ring is on my ${h} hand.`, `Look for the ring on her ${h} hand.`, (b) => b.ring === h);
+    for (const h of GLOVES) add(`I'm wearing ${h} gloves.`, `Look for the ${h} gloves, darling.`, (b) => b.gloves === h);
     add("I'm wearing my grandmother's locket.", 'She wears a locket around her neck.', (b) => b.locket);
     add("I'm not wearing a locket — Vesper took it.", "She isn't wearing a locket.", (b) => !b.locket);
     const clues = pickClues(rng, brides, real, truths, { maxSingleElim: 1 });
@@ -181,7 +181,7 @@ export function makeBrides(rng) {
     const usableLies = lies.filter((l) => brides.some((b) => b !== real && l.test(b)));
     if (usableLies.length < 2) continue;
     return {
-      brides: brides.map(({ idx, veil, bouquet, ring, locket }) => ({ idx, veil, bouquet, ring, locket })),
+      brides: brides.map(({ idx, veil, bouquet, gloves, locket }) => ({ idx, veil, bouquet, gloves, locket })),
       answer: real.idx,
       whispers: clues.map((c) => c.text),
       extraTruths: rng.shuffle(truths.filter((c) => !clues.includes(c))).map((c) => c.text),

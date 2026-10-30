@@ -352,6 +352,7 @@ export class Game {
       ...this.baseView(),
       me: { id: p.id, name: p.name, team: p.team, teamName: team?.name || null, teamColor: team?.color || null, score: p.score, isHost, isGroom: pid === this.settings.groomId, photo: !!p.photo, perks: p.perks.slice() },
       inventory: (this.inventory[pid] || []).slice(),
+      roster: this.allPlayers().map((x) => ({ id: x.id, name: x.name, team: x.team })),
       step: this.stepDef.phone?.(this, this.s, p, this.step.params) ?? {},
       host: isHost ? this.hostView() : null,
     };

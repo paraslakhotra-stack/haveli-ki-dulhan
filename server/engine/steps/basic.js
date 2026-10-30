@@ -31,8 +31,8 @@ export const story = {
     s.fxTag = params.fx || (beat === 'endingWin' ? 'win' : beat === 'endingLose' ? 'lose' : null);
     g.setTimer(s.tl.total);
   },
-  tv: (g, s) => ({ beat: s.beat, scene: s.scene, lines: s.tl.lines, fx: s.fxTag }),
-  phone: (g, s) => ({ beat: s.beat, lines: s.tl.lines, fx: s.fxTag }),
+  tv: (g, s) => ({ beat: s.beat, scene: s.scene, lines: s.tl.lines, fx: s.fxTag, total: g.dur(s.tl.total) }),
+  phone: (g, s) => ({ beat: s.beat, lines: s.tl.lines, fx: s.fxTag, total: g.dur(s.tl.total) }),
 };
 
 export const chapterTitle = {

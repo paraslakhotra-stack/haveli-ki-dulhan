@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>Nightfall</title>
+  <meta name="theme-color" content="#06070c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Nightfall">
+  <link rel="manifest" href="/play/manifest.webmanifest">
+  <link rel="icon" href="/play/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/play/icon-180.png">
+  <link rel="stylesheet" href="/shared/theme.css">
+  <link rel="stylesheet" href="/play/play.css">
+</head>
+<body>
+  <div id="app">
+    <header id="top" class="hidden">
+      <div id="me"></div>
+      <div id="top-right">
+        <button id="inv-btn" class="chip hidden" aria-label="Your engravings">📜 <span id="inv-n">0</span></button>
+        <span id="dot" title="connection"></span>
+      </div>
+    </header>
+    <main id="main"></main>
+    <button id="host-btn" class="hidden" aria-label="Host controls">♛</button>
+  </div>
+  <div id="sheet" class="hidden"><div id="sheet-inner"></div></div>
+  <div id="flash" aria-hidden="true"></div>
+  <div id="paused" class="hidden"><div>PAUSED</div><small>The host is holding the night.</small></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/play/play.js"></script>
+</body>
+</html>

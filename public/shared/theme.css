@@ -1,0 +1,56 @@
+/* NIGHTFALL — shared theme. Fonts are vendored (works with no internet). */
+@font-face { font-family: 'Cinzel'; font-weight: 500 900; font-display: swap;
+  src: url('/fonts/cinzel/cinzel-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Cinzel'; font-weight: 400; font-display: swap;
+  src: url('/fonts/cinzel/cinzel-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Fell'; font-style: normal; font-display: swap;
+  src: url('/fonts/fell/im-fell-english-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Fell'; font-style: italic; font-display: swap;
+  src: url('/fonts/fell/im-fell-english-latin-400-italic.woff2') format('woff2'); }
+@font-face { font-family: 'Elite'; font-display: swap;
+  src: url('/fonts/elite/special-elite-latin-400-normal.woff2') format('woff2'); }
+
+:root {
+  color-scheme: dark;
+  --ink: #06070c;
+  --ink-2: #0d0f18;
+  --ink-3: #161a26;
+  --bone: #efe6d8;
+  --bone-dim: #b9ad9c;
+  --ash: #7d766c;
+  --blood: #c8102e;
+  --blood-glow: #ff2a4a;
+  --candle: #ffb35c;
+  --candle-dim: #b8742c;
+  --rot: #8fbf6a;
+  --vesper: #ff3b5c;
+  --parchment: #efe3c8;
+  --team-A: #e0314b;
+  --team-B: #4fb3ff;
+  --team-C: #5fe08a;
+  --title: 'Cinzel', 'Trajan Pro', Georgia, serif;
+  --prose: 'Fell', 'Garamond', Georgia, serif;
+  --type: 'Elite', 'Courier New', monospace;
+  --radius: 14px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--ink); color: var(--bone); }
+body { font-family: var(--prose); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; }
+.title { font-family: var(--title); letter-spacing: .08em; }
+.type { font-family: var(--type); }
+.vesper-text { color: var(--vesper); font-style: italic; text-shadow: 0 0 18px rgba(255, 40, 70, .55); }
+.hidden { display: none !important; }
+
+.face { position: relative; border-radius: 50%; overflow: hidden; background: #2a2622; flex: none;
+  display: grid; place-items: center; font-family: var(--title); color: var(--bone); }
+.face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.face .initial { font-size: 45%; opacity: .85; }
+
+@keyframes flicker { 0%, 100% { opacity: 1 } 41% { opacity: 1 } 42% { opacity: .55 } 43% { opacity: 1 } 77% { opacity: .9 } 78% { opacity: .6 } 80% { opacity: 1 } }
+@keyframes glitch { 0% { transform: translate(0) } 20% { transform: translate(-2px, 1px) } 40% { transform: translate(2px, -1px) } 60% { transform: translate(-1px, -2px) } 80% { transform: translate(1px, 2px) } 100% { transform: translate(0) } }
+@keyframes rise { from { opacity: 0; transform: translateY(18px) } to { opacity: 1; transform: none } }
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes pulse { 0%, 100% { transform: scale(1) } 50% { transform: scale(1.06) } }
+@keyframes shake { 0%, 100% { transform: translate(0) } 25% { transform: translate(-6px, 3px) } 50% { transform: translate(5px, -4px) } 75% { transform: translate(-3px, -2px) } }
