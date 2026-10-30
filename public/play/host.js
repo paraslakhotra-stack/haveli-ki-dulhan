@@ -31,7 +31,7 @@ function seg(options, value, onPick) {
 function setupForm(box, v, ctx, st, sug) {
   const players = v.host.players;
   const state = {
-    heat: st.heat || 'mild', narration: st.narration !== false, groomId: st.groomId || null,
+    heat: st.heat || 'mild', voice: st.voice || (st.narration === false ? 'off' : 'cinematic'), length: st.length || 'full', groomId: st.groomId || null,
     groomName: st.groomName || '', brideName: st.brideName || '',
     groomQuiz: (st.groomQuiz?.length ? st.groomQuiz : sug.map((q) => ({ q, a: '', w: ['', '', ''] }))).map((r) => ({ q: r.q, a: r.a || '', w: [...(r.w || []), '', '', ''].slice(0, 3) })),
   };
@@ -55,7 +55,7 @@ function setupForm(box, v, ctx, st, sug) {
   const details = h('details', { class: 'fold' }, h('summary', {}, '💍 How well do they know the groom? (fill in any you like)'), h('p', { class: 'fine' }, 'Each filled-in row becomes a quiz question in Chapter II. Leave rows blank to skip them.'), quizBox);
   const msg = h('div', { class: 'fine center' });
   const save = async () => {
-    const r = await ctx.hostCmd('settings', { heat: state.heat, narration: state.narration, groomId: state.groomId, groomName: groomName.value, brideName: brideName.value, groomQuiz: state.groomQuiz });
+    const r = await ctx.hostCmd('settings', { heat: state.heat, voice: state.voice, length: state.length, groomId: state.groomId, groomName: groomName.value, brideName: brideName.value, groomQuiz: state.groomQuiz });
     msg.textContent = r.ok ? 'Saved ✓' : 'Could not save — are you still the host?';
     return r.ok;
   };
@@ -74,17 +74,18 @@ function setupForm(box, v, ctx, st, sug) {
     h('label', {}, 'Who is the groom?'), groomSel, groomName,
     h('label', {}, "The bride (she's the one Chandravati takes)"), brideName,
     h('label', {}, 'Heat level'), seg([['mild', '🕯 Mild'], ['spicy', '🌶 Spicy (office-safe)']], state.heat, (x) => { state.heat = x; }),
-    h('label', {}, 'Spoken narration on the TV'), seg([[true, 'Voice on'], [false, 'Captions only']], state.narration, (x) => { state.narration = x; }),
+    h('label', {}, 'Voice on the TV'), seg([['cinematic', '🎙 Cinematic'], ['browser', 'Laptop voice'], ['off', 'Captions only']], state.voice, (x) => { state.voice = x; }),
+    h('label', {}, 'Night length'), seg([['full', '🌙 Full (~90 min)'], ['short', '⚡ Short (~60 min)']], state.length, (x) => { state.length = x; }),
     details,
     h('button', { class: 'btn ghost', onclick: save }, 'Save'),
     begin, msg,
-    h('p', { class: 'fine center' }, `${players.length} guest${players.length === 1 ? '' : 's'} signed in. Best with 4–12. Late arrivals can still join mid-game.`),
+    h('p', { class: 'fine center' }, `${players.length} guest${players.length === 1 ? '' : 's'} signed in → ${players.length >= 10 ? 4 : players.length >= 6 ? 3 : 2} teams. Best with 6–16. Late arrivals can still join mid-game.`),
     kickList(v, ctx),
   );
 }
 
 function remote(box, v, ctx, st) {
-  const chapters = [['guestbook', 'I · The Guest Book'], ['library', 'II · Library'], ['nursery', 'III · Nursery'], ['reception', 'IV · Reception'], ['arena', 'V · Zombies'], ['vow', 'VI · The Vow'], ['dawn', 'Dawn & credits']];
+  const chapters = [['guestbook', 'I · Haveli Ka Darwaza'], ['library', 'II · Pothi Khana'], ['nursery', 'III · Zenana Ka Jhoola'], ['reception', 'IV · Sangeet Ki Daawat'], ['hunt', 'V · Solah Shringar Ki Khoj'], ['arena', 'VI · Murda Baraat'], ['vow', 'VII · Aadhi Raat Ka Mandap'], ['dawn', 'Vidaai & credits']];
   const jump = h('select', { class: 'field' }, h('option', { value: '' }, 'Jump to a chapter…'), chapters.map(([id, l]) => h('option', { value: id }, l)));
   jump.addEventListener('change', async () => {
     if (!jump.value) return;
@@ -98,7 +99,7 @@ function remote(box, v, ctx, st) {
       h('button', { class: 'btn', onclick: async () => { await ctx.hostCmd(v.paused ? 'resume' : 'pause'); ctx.closeSheet(); } }, v.paused ? '▶ Resume' : '⏸ Pause'),
       h('button', { class: 'btn', onclick: async () => { await ctx.hostCmd('skip'); } }, '⏭ Skip this step')),
     h('label', {}, 'Heat level'), seg([['mild', '🕯 Mild'], ['spicy', '🌶 Spicy']], st.heat, (x) => ctx.hostCmd('settings', { heat: x })),
-    h('label', {}, 'Spoken narration'), seg([[true, 'Voice on'], [false, 'Captions only']], st.narration, (x) => ctx.hostCmd('settings', { narration: x })),
+    h('label', {}, 'Voice on the TV'), seg([['cinematic', '🎙 Cinematic'], ['browser', 'Laptop'], ['off', 'Off']], st.voice || 'cinematic', (x) => ctx.hostCmd('settings', { voice: x })),
     v.kind === 'sorting' || v.chapter?.id === 'prologue' ? h('button', { class: 'btn ghost', onclick: () => ctx.hostCmd('shuffle') }, '🔀 Reshuffle teams') : null,
     jump,
     kickList(v, ctx),

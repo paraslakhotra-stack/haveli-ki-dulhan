@@ -13,6 +13,7 @@ export const VOICES = {
 };
 
 const GENERIC = {
+  'huntIntro.1': "Then the dulhan's voice comes from every mirror at once. Chandravati has scattered her solah shringar through the haveli. Without it, no one will know which dulhan is real.",
   'prologue.0': "Tonight was supposed to be simple. Dulhe raja's last night of azaadi. Dost, dhamaal, aur ek sunrise jo kisi ko yaad nahi rehna tha.",
   'arenaIntro.2': 'Mandap tak pahuncho. Dulhan ko bachao. Aur kaatne mat dena.',
   'guestbookEnd.1': 'Then every phone in the room rings at once. Video call… from the dulhan.',

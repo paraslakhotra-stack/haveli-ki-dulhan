@@ -88,13 +88,13 @@ export const BEATS = {
     ['n', 'The murda baraat is rising.'],
   ],
   huntIntro: [
-    ['n', 'Outside, the dhol grows louder. The dead are still climbing out of the baagh. There is a little time — very little.'],
-    ['n', "Then {BRIDE}'s voice comes from every mirror in the haveli at once. Chandravati has scattered her solah shringar through these halls. Without it, no one in the mandap will know which dulhan is real."],
+    ['n', 'Outside, the dhol grows louder. The dead are still climbing out of the baagh. There is a little time.'],
+    ['n', "Then {BRIDE}'s voice comes from every mirror at once. Chandravati has scattered her solah shringar through the haveli. Without it, no one will know which dulhan is real."],
   ],
   huntHowTo: [
-    ['n', 'Split up. Every team gets its own trail of treasures. Your phones hold the riddle — and the map on the screen shows where to look. It gets sharper with time.'],
+    ['n', 'Split up. Every team has its own trail. Your phones hold the riddle; the map on screen shows where to look — and it sharpens with time.'],
     ['n', 'Reach the glowing spot and a shaadi question appears on your phones. Answer right, and the next riddle unlocks. Answer wrong… and she comes looking for you.'],
-    ['n', 'If a shadow drifts towards you, hold up your diya. And whatever you find now will fight beside you in the baagh.'],
+    ['n', 'If a shadow drifts towards you, raise your diya. Whatever you find now will fight beside you in the baagh.'],
   ],
   huntEnd: [
     ['n', 'The searching is over. Whatever the haveli gave back, you carry with you now.'],

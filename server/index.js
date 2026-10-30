@@ -12,6 +12,7 @@ import { Game } from './engine/game.js';
 import { STEPS } from './engine/steps/index.js';
 import { GROOM_QUESTION_SUGGESTIONS } from './content/quiz.js';
 import { encode as encodeSnap } from '../public/shared/rtcodec.js';
+import { createTts } from './tts.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -66,6 +67,9 @@ export function createServer({ fast = FAST, port = Number(opt('port', process.en
   app.use('/fonts/elite', express.static(nm('@fontsource/special-elite/files'), { maxAge: '7d' }));
   app.use('/content/runes.js', (req, res) => res.type('application/javascript').sendFile(path.join(ROOT, 'server/content/runes.js')));
   app.get('/content/suggestions.json', (req, res) => res.json(GROOM_QUESTION_SUGGESTIONS));
+  app.use('/vo', express.static(path.join(ROOT, 'public/vo'), { maxAge: '6h' }));
+  app.use('/audio', express.static(path.join(ROOT, 'public/audio'), { maxAge: '6h' }));
+  app.use('/art', express.static(path.join(ROOT, 'public/art'), { maxAge: '6h' }));
   app.use('/tv', express.static(path.join(ROOT, 'public/tv')));
   app.use('/play', express.static(path.join(ROOT, 'public/play')));
   app.use('/shared', express.static(path.join(ROOT, 'public/shared')));
@@ -75,6 +79,14 @@ export function createServer({ fast = FAST, port = Number(opt('port', process.en
   });
   app.get('/health', (req, res) => res.json({ ok: true, kind: game.step.kind, players: game.players.size }));
   app.get('/stats', (req, res) => res.json(rtStats()));
+  // Live ElevenLabs voice for lines that name the groom/bride (only when ELEVENLABS_API_KEY is set).
+  const tts = createTts({ apiKey: process.env.ELEVENLABS_API_KEY, fmt: (t) => game.fmt(t), log });
+  app.get('/tts', async (req, res) => {
+    if (!tts.enabled) return res.sendStatus(404);
+    const r = await tts.line(String(req.query.k || ''));
+    if (!r.ok) return res.sendStatus(r.status || 502);
+    res.set('Cache-Control', 'private, max-age=3600').type('audio/mpeg').send(r.buf);
+  });
 
   // ---------- game ----------
   let flushTimer = null;
@@ -87,6 +99,7 @@ export function createServer({ fast = FAST, port = Number(opt('port', process.en
     onFx: (e) => io.emit('fx', e),
     onStep: () => save(),
   });
+  game.voLive = !!process.env.ELEVENLABS_API_KEY;
   if (restore && persist && fs.existsSync(SAVE_FILE)) {
     try {
       const data = JSON.parse(fs.readFileSync(SAVE_FILE, 'utf8'));
@@ -188,6 +201,7 @@ export function createServer({ fast = FAST, port = Number(opt('port', process.en
       if (!allowed || !msg || typeof msg.cmd !== 'string') return reply({ ok: false });
       if (msg.cmd === 'input' && sock.data.pid) { game.input(sock.data.pid, msg.args); return reply({ ok: true }); }
       const ok = game.hostCommand(msg.cmd, msg.args || {});
+      if (ok && (msg.cmd === 'start' || msg.cmd === 'settings')) tts.prewarm(); // render the named lines early
       if (msg.cmd === 'restart') save();
       reply({ ok: !!ok });
     });

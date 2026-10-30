@@ -167,6 +167,38 @@
   "file": "receptionEnd.4.mp3",
   "ms": 2090
  },
+ "huntIntro.0": {
+  "file": "huntIntro.0.mp3",
+  "ms": 6113
+ },
+ "huntIntro.1": {
+  "file": "huntIntro.1.mp3",
+  "ms": 10736
+ },
+ "huntHowTo.0": {
+  "file": "huntHowTo.0.mp3",
+  "ms": 9143
+ },
+ "huntHowTo.1": {
+  "file": "huntHowTo.1.mp3",
+  "ms": 9979
+ },
+ "huntHowTo.2": {
+  "file": "huntHowTo.2.mp3",
+  "ms": 6400
+ },
+ "huntEnd.0": {
+  "file": "huntEnd.0.mp3",
+  "ms": 5433
+ },
+ "huntEnd.1": {
+  "file": "huntEnd.1.mp3",
+  "ms": 5251
+ },
+ "phereIntro.0": {
+  "file": "phereIntro.0.mp3",
+  "ms": 8725
+ },
  "arenaIntro.0": {
   "file": "arenaIntro.0.mp3",
   "ms": 12304

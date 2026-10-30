@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Voice-over pipeline.
-//   node tools/vo-build.mjs scripts            → writes tools/vo/<voice>-<n>.txt batch scripts (one per TTS request)
+//   node tools/vo-build.mjs scripts [--missing] → writes tools/vo/<voice>-<n>.txt batch scripts (one per TTS request);
+//                                                 --missing only includes lines that have no clip yet (as <voice>-new-<n>)
 //   node tools/vo-build.mjs split <batch> <mp3> [starts.json]
 //        → cuts a batch recording into one clip per line. starts.json lists each line's start time in seconds
 //          (from a speech-recogniser pass, e.g. tools/vo-align.py); without it the longest pauses are used.
@@ -25,11 +26,13 @@ function lines() {
   return all;
 }
 
-function scripts() {
+function scripts(missing = false) {
   fs.mkdirSync(work, { recursive: true });
-  const order = {};
+  const orderFile = path.join(work, 'order.json');
+  const order = missing && fs.existsSync(orderFile) ? JSON.parse(fs.readFileSync(orderFile, 'utf8')) : {};
   for (const sp of Object.keys(VOICES)) {
-    const mine = lines().filter((l) => l.sp === sp);
+    const mine = lines().filter((l) => l.sp === sp && (!missing || !fs.existsSync(path.join(out, `${l.key}.mp3`))));
+    if (!mine.length) continue;
     const batches = [[]];
     let len = 0;
     for (const l of mine) {
@@ -38,13 +41,13 @@ function scripts() {
       batches.at(-1).push(l); len += add;
     }
     batches.forEach((b, i) => {
-      const name = `${sp}-${i}`;
+      const name = missing ? `${sp}-new-${i}` : `${sp}-${i}`;
       fs.writeFileSync(path.join(work, `${name}.txt`), b.map((l) => l.text).join('\n\n'));
       order[name] = b.map((l) => l.key);
       console.log(name, b.length, 'lines', [...fs.readFileSync(path.join(work, `${name}.txt`), 'utf8')].length, 'chars');
     });
   }
-  fs.writeFileSync(path.join(work, 'order.json'), JSON.stringify(order, null, 2));
+  fs.writeFileSync(orderFile, JSON.stringify(order, null, 2));
 }
 
 function probeMs(file) {
@@ -108,7 +111,7 @@ function manifest() {
 }
 
 const [cmd, ...args] = process.argv.slice(2);
-if (cmd === 'scripts') scripts();
+if (cmd === 'scripts') scripts(args.includes('--missing'));
 else if (cmd === 'split') split(...args);
 else if (cmd === 'manifest') manifest();
 else console.log('usage: vo-build.mjs scripts | split <batch> <mp3> | manifest');

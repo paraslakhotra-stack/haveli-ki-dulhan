@@ -340,6 +340,8 @@ export class Game {
     return {
       ...this.baseView(),
       narration: this.settings.narration,
+      voice: this.settings.voice,
+      voLive: !!this.voLive,
       fast: this.fast,
       join: this.joinInfo || null,
       players: this.allPlayers().map((p) => ({ id: p.id, name: p.name, team: p.team, connected: p.connected, score: p.score, photo: !!p.photo })),

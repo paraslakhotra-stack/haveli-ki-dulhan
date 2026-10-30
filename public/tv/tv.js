@@ -100,6 +100,7 @@ function render(v) {
   view = v;
   setNames(v.players);
   narrator.enabled = v.narration && !v.fast;
+  narrator.configure({ voice: v.voice, live: v.voLive });
   arena.setContext({ teams: v.teams, players: v.players, groomId: v.groomId });
 
   const wantArena = v.kind === 'arena';

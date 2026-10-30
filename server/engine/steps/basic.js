@@ -1,15 +1,21 @@
 // Lobby, narration, chapter cards, team sorting, chapter results, forfeits, ending and credits.
+import { VO } from '../../content/vo.js';
 import { BEATS, CHAPTERS, RELICS } from '../../content/script.js';
 import { FORFEITS } from '../../content/forfeits.js';
 
 // ---------- narration timeline ----------
+// Each line gets a stable key (beat.index) so the TV can play its recorded voice-over clip; when a clip exists,
+// the line's slot stretches to fit it, keeping captions, voice and the story timer in step.
 export function timeline(g, beatKey) {
   const scale = g.fast ? 0.08 : 1;
-  const raw = (BEATS[beatKey] || []).map(([sp, text]) => ({ sp, text: g.fmt(text) }));
+  // pz: the line names the groom/bride, so the live voice (if configured) should speak it instead of the clip
+  const raw = (BEATS[beatKey] || []).map(([sp, text], i) => ({ sp, text: g.fmt(text), key: `${beatKey}.${i}`, ...(/\{(GROOM|BRIDE)\}/.test(text) ? { pz: 1 } : {}) }));
   let t = 700;
   const lines = [];
   for (const l of raw) {
-    const ms = Math.min(15000, Math.max(3600, l.text.length * (l.sp === 'v' ? 80 : 66)));
+    const textMs = Math.min(15000, Math.max(3600, l.text.length * (l.sp === 'v' ? 80 : 66)));
+    const clip = VO[l.key]?.ms;
+    const ms = clip ? Math.max(textMs * 0.8, clip + 450) : textMs;
     lines.push({ ...l, at: Math.round(t * scale), ms: Math.round(ms * scale) });
     t += ms + 650;
   }
