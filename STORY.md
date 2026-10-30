@@ -79,9 +79,19 @@
   - *"Nacho, baraatiyon. Murde akele nahi naachte."* ("Dance, baraatis. The dead never dance alone.")
   - **The murda baraat rises.** **Ring piece IV.**
 
-## CHAPTER V: *Murda Baraat* (11:45 PM)
+## CHAPTER V: *Solah Shringar Ki Khoj* (11:41 PM) — the split-screen treasure hunt
+- The dhol grows louder in the baagh; the dead are still climbing out of the earth. Then {BRIDE}'s voice comes from every mirror at once: Chandravati has scattered her **solah shringar** (the sixteen bridal adornments) through the haveli. Without them, no one in the mandap will know which dulhan is real.
+- **Game:** every team gets its own trail of **5 stations** through the haveli (Pothi Khana, Zenana, Sheesh Mahal, Rasoi, Diwan-e-Khaas, Tehkhana, Baoli). The TV **splits into one pane per team** (2, 3 or 4), each with its own camera and a **mini-map** whose glowing hint zone shrinks towards the next station.
+  - Phones show the **riddle** ("Jahan kabhi rotiyan sikti thi…") and a **garam/thanda** meter.
+  - Reach the glowing sandook and a **shaadi question** appears on the team's phones. Right answer → an adornment (chooda, kaleere, maang tikka, nath, payal, gajra…) and the next riddle. Wrong → the team is locked out for 8 seconds and Chandravati comes looking.
+  - Two of **Chandravati's shadows** drift through the halls. A touch freezes you for 3 seconds; **raise your diya** to push her back.
+  - Trailing teams get sharper hints (catch-up), and the hunt ends after 8 minutes or when every team is done.
+- **Every adornment becomes power in the baagh:** 1 = +15% HP, 2 = a better starting gun, 3 = a free power, 4+ = a faster dash.
+- **End:** "In the baagh, the dhol stops. A hundred and eight heads turn towards the haveli."
+
+## CHAPTER VI: *Murda Baraat* (11:47 PM)
 - "Between you and the mandap lies the haveli's baagh (garden), and 108 dead baraatis dancing to a dhol nobody is playing."
-- "Your phones are your weapons. Move with your thumb; the gun aims itself. Every kill makes you stronger."
+- "Your phones are your weapons." Every phone becomes a **twin-stick gamepad**: left thumb moves, right thumb aims, and the guns **never stop firing** (let go of aim and they lock onto the nearest zombie). 💨 Dash dodges through the horde; 🍋 bombs go where you aim.
 - **Waves:**
   1. **The Baraat Arrives:** dead baraatis.
   2. **The Gossip Aunties:** shrieking aunties who send the dead into a frenzy, plus fast **naagin dancers**.
@@ -96,12 +106,14 @@
   - **Gulaal Bomb:** a colour explosion.
 - **Nimbu-Mirchi bombs** are thrown with a button.
 - Any friend can revive a fallen guest, and nobody sits out.
+- **Baraat Break:** between waves 2 and 3 the fight pauses for one shaadi question on every phone. Get it right and a power drops into your hands.
 - **End of chapter:** Vikram falls to his knees. For a moment his face is his own again, young and afraid. *"Maaf karna, Chandra…"* ("Forgive me, Chandra…") He turns to dust. It is 11:58.
 
-## CHAPTER VI: *Aadhi Raat Ka Mandap* (11:58 PM)
+## CHAPTER VII: *Aadhi Raat Ka Mandap* (11:58 PM)
 - "The mandap: marigolds, banana leaves, the havan kund (sacred fire pit) glowing softly. **Three dulhans** sit in red, all in ghoonghat, all perfectly still."
 - "One of them is {BRIDE}. The other two are Chandravati and her reflection."
 - **Game: Tijori Ka Taala** (the vault lock). The engravings collected all night are spread across the phones. Share them out loud, open the 4-digit vault, and make the ring whole.
+- **Phere Quiz:** before the real pheras, seven rapid shaadi questions, one for every phera. The team that knows shaadi best hears **one more true whisper** in the next game.
 - **Game: Teen Dulhanein** (three brides).
   - **White whispers** come from {BRIDE} and are true. **Red whispers** come from Chandravati, and every one is a lie.
   - The dulhans differ in their ghoonghat (long, short or torn), varmala (genda, gulab or mogra), chooda (red or white bangles) and nath (nose ring).

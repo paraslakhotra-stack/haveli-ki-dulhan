@@ -7,6 +7,7 @@ import { getPhoto, getPossessed, nameOf } from '/shared/photos.js';
 import { audio } from '/shared/audio.js';
 import { RtBuffer, playerKey, idKey } from '/tv/rtclient.js';
 import * as SP from '/tv/sprites.js';
+import { art } from '/shared/art.js';
 
 const WW = 1600;
 const WH = 900;
@@ -279,7 +280,12 @@ export class ArenaRenderer {
       case 'revive': { const p = P?.get(ev.pid); if (p) this.fx.push({ k: 'ring', x: p[0], y: p[1], c: '255,255,220', life: 0.7, max: 0.7, r: 90 }); audio.ui('ok'); break; }
       case 'wave': this.banner(ev.boss ? 'BHOOT DULHA AA GAYA' : `WAVE ${ev.n}`, 3.2, ev.boss ? '#ff3b5c' : '#efe6d8', 1, ev.title); audio.bell(0.8); audio.whisper(0.8); break;
       case 'break': this.banner('BARAAT BREAK', 2.6, '#ffd27a', 1, 'Phone pe sawaal — sahi jawaab = power!'); audio.bell(0.7); break;
-      case 'boss': audio.roar(1.4); audio.stinger(1); break;
+      case 'boss': {
+        audio.roar(1.4); audio.stinger(1);
+        const url = art.url('vikram');
+        if (url) { const card = document.createElement('div'); card.className = 'boss-card'; card.style.backgroundImage = `url(${url})`; document.getElementById('stage').append(card); setTimeout(() => card.remove(), 3500); }
+        break;
+      }
       case 'bossDie': this.fx.push({ k: 'ring', x: ev.x, y: ev.y, c: '255,255,255', life: 2, max: 2, r: 700 }); this.shake = 30; audio.scream(1); audio.bell(1); break;
       case 'bell': this.banner('GHANTA BAJ GAYA', 2.4, '#efe6d8', 0.8, 'Baaki murde jal gaye'); audio.bell(1); break;
       case 'victory': this.banner('BAAGH SAAF HAI', 4, '#ffd27a', 1, 'Mandap ki taraf bhaago!'); audio.bell(1); audio.ui('good'); break;

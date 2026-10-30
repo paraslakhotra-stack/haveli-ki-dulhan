@@ -377,7 +377,8 @@ function glass(root, v) {
   const draw = (vv) => {
     const s = vv.step;
     clear(box);
-    add(box, header(vv, 'Chapter IV · Zehreeli Thandai', s.sub === 'reveal' ? 'Zeher ka raaz khul gaya' : 'Team ke har member ko same glass chunna hoga'));
+    box.classList.toggle('four', s.teams.length >= 4);
+    add(box, header(vv, 'Chapter IV · Zehreeli Thandai', s.sub === 'reveal' ? 'Zeher ka raaz khul gaya' : 'Poori team ek hi glass chune'));
     if (s.sub === 'play') add(box, timerBar(vv.remaining, 150000));
     const lanes = h('div', { class: 'glass-lanes' });
     for (const t of s.teams) {
@@ -386,7 +387,7 @@ function glass(root, v) {
       add(lanes, h('div', { class: `g-lane ${t.done ? 'won' : ''} ${t.locked ? 'locked' : ''}`, style: { '--tc': teamColor(vv, t.id) } },
         h('div', { class: 'lane-team' }, teamName(vv, t.id)),
         h('div', { class: 'g-row' }, t.glasses.map((gl) => h('div', { class: 'g-cell' },
-          h('div', { html: glassSvg(gl, { size: 92, highlight: t.answer === gl.pos ? '#9dff8a' : null, poisoned: t.answer === gl.pos }) }),
+          h('div', { html: glassSvg(gl, { size: s.teams.length >= 4 ? 70 : 92, highlight: t.answer === gl.pos ? '#9dff8a' : null, poisoned: t.answer === gl.pos }) }),
           h('div', { class: 'g-pos' }, gl.pos),
           h('div', { class: 'g-dots' }, '●'.repeat(counts[gl.pos] || 0))))),
         h('div', { class: 'lane-status' }, t.done ? `✦ Found it — ${ORD[t.rank]}` : t.locked ? '☠ Wrong glass! Locked out…' : `${t.picks.length}/${t.members} ne chuna`)));

@@ -115,7 +115,7 @@ await new Promise((r) => setTimeout(r, 1500));
 await tv.screenshot({ path: `${SHOTS}/tv-99-credits.jpg`, type: 'jpeg', quality: 72 });
 await phones[1].screenshot({ path: `${SHOTS}/phone-99-credits.jpg`, type: 'jpeg', quality: 72 });
 
-const expected = ['sorting', 'seance', 'quiz', 'trial-candle', 'trial-musicbox', 'trial-banish', 'trial-blink', 'trial-gallery', 'possess', 'toast', 'glass', 'unmask', 'arena', 'crypt', 'brides', 'vowWrite', 'chapterTitle', 'chapterEnd'];
+const expected = ['sorting', 'seance', 'quiz', 'trial-candle', 'trial-musicbox', 'trial-banish', 'trial-blink', 'trial-gallery', 'possess', 'toast', 'glass', 'unmask', 'hunt', 'arena', 'crypt', 'brides', 'vowWrite', 'chapterTitle', 'chapterEnd'];
 for (const e of expected) if (!seen.has(e)) errors.push(`never reached ${e}`);
 if (game.step.kind !== 'credits') errors.push(`did not reach credits (stuck at ${game.step.kind})`);
 

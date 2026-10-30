@@ -12,3 +12,7 @@ services:
     envVars:
       - key: NODE_VERSION
         value: "22"
+      # Optional: live ElevenLabs voice that speaks tonight's real names. Paste your key in the Render
+      # dashboard (Environment → ELEVENLABS_API_KEY). Without it the recorded voice-over plays.
+      - key: ELEVENLABS_API_KEY
+        sync: false

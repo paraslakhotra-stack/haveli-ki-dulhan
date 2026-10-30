@@ -4,6 +4,7 @@ import { h, clear, add } from '/shared/dom.js';
 import { setNames, face } from '/shared/photos.js';
 import { audio } from '/shared/audio.js';
 import { music } from '/shared/music.js';
+import { art } from '/shared/art.js';
 import { Backdrop, VW, VH } from '/tv/backdrops.js';
 import { ArenaRenderer } from '/tv/arena.js';
 import { HuntRenderer } from '/tv/hunt.js';
@@ -134,10 +135,38 @@ function render(v) {
   } else {
     current.comp.update?.(v);
   }
+  renderArt(v);
   renderHud(v);
   $('pause').classList.toggle('hidden', !v.paused);
   if (prevKind && prevKind !== v.kind && v.kind === 'chapterTitle') fx.shake('fade-flash');
 }
+
+// Which painted image (if imported) sits behind each moment of the night.
+function artFor(v) {
+  if (v.kind === 'lobby') return 'haveli';
+  if (v.kind === 'chapterTitle' || v.kind === 'chapterEnd') return `ch-${v.chapter?.id}`;
+  if (v.kind === 'story') {
+    const b = v.step.beat || '';
+    if (b === 'prologue') return 'chandravati';
+    if (b === 'arenaIntro') return 'baraat';
+    if (b === 'bridesIntro' || b.startsWith('ending')) return 'dulhanein';
+    if (b === 'epilogue') return 'ch-dawn';
+    return `ch-${v.chapter?.id}`;
+  }
+  if (v.kind === 'brides') return 'dulhanein';
+  if (v.kind === 'credits') return 'ch-dawn';
+  return null;
+}
+let artName = null;
+function renderArt(v) {
+  const name = artFor(v);
+  const el = $('art');
+  const url = name && art.url(name);
+  el.classList.toggle('on', !!url && !rtOn);
+  if (url && name !== artName) { artName = name; el.firstChild.style.backgroundImage = `url(${url})`; }
+  el.style.setProperty('--art-a', v.kind === 'chapterTitle' || v.kind === 'lobby' ? '.8' : '.55');
+}
+art.ready.then(() => { art.preload(); if (view) renderArt(view); });
 
 function renderHud(v) {
   const showTag = !['lobby', 'chapterTitle', 'arena', 'hunt', 'credits'].includes(v.kind);

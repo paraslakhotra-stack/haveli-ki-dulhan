@@ -3,8 +3,9 @@
 A story-mode **Indian horror party game** for a bachelor party.
 - **The story:** a Punjabi groom's bachelor gang breaks down outside a haunted Rajasthani haveli, where Rajkumari Chandravati, the **Chudail Dulhan**, has been waiting for a dulha since 1925.
 - **How it plays:** the haveli appears on the TV, and every guest's phone is their controller, like BombSquad Remote. Guests just open a link or scan a QR code.
-- **Players:** 3–12 players (best with 6–10), split into 2–3 teams: Team Kaali Billi, Team Ullu and Team Naag.
-- **Length:** about 60–80 minutes.
+- **Players:** 3–16 players (best with 6–12), split into 2–4 teams: Team Kaali Billi, Team Ullu, Team Naag and Team Chamgadad.
+- **Length:** about 90 minutes (Full) or 60 minutes (Short), chosen by the host.
+- **Voice:** a scary ElevenLabs cast: a deep, heavy-bass narrator and Chandravati's whispering ghost voice.
 - **Language:** Hinglish, office-safe, and switchable between Mild and Spicy.
 
 > The full story, every narration line and all the content are in **[STORY.md](STORY.md)**.
@@ -32,6 +33,18 @@ A story-mode **Indian horror party game** for a bachelor party.
 
 There is **one shared game** per deployment. If the host taps **Restart the night**, everything starts fresh.
 
+### Voice-over (ElevenLabs)
+- The game ships with **recorded ElevenLabs voices**: *Brian* is the narrator (with extra bass and a hall echo added), *Lily* is Chandravati (slowed, drenched in reverb, with a whisper double) and *Sarah* is the bride on the phone. Nothing to set up.
+- **Live names (optional):** in Render → your service → **Environment**, add `ELEVENLABS_API_KEY` with your ElevenLabs key. The lines that mention the groom and bride are then spoken live with their real names (about 12 lines, roughly 1,500 characters per night). Without a key, those lines say "dulhe raja" and "dulhan" instead.
+- **Other voices (optional):** set `VO_NARRATOR`, `VO_GHOST` or `VO_BRIDE` to any ElevenLabs voice id.
+- **Host:** ♛ → Voice: *Cinematic* (ElevenLabs), *Laptop voice*, or *Captions only*.
+
+### Character art (Google Flow, optional)
+- **[ART_PROMPTS.md](ART_PROMPTS.md)** has a prompt for every character and chapter card: Rani Chandravati, the jump scare, Kunwar Vikram, the murda baraat, the three dulhans, the haveli, and each chapter.
+- **Make them:** generate the images in **Google Flow**, name them as listed, and put them in a Google Drive folder called **Haveli Art**.
+- **Import them:** run `node tools/art-import.mjs <folder>`, or ask Claude to import them. They then appear behind the story with a slow pan, on the chapter cards, in the jump scare and in the boss reveal.
+- **Fallback:** any image that's missing falls back to the game's own painted scenes.
+
 ## Play offline (laptop + Wi-Fi)
 
 **Install once:**
@@ -51,7 +64,13 @@ npm start
 
 **Everyone:**
 - The first person to join is the **Host ♛**.
-- The host taps **Raat set up karo**, chooses the dulha, the bride's name and Mild or Spicy, and can optionally fill in "How well do they know the groom?".
+- The host taps **Raat set up karo** and chooses:
+  - the dulha and the bride's name
+  - Mild or Spicy
+  - Voice: Cinematic, Laptop voice, or Captions only
+  - Night length: Full or Short
+
+  They can also fill in "How well do they know the groom?" (optional).
 - Then the host taps **Begin the Night**.
 
 ## The night
@@ -63,11 +82,25 @@ npm start
 | II | **Pothi Khana** | **Forbidden Quiz**: groom questions, shaadi trivia, Bollywood horror and "Kaun hai jo…?" votes. |
 | III | **Zenana Ka Jhoola** | **Trials of Nerve**: Diya Pakdo, Payal Ki Taal, Nimbu-Mirchi Bhagao, Pairon Ko Mat Dekho and Shaadi Album. |
 | IV | **Sangeet Ki Daawat** | **The Possessed** (a secret traitor), **Sangeet Roast** (with host veto), **Zehreeli Thandai** (a team logic puzzle) and the **Unmasking**. |
-| V | **Murda Baraat** | **Zombie baraat.** Everyone fights on the TV with a phone thumbstick against baraatis, Gossip Aunties and angry Fufajis, then the boss **Kunwar Vikram, the Bhoot Dulha**. Weapons level up from Desi Katta to Anaar Rocket. |
-| VI | **Aadhi Raat Ka Mandap** | **Tijori Ka Taala**: the clues collected all night, shared out loud. Then **Teen Dulhanein**: white whispers are true and red ones lie. Then the **Saat Vachan of the Bachelors**. |
+| V | **Solah Shringar Ki Khoj** | **Split-screen treasure hunt.** The TV splits into one pane per team. Each team roams the haveli following riddles on their phones and a mini-map hint that sharpens over time; every station asks a shaadi question. Chandravati's shadows freeze you, so raise your diya. Found adornments become power-ups in the next chapter. |
+| VI | **Murda Baraat** | **Zombie baraat.** Phones become twin-stick gamepads: move with the left thumb, aim with the right, guns never stop firing, plus dash and nimbu-mirchi bombs. Fight baraatis, Naagin dancers, Gossip Aunties and swelling Fufajis, then the boss **Kunwar Vikram, the Bhoot Dulha**. A **Baraat Break** shaadi question mid-fight hands out powers. |
+| VII | **Aadhi Raat Ka Mandap** | **Tijori Ka Taala** (the clues collected all night), the **Phere Quiz** (7 rapid shaadi questions), **Teen Dulhanein** (white whispers are true, red ones lie), then the **Saat Vachan of the Bachelors**. |
 | ☀ | **Vidaai at Sunrise** | Credits starring everyone's faces, awards, and the Kesargarh Trophy. |
 
 The lowest scorer of chapters I–IV pays **Chudail Ka Hisaab**, a forfeit card. Players can always **pass**.
+
+**Phone controls in the action chapters:**
+- **Landscape:** turn the phone sideways for a real controller grip. The screen stays awake and goes full-screen (on Android).
+- **Treasure hunt:**
+  - left thumb moves
+  - 🪔 hold to raise your diya
+  - the riddle and a garam/thanda meter are on screen
+- **Zombie baraat:**
+  - left thumb moves
+  - right thumb aims (guns always fire)
+  - 💨 dash, 🍋 bomb, ✦ power
+
+**No lag:** stick input goes straight to the server 30 times a second on its own channel. The TV gets compact binary snapshots and smooths them out, so a late packet never shows as a stutter.
 
 ---
 
@@ -104,6 +137,16 @@ npm run fast
 Every timer runs about 12× faster. Good for a rehearsal.
 
 ```bash
+node test/e2e/arena-check.mjs --chapter hunt --players 12
+```
+Real-speed bots in the hunt or the arena, with frame times and server tick stats.
+
+```bash
+node test/e2e/phone-check.mjs
+```
+Screenshots of the phone controllers.
+
+```bash
 npm run e2e
 ```
 Real Chromium: a TV plus phones play the entire night and the run fails on any console error. Needs Playwright.
@@ -113,11 +156,23 @@ node test/e2e/showcase.mjs
 ```
 Real-speed screenshots of every environment.
 
-- **Engine:** `server/engine/`. A server-authoritative state machine, with one step module per game in `steps/` and the zombie simulation in `arena/sim.js`.
+- **Engine:** `server/engine/`. A server-authoritative state machine, with one step module per game in `steps/`, the zombie simulation in `arena/sim.js` and the treasure hunt in `hunt/sim.js`. The haveli floor plan in `public/shared/haveli-map.js` is shared by the server and the TV.
+- **Real-time:**
+  - `public/shared/rtcodec.js` (binary snapshots)
+  - `public/tv/rtclient.js` (interpolation buffer)
+  - `public/play/pad.js` (multitouch twin-stick gamepad)
+  - The server runs a drift-corrected 30 Hz loop. `GET /stats` shows tick timings, and `/tv?debug` shows FPS and snapshot jitter.
+- **Sprites:** `public/tv/sprites.js`. Chibi baraatis with selfie faces and safas, and animated zombies, all pre-rendered once.
+- **Voice-over:**
+  - `public/vo/` holds the clips and a manifest.
+  - `tools/vo-build.mjs` and `tools/vo-align.py` are the recording pipeline.
+  - `server/tts.js` serves the optional live voice.
 - **Content:** `server/content/`. Narration, quiz, roasts and forfeits, with mild and spicy versions. Edit freely.
 - **TV:** `public/tv/`. Procedural environments, the narrator, the arena renderer and the screens.
 - **Phones:** `public/play/`.
-- **Sound:** `public/shared/audio.js`. Everything is synthesised live with Web Audio, including convolution reverb, the music-box lullaby and zombie groans. There are no audio files.
+- **Sound:**
+  - `public/shared/audio.js` synthesises the ambience and effects live: tanpura, shehnai, ghungroo, dhol and convolution reverb.
+  - `public/shared/music.js` holds the adaptive score (tabla, santoor and sarangi in a taal) and plays the recorded **Haveli theme** (`public/audio/theme.mp3`).
 - **Open-source libraries used** (all MIT/ISC, all served locally so the game works offline):
   - [nipplejs](https://github.com/yoannmoinet/nipplejs): the thumbstick.
   - [ZzFX](https://github.com/KilledByAPixel/ZzFX): weapon sounds.

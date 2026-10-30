@@ -1,4 +1,5 @@
 // Screen-level effects for the TV: jump scares, film grain, screen shake, petals/embers.
+import { art } from '/shared/art.js';
 import { getPossessed } from '/shared/photos.js';
 import { audio } from '/shared/audio.js';
 
@@ -78,7 +79,7 @@ export class ScreenFx {
     const now = performance.now();
     if (now - this.lastScare < 1200) return; // never stack scares
     this.lastScare = now;
-    const src = (pid && getPossessed(pid)) || drawChudail();
+    const src = (pid && getPossessed(pid)) || art.url('chandravati-scare') || drawChudail();
     this.scareEl.style.backgroundImage = `url(${src})`;
     this.scareEl.classList.remove('on');
     void this.scareEl.offsetWidth;
