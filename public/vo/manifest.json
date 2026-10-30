@@ -1,0 +1,266 @@
+{
+ "prologue.0": {
+  "file": "prologue.0.mp3",
+  "ms": 9744
+ },
+ "prologue.1": {
+  "file": "prologue.1.mp3",
+  "ms": 8229
+ },
+ "prologue.2": {
+  "file": "prologue.2.mp3",
+  "ms": 5616
+ },
+ "prologue.3": {
+  "file": "prologue.3.mp3",
+  "ms": 9143
+ },
+ "prologue.4": {
+  "file": "prologue.4.mp3",
+  "ms": 9378
+ },
+ "prologue.5": {
+  "file": "prologue.5.mp3",
+  "ms": 10318
+ },
+ "prologue.6": {
+  "file": "prologue.6.mp3",
+  "ms": 2612
+ },
+ "sorting.0": {
+  "file": "sorting.0.mp3",
+  "ms": 5381
+ },
+ "sortingEnd.0": {
+  "file": "sortingEnd.0.mp3",
+  "ms": 7288
+ },
+ "guestbookIntro.0": {
+  "file": "guestbookIntro.0.mp3",
+  "ms": 6243
+ },
+ "guestbookIntro.1": {
+  "file": "guestbookIntro.1.mp3",
+  "ms": 12460
+ },
+ "guestbookIntro.2": {
+  "file": "guestbookIntro.2.mp3",
+  "ms": 3422
+ },
+ "guestbookIntro.3": {
+  "file": "guestbookIntro.3.mp3",
+  "ms": 9874
+ },
+ "seanceHowTo.0": {
+  "file": "seanceHowTo.0.mp3",
+  "ms": 15804
+ },
+ "guestbookEnd.0": {
+  "file": "guestbookEnd.0.mp3",
+  "ms": 5251
+ },
+ "guestbookEnd.1": {
+  "file": "guestbookEnd.1.mp3",
+  "ms": 4963
+ },
+ "guestbookEnd.2": {
+  "file": "guestbookEnd.2.mp3",
+  "ms": 9038
+ },
+ "guestbookEnd.3": {
+  "file": "guestbookEnd.3.mp3",
+  "ms": 5381
+ },
+ "guestbookEnd.4": {
+  "file": "guestbookEnd.4.mp3",
+  "ms": 7680
+ },
+ "libraryIntro.0": {
+  "file": "libraryIntro.0.mp3",
+  "ms": 10893
+ },
+ "libraryIntro.1": {
+  "file": "libraryIntro.1.mp3",
+  "ms": 6583
+ },
+ "libraryIntro.2": {
+  "file": "libraryIntro.2.mp3",
+  "ms": 5773
+ },
+ "libraryEnd.0": {
+  "file": "libraryEnd.0.mp3",
+  "ms": 8359
+ },
+ "libraryEnd.1": {
+  "file": "libraryEnd.1.mp3",
+  "ms": 7549
+ },
+ "libraryEnd.2": {
+  "file": "libraryEnd.2.mp3",
+  "ms": 10214
+ },
+ "nurseryIntro.0": {
+  "file": "nurseryIntro.0.mp3",
+  "ms": 6922
+ },
+ "nurseryIntro.1": {
+  "file": "nurseryIntro.1.mp3",
+  "ms": 6609
+ },
+ "nurseryIntro.2": {
+  "file": "nurseryIntro.2.mp3",
+  "ms": 7523
+ },
+ "nurseryEnd.0": {
+  "file": "nurseryEnd.0.mp3",
+  "ms": 6818
+ },
+ "nurseryEnd.1": {
+  "file": "nurseryEnd.1.mp3",
+  "ms": 5277
+ },
+ "receptionIntro.0": {
+  "file": "receptionIntro.0.mp3",
+  "ms": 7628
+ },
+ "receptionIntro.1": {
+  "file": "receptionIntro.1.mp3",
+  "ms": 8594
+ },
+ "receptionIntro.2": {
+  "file": "receptionIntro.2.mp3",
+  "ms": 5172
+ },
+ "receptionIntro.3": {
+  "file": "receptionIntro.3.mp3",
+  "ms": 6348
+ },
+ "toastIntro.0": {
+  "file": "toastIntro.0.mp3",
+  "ms": 4598
+ },
+ "glassIntro.0": {
+  "file": "glassIntro.0.mp3",
+  "ms": 13610
+ },
+ "unmaskIntro.0": {
+  "file": "unmaskIntro.0.mp3",
+  "ms": 7576
+ },
+ "receptionEnd.0": {
+  "file": "receptionEnd.0.mp3",
+  "ms": 3840
+ },
+ "receptionEnd.1": {
+  "file": "receptionEnd.1.mp3",
+  "ms": 3056
+ },
+ "receptionEnd.2": {
+  "file": "receptionEnd.2.mp3",
+  "ms": 7053
+ },
+ "receptionEnd.3": {
+  "file": "receptionEnd.3.mp3",
+  "ms": 3762
+ },
+ "receptionEnd.4": {
+  "file": "receptionEnd.4.mp3",
+  "ms": 2090
+ },
+ "arenaIntro.0": {
+  "file": "arenaIntro.0.mp3",
+  "ms": 12304
+ },
+ "arenaIntro.1": {
+  "file": "arenaIntro.1.mp3",
+  "ms": 10162
+ },
+ "arenaIntro.2": {
+  "file": "arenaIntro.2.mp3",
+  "ms": 5068
+ },
+ "arenaEnd.0": {
+  "file": "arenaEnd.0.mp3",
+  "ms": 9430
+ },
+ "arenaEnd.1": {
+  "file": "arenaEnd.1.mp3",
+  "ms": 627
+ },
+ "arenaEnd.2": {
+  "file": "arenaEnd.2.mp3",
+  "ms": 5172
+ },
+ "vowIntro.0": {
+  "file": "vowIntro.0.mp3",
+  "ms": 6426
+ },
+ "vowIntro.1": {
+  "file": "vowIntro.1.mp3",
+  "ms": 11076
+ },
+ "vowIntro.2": {
+  "file": "vowIntro.2.mp3",
+  "ms": 9404
+ },
+ "bridesIntro.0": {
+  "file": "bridesIntro.0.mp3",
+  "ms": 13923
+ },
+ "lastChance.0": {
+  "file": "lastChance.0.mp3",
+  "ms": 4441
+ },
+ "lastChance.1": {
+  "file": "lastChance.1.mp3",
+  "ms": 5721
+ },
+ "endingWin.0": {
+  "file": "endingWin.0.mp3",
+  "ms": 6426
+ },
+ "endingWin.1": {
+  "file": "endingWin.1.mp3",
+  "ms": 3239
+ },
+ "endingWin.2": {
+  "file": "endingWin.2.mp3",
+  "ms": 11468
+ },
+ "endingWin.3": {
+  "file": "endingWin.3.mp3",
+  "ms": 7811
+ },
+ "endingLose.0": {
+  "file": "endingLose.0.mp3",
+  "ms": 5042
+ },
+ "endingLose.1": {
+  "file": "endingLose.1.mp3",
+  "ms": 2926
+ },
+ "endingLose.2": {
+  "file": "endingLose.2.mp3",
+  "ms": 9979
+ },
+ "endingLose.3": {
+  "file": "endingLose.3.mp3",
+  "ms": 2926
+ },
+ "vowWriteIntro.0": {
+  "file": "vowWriteIntro.0.mp3",
+  "ms": 9273
+ },
+ "epilogue.0": {
+  "file": "epilogue.0.mp3",
+  "ms": 8046
+ },
+ "epilogue.1": {
+  "file": "epilogue.1.mp3",
+  "ms": 4859
+ },
+ "epilogue.2": {
+  "file": "epilogue.2.mp3",
+  "ms": 1802
+ }
+}
