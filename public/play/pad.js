@@ -63,15 +63,29 @@ export function createPad(root, { rt, buttons = [], leftHint = 'CHALO', rightHin
   const el = h('div', { class: 'gpad' });
   const hud = h('div', { class: 'gp-hud' });
   const left = h('div', { class: 'gp-zone left' }, h('div', { class: 'gp-hint' }, leftHint));
-  const right = h('div', { class: 'gp-zone right' }, h('div', { class: 'gp-hint' }, rightHint));
+  const right = h('div', { class: `gp-zone right ${aim ? '' : 'noaim'}` }, rightHint ? h('div', { class: 'gp-hint' }, rightHint) : null);
   const btnRow = h('div', { class: 'gp-btns' });
   const btns = {};
+  let bits = 0; // held buttons (bit per `hold` button, in order)
+  let holdBit = 1;
   for (const b of buttons) {
+    const bit = b.hold ? holdBit : 0;
+    if (b.hold) holdBit <<= 1;
     const ring = h('i', { class: 'gp-cd' });
     const icon = h('span', { class: 'ic' }, b.icon);
     const label = h('small', {}, b.label);
     const el2 = h('button', { class: `gp-btn ${b.id}`, type: 'button' }, ring, icon, label);
-    el2.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); if (!el2.disabled) b.onPress?.(); });
+    el2.addEventListener('pointerdown', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      if (el2.disabled) return;
+      if (bit) { bits |= bit; el2.classList.add('held'); try { el2.setPointerCapture(e.pointerId); } catch { /* ignore */ } }
+      b.onPress?.();
+    });
+    if (bit) {
+      const up = () => { bits &= ~bit; el2.classList.remove('held'); b.onRelease?.(); };
+      el2.addEventListener('pointerup', up);
+      el2.addEventListener('pointercancel', up);
+    }
     btns[b.id] = { el: el2, ring, icon, label };
     add(btnRow, el2);
   }
@@ -87,7 +101,7 @@ export function createPad(root, { rt, buttons = [], leftHint = 'CHALO', rightHin
   let lastAt = 0;
   const q = (v) => Math.round(v * 100);
   const iv = setInterval(() => {
-    const arr = [q(L.x), q(L.y), q(R.x), q(R.y)];
+    const arr = [q(L.x), q(L.y), q(R.x), q(R.y), bits];
     const key = arr.join(',');
     const now = performance.now();
     if (key !== last || now - lastAt > 250) { rt(arr); last = key; lastAt = now; }
@@ -96,6 +110,7 @@ export function createPad(root, { rt, buttons = [], leftHint = 'CHALO', rightHin
   return {
     el,
     hud,
+    right,
     btn(id, { icon, label, disabled, cooldown, hot } = {}) {
       const b = btns[id];
       if (!b) return;
@@ -109,7 +124,7 @@ export function createPad(root, { rt, buttons = [], leftHint = 'CHALO', rightHin
       if (!alive) return;
       alive = false;
       clearInterval(iv);
-      rt([0, 0, 0, 0]);
+      rt([0, 0, 0, 0, 0]);
       el.remove();
     },
   };

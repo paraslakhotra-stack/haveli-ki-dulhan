@@ -8,8 +8,9 @@ export const CHAPTERS = [
   { id: 'library', numeral: 'II', title: 'Pothi Khana', clock: '11:12 PM', scene: 'library' },
   { id: 'nursery', numeral: 'III', title: 'Zenana Ka Jhoola', clock: '11:24 PM', scene: 'nursery' },
   { id: 'reception', numeral: 'IV', title: 'Sangeet Ki Daawat', clock: '11:36 PM', scene: 'hall' },
-  { id: 'arena', numeral: 'V', title: 'Murda Baraat', clock: '11:45 PM', scene: 'garden' },
-  { id: 'vow', numeral: 'VI', title: 'Aadhi Raat Ka Mandap', clock: '11:58 PM', scene: 'chapel' },
+  { id: 'hunt', numeral: 'V', title: 'Solah Shringar Ki Khoj', clock: '11:41 PM', scene: 'hall' },
+  { id: 'arena', numeral: 'VI', title: 'Murda Baraat', clock: '11:47 PM', scene: 'garden' },
+  { id: 'vow', numeral: 'VII', title: 'Aadhi Raat Ka Mandap', clock: '11:58 PM', scene: 'chapel' },
   { id: 'dawn', numeral: '', title: 'Vidaai at Sunrise', clock: '6:12 AM', scene: 'dawn' },
 ];
 
@@ -86,6 +87,22 @@ export const BEATS = {
     ['v', 'Nacho, baraatiyon. Murde akele nahi naachte.'],
     ['n', 'The murda baraat is rising.'],
   ],
+  huntIntro: [
+    ['n', 'Outside, the dhol grows louder. The dead are still climbing out of the baagh. There is a little time — very little.'],
+    ['n', "Then {BRIDE}'s voice comes from every mirror in the haveli at once. Chandravati has scattered her solah shringar through these halls. Without it, no one in the mandap will know which dulhan is real."],
+  ],
+  huntHowTo: [
+    ['n', 'Split up. Every team gets its own trail of treasures. Your phones hold the riddle — and the map on the screen shows where to look. It gets sharper with time.'],
+    ['n', 'Reach the glowing spot and a shaadi question appears on your phones. Answer right, and the next riddle unlocks. Answer wrong… and she comes looking for you.'],
+    ['n', 'If a shadow drifts towards you, hold up your diya. And whatever you find now will fight beside you in the baagh.'],
+  ],
+  huntEnd: [
+    ['n', 'The searching is over. Whatever the haveli gave back, you carry with you now.'],
+    ['n', 'In the baagh, the dhol stops. A hundred and eight heads turn towards the haveli.'],
+  ],
+  phereIntro: [
+    ['n', 'Before the real pheras, seven questions — one for every phera. The team that knows shaadi best will hear one more true whisper.'],
+  ],
   arenaIntro: [
     ['n', 'Between you and the mandap: the haveli ka baagh, and a hundred and eight dead baraatis dancing to a dhol nobody is playing. {BRIDE} is in the mandap. Midnight is coming.'],
     ['n', 'Your phones are your weapons now. Move with your thumb — your gun aims itself. Every kill makes you stronger. Uthao jo murde giraayein.'],
@@ -134,6 +151,7 @@ export const TEAMS = [
   { id: 'A', name: 'Team Kaali Billi', color: '#e0314b', glyph: '🐈‍⬛' },
   { id: 'B', name: 'Team Ullu', color: '#4fb3ff', glyph: '🦉' },
   { id: 'C', name: 'Team Naag', color: '#5fe08a', glyph: '🐍' },
+  { id: 'D', name: 'Team Chamgadad', color: '#b07cff', glyph: '🦇' },
 ];
 
 export const RELICS = {

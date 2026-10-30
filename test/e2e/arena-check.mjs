@@ -39,8 +39,38 @@ game.formTeams();
 for (const t of game.teams) t.items = 2;
 game.jumpTo((s) => s.kind === KIND);
 const st = STEPS[KIND];
+// hunt bots: BFS distance fields towards each team's current station, and answer station questions
+const { GRID, COLS, ROWS, TILE } = await import('../../public/shared/haveli-map.js');
+const { getHunt } = await import('../../server/engine/steps/hunt.js');
+const fields = new Map();
+const field = (tx, ty) => {
+  const key = `${tx},${ty}`;
+  if (fields.has(key)) return fields.get(key);
+  const d = new Int32Array(COLS * ROWS).fill(-1);
+  const q = [[tx, ty]]; d[ty * COLS + tx] = 0;
+  while (q.length) { const [c, r] = q.shift(); for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const C = c + dc; const R = r + dr; if (C < 0 || R < 0 || C >= COLS || R >= ROWS || GRID[R * COLS + C] !== 0 || d[R * COLS + C] >= 0) continue; d[R * COLS + C] = d[r * COLS + c] + 1; q.push([C, R]); } }
+  fields.set(key, d); return d;
+};
+const huntBot = () => {
+  const sim = getHunt(game);
+  if (!sim) return;
+  for (const p of game.connectedPlayers()) {
+    const team = sim.team(p.team); const me = sim.players.get(p.id); const s = team?.stations[team.at];
+    if (!s || !me) continue;
+    const d = field(Math.floor(s.x / TILE), Math.floor(s.y / TILE));
+    const c = Math.floor(me.x / TILE); const r = Math.floor(me.y / TILE);
+    let best = null; let bd = d[r * COLS + c];
+    for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const v = d[(r + dr) * COLS + (c + dc)]; if (v >= 0 && (bd < 0 || v < bd)) { bd = v; best = [dc, dr]; } }
+    const tx = best ? (c + best[0] + 0.5) * TILE : s.x; const ty = best ? (r + best[1] + 0.5) * TILE : s.y;
+    const dx = tx - me.x; const dy = ty - me.y; const m = Math.hypot(dx, dy) || 1;
+    st.rtInput(game, game.s, p, [dx / m * 100, dy / m * 100, 0, 0, Math.random() < 0.05 ? 1 : 0]);
+    const q = game.s.q?.[p.team];
+    if (q && !q.by && Math.random() < 0.05) { const right = q.opts.indexOf(q.a); game.input(p.id, { seq: game.seq, type: 'answer', i: Math.random() < 0.8 ? right : (right + 1) % q.opts.length }); }
+  }
+};
 // bots: wander + aim in circles, sometimes dash
 const steer = setInterval(() => {
+  if (KIND === 'hunt') return huntBot();
   const t = Date.now() / 1000;
   game.connectedPlayers().forEach((p, i) => {
     const a = [Math.sin(t * 0.7 + i) * 100, Math.cos(t * 0.9 + i * 1.3) * 100, Math.cos(t * 2 + i) * 100, Math.sin(t * 2 + i) * 100];

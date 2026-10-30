@@ -1,5 +1,6 @@
 // Test helpers: a fake clock, a game with N bot players, and bots that play every step.
 import { Game } from '../../server/engine/game.js';
+import { getHunt } from '../../server/engine/steps/hunt.js';
 import { STEPS } from '../../server/engine/steps/index.js';
 
 export function makeClock(start = 1_000_000) {
@@ -76,6 +77,20 @@ export function botsAct(g, rng = Math.random, accuracy = 0.85) {
         if (rng() < 0.01) send({ type: 'dash' });
         if (v.brk && v.brk.mine == null && !v.brk.done) send({ type: 'brk', i: Math.floor(rng() * v.brk.opts.length) });
         break;
+      case 'hunt': {
+        const sim = getHunt(g);
+        const team = sim?.team(p.team);
+        const st = team?.stations[team.at];
+        const me = sim?.players.get(p.id);
+        if (st && me) {
+          const dx = st.x - me.x; const dy = st.y - me.y; const m = Math.hypot(dx, dy) || 1;
+          // greedy walk with a little wander so bots slide around walls; good bots "teleport" (perfect pathing)
+          if (accuracy >= 0.95 && rng() < 0.2) { me.x = st.x + (rng() - 0.5) * 20; me.y = st.y + (rng() - 0.5) * 20; }
+          sim.setInput(p.id, dx / m + (rng() - 0.5), dy / m + (rng() - 0.5), rng() < 0.1);
+        }
+        if (v.q && !v.q.by) { const right = v.q.opts.indexOf(g.s.q[p.team]?.a); send({ type: 'answer', i: rng() < accuracy ? right : Math.floor(rng() * v.q.opts.length) }); }
+        break;
+      }
       case 'crypt':
         if (v.sub === 'play' && rng() < 0.05) send({ type: 'code', code: rng() < 0.7 ? g.secrets.crypt.code : '0000' });
         break;
@@ -98,7 +113,7 @@ export function runToEnd(g, clock, { maxMs = 3 * 3600 * 1000, rng = Math.random,
     clock.advance(100);
     ms += 100;
     g.tick();
-    if (g.step.kind === 'arena') { for (let i = 0; i < 3; i++) STEPS.arena.simTick(g, g.s, 1 / 30); }
+    if (g.stepDef.simTick) { for (let i = 0; i < 3; i++) g.stepDef.simTick(g, g.s, 1 / 30); }
     // Views must always build without throwing.
     g.tvView();
     for (const p of g.allPlayers()) g.phoneView(p.id);

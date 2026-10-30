@@ -31,16 +31,16 @@ test('the night still completes when nobody touches their phone', () => {
   let ms = 0;
   while (g.step.kind !== 'credits' && ms < 4 * 3600 * 1000) {
     clock.advance(100); ms += 100; g.tick();
-    if (g.step.kind === 'arena') g.stepDef.simTick(g, g.s, 0.1);
+    if (g.stepDef.simTick) g.stepDef.simTick(g, g.s, 0.1);
   }
   assert.equal(g.step.kind, 'credits');
 });
 
-test('teams: 2 covens below 8 guests, 3 from 8, balanced within one', () => {
-  for (let n = 2; n <= 14; n++) {
+test('teams: 2 up to 5 guests, 3 for 6–9, 4 from 10, balanced within one', () => {
+  for (let n = 2; n <= 16; n++) {
     const { g } = makeGame({ players: n, seed: n });
     g.formTeams();
-    assert.equal(g.teams.length, n >= 8 ? 3 : 2);
+    assert.equal(g.teams.length, n >= 10 ? 4 : n >= 6 ? 3 : 2);
     const sizes = g.teams.map((t) => g.teamMembers(t.id).length);
     assert.ok(Math.max(...sizes) - Math.min(...sizes) <= 1, `balanced for ${n}: ${sizes}`);
   }

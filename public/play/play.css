@@ -278,3 +278,17 @@ select.field { appearance: none; }
 .brk-res.ok { color: #5fe08a; } .brk-res.bad { color: #ff5a6e; }
 body:has(.gpad) #host-quick { top: calc(env(safe-area-inset-top) + 54px); bottom: auto; left: 22px; z-index: 22; opacity: .7; }
 body:has(.gpad) #host-btn { display: none; }
+/* treasure hunt controls */
+.gp-zone.right.noaim { display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; padding: 14px 18px 22px; }
+.gp-zone.right.noaim .gp-btns { position: static; align-self: flex-end; order: 3; }
+.gp-zone.right.noaim .gp-btn { width: 96px; height: 96px; }
+.gp-zone.right.noaim .gp-btn .ic { font-size: 40px; }
+.gp-btn.held { border-color: #ffd27a; box-shadow: 0 0 30px rgba(255,210,122,.7); transform: translateY(3px); }
+.hunt-riddle { font: italic 17px/1.35 var(--prose); color: var(--bone); background: rgba(255,255,255,.04); border: 1px solid rgba(201,169,79,.35); border-radius: 14px; padding: 10px 12px; }
+.heat { height: 10px; border-radius: 6px; background: linear-gradient(90deg, #2a6cb0, #c9a94f 60%, #ff4a3a); position: relative; overflow: hidden; }
+.heat .heat-fill { position: absolute; right: 0; top: 0; bottom: 0; background: rgba(10,6,8,.85); width: 100%; transition: width .3s; left: auto; }
+.heat.hot { box-shadow: 0 0 16px rgba(255,90,60,.7); }
+.hunt-items { display: flex; gap: 6px; justify-content: center; }
+.hunt-items .hi { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.06); color: var(--ash); font-size: 16px; }
+.hunt-items .hi.got { background: rgba(255,210,122,.18); box-shadow: 0 0 0 1px rgba(255,210,122,.6); }
+.frozen { position: fixed; inset: 0; z-index: 24; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: rgba(30,60,90,.65); backdrop-filter: blur(3px); pointer-events: none; }

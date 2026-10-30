@@ -5,6 +5,7 @@ import { setNames, face } from '/shared/photos.js';
 import { audio } from '/shared/audio.js';
 import { Backdrop, VW, VH } from '/tv/backdrops.js';
 import { ArenaRenderer } from '/tv/arena.js';
+import { HuntRenderer } from '/tv/hunt.js';
 import { Narrator } from '/tv/narrator.js';
 import { ScreenFx } from '/tv/fx.js';
 import { SCREENS } from '/tv/screens.js';
@@ -18,6 +19,7 @@ const ui = $('ui');
 
 const backdrop = new Backdrop();
 const arena = new ArenaRenderer();
+const huntR = new HuntRenderer();
 const narrator = new Narrator($('captions'));
 const fx = new ScreenFx({ stage, scare: $('scare'), grain: $('grain') });
 backdrop.onThunder = () => audio.thunder(0.9);
@@ -49,7 +51,8 @@ function loop(now) {
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
   const t0 = performance.now();
-  if (arenaOn) arena.draw(ctx2d, dt);
+  if (rtOn === 'arena') arena.draw(ctx2d, dt);
+  else if (rtOn === 'hunt') huntR.draw(ctx2d, dt);
   else backdrop.draw(ctx2d, now / 1000, dt);
   const ms = performance.now() - t0;
   drawMs = drawMs * 0.95 + ms * 0.05; // exposed for perf checks
@@ -74,7 +77,7 @@ const net = connect({
   onStatus: (st) => $('offline').classList.toggle('hidden', st === 'online'),
   onView: render,
   onFx: onFx,
-  onRt: (buf, meta) => { if (rtOn === 'arena') arena.ingest(buf, meta); },
+  onRt: (buf, meta) => { if (rtOn === 'arena') arena.ingest(buf, meta); else if (rtOn === 'hunt') huntR.ingest(buf, meta); },
 });
 const host = (cmd, args) => net.socket.emit('host', { cmd, args });
 
@@ -102,8 +105,12 @@ function render(v) {
   const wantArena = v.kind === 'arena';
   if (wantArena && !arenaOn) arena.reset();
   arenaOn = wantArena;
-  rtOn = wantArena ? 'arena' : null;
-  if (!wantArena) {
+  const wantHunt = v.kind === 'hunt';
+  if (wantHunt) huntR.setContext({ teams: v.teams, players: v.players, step: v.step });
+  if (wantHunt && rtOn !== 'hunt') huntR.reset();
+  rtOn = wantArena ? 'arena' : wantHunt ? 'hunt' : null;
+  document.body.classList.toggle('rt', !!rtOn); // action chapters: soften the vignette so HUDs and mini-maps stay readable
+  if (!rtOn) {
     const scene = sceneFor(v);
     backdrop.setScene(scene, backdrop.name === scene ? backdrop.params : {});
   }
@@ -124,18 +131,18 @@ function render(v) {
 }
 
 function renderHud(v) {
-  const showTag = !['lobby', 'chapterTitle', 'arena', 'credits'].includes(v.kind);
+  const showTag = !['lobby', 'chapterTitle', 'arena', 'hunt', 'credits'].includes(v.kind);
   const tag = $('chapter-tag');
   clear(tag);
   if (showTag) add(tag, h('span', { class: 'ct-num' }, v.chapter.numeral || '✦'), h('span', {}, v.chapter.title), h('span', { class: 'ct-clock' }, v.chapter.clock));
   const souls = $('souls-mini');
   clear(souls);
-  if (v.teams.length && !['lobby', 'arena', 'credits'].includes(v.kind)) {
+  if (v.teams.length && !['lobby', 'arena', 'hunt', 'credits'].includes(v.kind)) {
     for (const t of v.teams) add(souls, h('div', { class: 'sm-row', style: { '--tc': t.color } }, h('span', {}, t.name.replace('The ', '')), h('b', {}, t.souls)));
   }
   const join = $('join-mini');
   clear(join);
-  if (v.join?.qr && !['lobby', 'arena', 'credits', 'chapterTitle'].includes(v.kind)) {
+  if (v.join?.qr && !['lobby', 'arena', 'hunt', 'credits', 'chapterTitle'].includes(v.kind)) {
     add(join, h('img', { src: v.join.qr, alt: '' }), h('span', {}, 'Late? Scan to join'));
   }
 }

@@ -396,6 +396,46 @@ export function zombieFrames(type, variant = 0) {
   return frames;
 }
 
+// ---------------------------------------------------------------- Chandravati's shadow (treasure hunt)
+// A floating veiled bride in a torn red lehenga — no face under the ghoonghat, just dark.
+export const GHOST = { w: 56, h: 92, fx: 28, fy: 88 };
+const ghostCache = [];
+export function ghostFrames() {
+  if (ghostCache.length) return ghostCache;
+  for (let i = 0; i < WALK_FRAMES; i++) {
+    const ph = (i / WALK_FRAMES) * TAU;
+    const [c, x] = cv(GHOST.w, GHOST.h);
+    const d = GHOST;
+    const lift = Math.sin(ph) * 2.5;
+    x.translate(0, -6 + lift);
+    // trailing hem wisps
+    x.fillStyle = 'rgba(120,0,20,.55)';
+    for (let k = 0; k < 6; k++) {
+      const wx = d.fx - 18 + k * 7;
+      x.beginPath(); x.moveTo(wx, 66); x.quadraticCurveTo(wx - 3 + Math.sin(ph + k) * 3, 80, wx + 2, 90 + Math.sin(ph * 2 + k) * 3); x.lineTo(wx + 6, 66); x.fill();
+    }
+    // lehenga (flared, tattered) with a dulled gold border
+    const g = x.createLinearGradient(d.fx - 20, 0, d.fx + 20, 0);
+    g.addColorStop(0, '#4a0010'); g.addColorStop(0.5, '#9b0e1e'); g.addColorStop(1, '#5c0414');
+    x.fillStyle = g;
+    x.beginPath(); x.moveTo(d.fx - 9, 34); x.quadraticCurveTo(d.fx, 30, d.fx + 9, 34); x.lineTo(d.fx + 21, 70); x.quadraticCurveTo(d.fx, 76, d.fx - 21, 70); x.closePath(); x.fill();
+    x.strokeStyle = 'rgba(201,169,79,.55)'; x.lineWidth = 1.6;
+    x.beginPath(); x.moveTo(d.fx - 21, 69); x.quadraticCurveTo(d.fx, 75, d.fx + 21, 69); x.stroke();
+    // long pale arms hanging, fingers too long
+    x.strokeStyle = '#c9c2b4'; x.lineWidth = 2.6; x.lineCap = 'round';
+    x.beginPath(); x.moveTo(d.fx - 8, 38); x.quadraticCurveTo(d.fx - 14, 50, d.fx - 12, 60 + Math.sin(ph) * 2); x.moveTo(d.fx + 8, 38); x.quadraticCurveTo(d.fx + 14, 50, d.fx + 12, 60 - Math.sin(ph) * 2); x.stroke();
+    // the ghoonghat: a translucent red veil from crown to waist
+    x.fillStyle = 'rgba(200,16,46,.78)';
+    x.beginPath(); x.moveTo(d.fx, 6); x.bezierCurveTo(d.fx + 20, 10, d.fx + 18, 34, d.fx + 15 + Math.sin(ph) * 2, 46); x.lineTo(d.fx - 15 - Math.sin(ph) * 2, 46); x.bezierCurveTo(d.fx - 18, 34, d.fx - 20, 10, d.fx, 6); x.fill();
+    x.fillStyle = '#05010a'; x.beginPath(); x.ellipse(d.fx, 22, 8, 10, 0, 0, TAU); x.fill(); // nothing under the veil
+    x.strokeStyle = 'rgba(255,214,120,.7)'; x.lineWidth = 1.2;
+    x.beginPath(); x.moveTo(d.fx - 15, 46); x.quadraticCurveTo(d.fx, 49, d.fx + 15, 46); x.stroke();
+    x.fillStyle = '#ffd27a'; x.beginPath(); x.arc(d.fx, 10, 1.8, 0, TAU); x.fill(); // tikka glint
+    ghostCache.push(c);
+  }
+  return ghostCache;
+}
+
 // Warm every cache up front (called while the chapter title is on screen) so the first frame never hitches.
 export function prewarm(colors) {
   for (const c of colors) baraati(c);
@@ -403,6 +443,7 @@ export function prewarm(colors) {
   for (let t = 0; t < 5; t++) gun(t);
   for (let t = 0; t < 5; t++) for (let v = 0; v < (t === 0 ? 4 : 1); v++) zombieFrames(t, v);
   for (let f = 0; f < WALK_FRAMES; f++) bossHat(f);
+  ghostFrames();
   shadow();
   for (const c of ['255,255,255', '255,214,140', '255,60,80', '210,255,150', '160,220,255', '255,140,40']) glow(c);
 }

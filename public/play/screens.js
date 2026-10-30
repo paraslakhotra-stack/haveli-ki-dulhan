@@ -555,6 +555,72 @@ function arena(root, v, ctx) {
   return { update: draw, hud, destroy() { pad.destroy(); leaveImmersive(); box.remove(); } };
 }
 
+// ------------------------------------------------------------------ HUNT
+function hunt(root, v, ctx) {
+  const box = h('div', { class: 'p-screen pad-screen' });
+  add(root, box);
+  const ITEM = [['⭕', 'Chooda'], ['🎐', 'Kaleere'], ['💠', 'Maang Tikka'], ['💍', 'Nath'], ['🔔', 'Payal'], ['🌼', 'Gajra'], ['🌿', 'Mehendi'], ['📿', 'Jhumke'], ['🔴', 'Bindi'], ['✨', 'Bichhiya']];
+  const pad = createPad(box, {
+    rt: ctx.rt,
+    aim: false,
+    leftHint: 'CHALO',
+    rightHint: '',
+    buttons: [{ id: 'diya', icon: '🪔', label: 'Diya utha', hold: true, onPress: () => ctx.buzz(12) }],
+  });
+  const riddle = h('div', { class: 'hunt-riddle' });
+  const meta = h('div', { class: 'gp-top' });
+  const heat = h('div', { class: 'heat' }, h('div', { class: 'heat-fill' }));
+  const items = h('div', { class: 'hunt-items' });
+  add(pad.hud, meta, items);
+  add(pad.right, riddle, heat);
+  const qov = h('div', { class: 'brk-ov hidden' });
+  const frozen = h('div', { class: 'frozen hidden' }, h('div', { class: 'p-title' }, '❄ JAM GAYE'), h('div', { class: 'fine' }, 'Chandravati ki parchhaai ne chhoo liya… 3 second.'));
+  add(box, qov, frozen);
+  let immersive = false;
+  box.addEventListener('pointerdown', () => { if (!immersive) { immersive = true; goImmersive(); } }, { capture: true });
+  let lastAt = null;
+  let lastHeat = 0;
+  const hud = (u) => {
+    if (!u) return;
+    clear(meta);
+    const mm = `${Math.floor(u.left / 60)}:${String(u.left % 60).padStart(2, '0')}`;
+    add(meta, h('span', {}, u.phase === 'warmup' ? `TAIYAAR · ${u.left}` : u.finished ? `🏁 #${u.place} — poora!` : `SURAAG ${Math.min(u.at + 1, u.total)}/${u.total}`), h('b', {}, u.phase === 'hunt' ? mm : ''));
+    clear(items);
+    for (let i = 0; i < u.total; i++) add(items, h('span', { class: `hi ${u.found[i] != null ? 'got' : ''}` }, u.found[i] != null ? ITEM[u.found[i]][0] : '·'));
+    riddle.textContent = u.finished ? 'Saara shringar mil gaya! Baaki team ko cheer karo 🎉' : u.locked ? `🔒 Galat jawaab… ${u.locked}s ruko` : u.riddle ? `“${u.riddle}”` : 'Paheli aa rahi hai…';
+    heat.firstChild.style.width = `${100 - u.heat}%`; // the dark cover shrinks as you get warmer
+    heat.classList.toggle('hot', u.heat > 75);
+    if (u.heat > 85 && lastHeat <= 85) ctx.buzz([10, 40, 10]);
+    lastHeat = u.heat;
+    frozen.classList.toggle('hidden', !u.frozen);
+    if (lastAt != null && u.at > lastAt) { ctx.buzz([40, 30, 40, 30, 120]); ctx.flash('rgba(255,210,122,.5)', 500); }
+    lastAt = u.at;
+  };
+  const drawQ = (q) => {
+    qov.classList.toggle('hidden', !q);
+    if (!q) return;
+    clear(qov);
+    add(qov, h('div', { class: 'brk-k' }, '💍 TIJORI KA SAWAAL — team mein jo pehle sahi bole'), h('div', { class: 'brk-q' }, q.q));
+    if (!q.by) add(qov, h('div', { class: 'brk-opts' }, q.opts.map((o, i) => h('button', { class: 'btn', onclick: () => { ctx.send({ type: 'answer', i }); ctx.buzz(20); } }, h('b', {}, 'ABCD'[i]), ' ', o))));
+    else add(qov, h('div', { class: `brk-res ${q.ok ? 'ok' : 'bad'}` }, q.ok ? '✓ Sahi! Agla suraag khul gaya' : '✗ Galat — woh aa rahi hai!'), q.a ? h('div', { class: 'fine center' }, `Jawaab: ${q.a}`) : null);
+  };
+  const draw = (vv) => {
+    const s = vv.step;
+    if (s.sub === 'results') {
+      pad.destroy();
+      leaveImmersive();
+      clear(box);
+      const mine = s.results?.find((r) => r.team === vv.me.team);
+      add(box, title('Khoj khatam', ''), card(h('div', { class: 'big-num' }, `${mine?.items ?? 0}/${mine?.total ?? 5}`), h('div', { class: 'fine' }, 'shringar mile — ab yeh baagh mein tumhari taakat hain')));
+      return;
+    }
+    if (s.hud) hud(s.hud);
+    drawQ(s.q);
+  };
+  draw(v);
+  return { update: draw, hud, destroy() { pad.destroy(); leaveImmersive(); box.remove(); } };
+}
+
 // ------------------------------------------------------------------ CRYPT
 function crypt(root, v, ctx) {
   const box = h('div', { class: 'p-screen' });
@@ -624,5 +690,5 @@ const credits = rerender((box, v, ctx) => {
   add(box, h('p', { class: 'fine' }, 'Milte hain shaadi mein! 🪔'));
 });
 
-export const PHONE_SCREENS = { lobby, story, chapterTitle, sorting, chapterEnd, forfeit, seance, quiz, trial, possess, toast: writeFlow, vowWrite: writeFlow, glass, unmask, arena, crypt, brides, credits };
+export const PHONE_SCREENS = { lobby, story, chapterTitle, sorting, chapterEnd, forfeit, seance, quiz, trial, possess, toast: writeFlow, vowWrite: writeFlow, glass, unmask, hunt, arena, crypt, brides, credits };
 export { LULLABY };

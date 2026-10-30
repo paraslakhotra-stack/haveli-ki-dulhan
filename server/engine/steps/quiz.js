@@ -1,5 +1,5 @@
 // Chapter II — the Forbidden Quiz: groom questions, trivia, and "who among you" votes.
-import { TRIVIA, ACCUSE } from '../../content/quiz.js';
+import { TRIVIA, ACCUSE, SHAADI } from '../../content/quiz.js';
 import { tally } from '../util.js';
 
 export const quiz = {
@@ -11,6 +11,8 @@ export const quiz = {
     let item = null;
     if (params.qtype === 'groom') item = g.secrets.groomQs?.[params.idx];
     if (params.qtype === 'trivia' || (params.qtype === 'groom' && !item)) item = g.draw('trivia', TRIVIA);
+    if (params.qtype === 'shaadi') item = g.draw('shaadi', SHAADI);
+    s.phere = !!params.phere;
     if (params.qtype === 'accuse') {
       const ps = g.connectedPlayers();
       s.q = {
@@ -28,7 +30,7 @@ export const quiz = {
     }
     s.answers = {};
     s.sub = 'ask';
-    s.limit = params.qtype === 'accuse' ? 20000 : 16000;
+    s.limit = params.qtype === 'accuse' ? 20000 : params.phere ? 12000 : 16000;
     s.askedAt = g.now();
     g.setTimer(s.limit);
   },
@@ -62,10 +64,18 @@ export const quiz = {
           g.award(pid, pts, 'quiz', 1);
         }
       }
+      if (s.phere) {
+        // Phere Quiz: tally right answers per team; the best team (per head) hears an extra true whisper
+        const ph = (g.secrets.phere ||= {});
+        for (const [pid, a] of Object.entries(s.answers)) {
+          const t = g.players.get(pid)?.team;
+          if (t && a.id === s.q.correct) ph[t] = (ph[t] || 0) + 1;
+        }
+      }
       const fastest = Object.entries(s.answers).filter(([, a]) => a.id === s.q.correct).sort((a, b) => a[1].ms - b[1].ms)[0];
       s.fastest = fastest ? fastest[0] : null;
     }
-    g.setTimer(7000);
+    g.setTimer(s.phere ? 4500 : 7000);
   },
   timeout(g, s) { if (s.sub === 'ask') this.reveal(g, s); else g.next(); },
   skip(g, s) { if (s.sub === 'ask') this.reveal(g, s); else g.next(); },

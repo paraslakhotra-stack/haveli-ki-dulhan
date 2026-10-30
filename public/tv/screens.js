@@ -488,6 +488,20 @@ const arena = simple((box, v) => {
     h('div', { class: 'board' }, s.board.slice(0, 6).map((b, i) => h('div', { class: `bd-row ${i === 0 ? 'top' : ''}` }, h('span', { class: 'bd-rank' }, i + 1), face(b.pid, 50), h('span', { class: 'bd-name' }, nameOf(b.pid)), h('b', {}, `${b.kills} 💀`))))));
 });
 
+// ------------------------------------------------------------------ HUNT (overlay only — the split-screen canvas does the rest)
+const hunt = simple((box, v) => {
+  const s = v.step;
+  box.classList.add('arena-ov');
+  if (s.sub !== 'results' || !s.results) return;
+  const ICON = ['⭕', '🎐', '💠', '💍', '🔔', '🌼', '🌿', '📿', '🔴', '✨'];
+  add(box, h('div', { class: 'arena-res' }, h('div', { class: 'scr-title' }, 'Solah Shringar'),
+    h('div', { class: 'fine' }, 'Har adornment = baagh mein ek taakat (HP, behtar bandook, power, tez dash)'),
+    h('div', { class: 'board' }, s.results.map((r, i) => h('div', { class: `bd-row ${i === 0 ? 'top' : ''}`, style: { '--tc': teamColor(v, r.team) } },
+      h('span', { class: 'bd-rank' }, r.place ? `#${r.place}` : '—'), h('span', { style: { fontSize: '40px' } }, v.teams.find((t) => t.id === r.team)?.glyph || ''),
+      h('span', { class: 'bd-name', style: { color: teamColor(v, r.team) } }, teamName(v, r.team)),
+      h('b', {}, `${r.items}/${r.total}`))))));
+});
+
 // ------------------------------------------------------------------ CRYPT
 function crypt(root, v) {
   const box = h('div', { class: 'screen crypt' });
@@ -588,5 +602,5 @@ function credits(root, v, ctx) {
   return { update() {}, destroy() { timers.forEach(clearTimeout); box.remove(); } };
 }
 
-export const SCREENS = { lobby, story, chapterTitle, sorting, seance, quiz, trial, possess, toast: writeFlow, vowWrite: writeFlow, glass, unmask, forfeit, chapterEnd, arena, crypt, brides, credits };
+export const SCREENS = { lobby, story, chapterTitle, sorting, seance, quiz, trial, possess, toast: writeFlow, vowWrite: writeFlow, glass, unmask, forfeit, chapterEnd, hunt, arena, crypt, brides, credits };
 export { countdown };

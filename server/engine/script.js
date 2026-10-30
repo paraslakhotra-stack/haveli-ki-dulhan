@@ -37,7 +37,9 @@ export function buildScript(g) {
   const qs = [];
   if (groomCount) for (let i = 0; i < groomCount; i++) qs.push({ qtype: 'groom', idx: i, round: 'The Diary Asks' });
   else for (let i = 0; i < 2; i++) qs.push({ qtype: 'accuse', round: 'The Diary Asks' });
-  for (let i = 0; i < 4; i++) qs.push({ qtype: 'trivia', round: 'Whispers in the Stacks' });
+  const short = g.settings.length === 'short';
+  for (let i = 0; i < (short ? 3 : 4); i++) qs.push({ qtype: 'shaadi', round: 'Shaadi Ki Pothi' });
+  for (let i = 0; i < 2; i++) qs.push({ qtype: 'trivia', round: 'Whispers in the Stacks' });
   for (let i = 0; i < 3; i++) qs.push({ qtype: 'accuse', round: 'The Accused' });
   qs.forEach((q, i) => S.push({ kind: 'quiz', params: { ...q, n: i + 1, total: qs.length } }));
   story('libraryEnd', 'library');
@@ -46,7 +48,7 @@ export function buildScript(g) {
   // III — The Nursery
   title('nursery');
   story('nurseryIntro', 'nursery');
-  const trials = ['candle', 'musicbox', 'banish', 'blink', 'gallery'];
+  const trials = short ? ['candle', 'banish', 'gallery'] : ['candle', 'musicbox', 'banish', 'blink', 'gallery'];
   trials.forEach((t, i) => S.push({ kind: 'trial', params: { trial: t, n: i + 1, total: trials.length } }));
   story('nurseryEnd', 'nursery');
   end('nursery');
@@ -65,7 +67,15 @@ export function buildScript(g) {
   story('receptionEnd', 'hall', { fx: 'rise' });
   end('reception');
 
-  // V — The Dead Don't Dance
+  // V — Solah Shringar Ki Khoj (split-screen treasure hunt)
+  title('hunt');
+  story('huntIntro', 'hall');
+  story('huntHowTo', 'hall');
+  S.push({ kind: 'hunt', params: {} });
+  story('huntEnd', 'hall');
+  end('hunt', false);
+
+  // VI — Murda Baraat
   title('arena');
   story('arenaIntro', 'garden');
   S.push({ kind: 'arena', params: {} });
@@ -76,6 +86,8 @@ export function buildScript(g) {
   title('vow');
   story('vowIntro', 'chapel');
   S.push({ kind: 'crypt', params: {} });
+  story('phereIntro', 'chapel');
+  for (let i = 0; i < 7; i++) S.push({ kind: 'quiz', params: { qtype: 'shaadi', round: 'Phere Quiz', phere: true, n: i + 1, total: 7 } });
   story('bridesIntro', 'chapel');
   S.push({ kind: 'brides', params: {} });
   story('@ending', 'chapel');

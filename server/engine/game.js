@@ -6,7 +6,7 @@ import { buildScript } from './script.js';
 import { STEPS } from './steps/index.js';
 import { fill, names } from './personalize.js';
 
-const SOULS_BY_RANK = [300, 180, 90];
+const SOULS_BY_RANK = [300, 200, 120, 60];
 const HOST_GRACE_MS = 30000;
 const MAX_PLAYERS = 16;
 
@@ -28,7 +28,7 @@ export class Game {
     this.order = [];
     this.nextId = 1;
     this.hostId = null;
-    this.settings = { heat: 'mild', groomName: '', brideName: '', groomId: null, narration: true, groomQuiz: [] };
+    this.settings = { heat: 'mild', groomName: '', brideName: '', groomId: null, narration: true, voice: 'cinematic', length: 'full', groomQuiz: [] };
     this.teams = [];
     this.script = [{ kind: 'lobby', params: {} }];
     this.stepIdx = 0;
@@ -189,7 +189,8 @@ export class Game {
   // ---------- teams ----------
   formTeams() {
     const ps = this.rng.shuffle(this.allPlayers());
-    const count = ps.length >= 8 ? 3 : 2;
+    // 2 teams up to 5 guests, 3 teams for 6–9, 4 teams from 10.
+    const count = ps.length >= 10 ? 4 : ps.length >= 6 ? 3 : 2;
     this.teams = TEAMS.slice(0, count).map((t) => ({ ...t, souls: 0, relics: [] }));
     // Keep the groom and host on different teams when possible — spreads the chaos.
     ps.forEach((p, i) => { p.team = this.teams[i % count].id; });
@@ -293,6 +294,8 @@ export class Game {
     if (typeof a.brideName === 'string') s.brideName = cleanText(a.brideName, 24);
     if (a.groomId === null || this.players.has(a.groomId)) s.groomId = a.groomId;
     if (typeof a.narration === 'boolean') s.narration = a.narration;
+    if (['cinematic', 'browser', 'off'].includes(a.voice)) { s.voice = a.voice; s.narration = a.voice !== 'off'; }
+    if ((a.length === 'full' || a.length === 'short') && this.step.kind === 'lobby') s.length = a.length;
     if (Array.isArray(a.groomQuiz)) {
       s.groomQuiz = a.groomQuiz.slice(0, 10).map((r) => ({
         q: cleanText(r?.q, 120), a: cleanText(r?.a, 60),

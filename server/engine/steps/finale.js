@@ -80,8 +80,13 @@ export const brides = {
       else if (B.extraTruths[ti]) s.whispers[p.id].push({ text: B.extraTruths[ti++], red: false });
       else if (B.lies[li]) s.whispers[p.id].push({ text: B.lies[li++], red: true });
     }
+    // The Phere Quiz winners (right answers per team member) hear one more truth, like the Janam-Patri relic.
+    const ph = g.secrets.phere || {};
+    const per = (t) => (ph[t] || 0) / Math.max(1, ps.filter((p) => p.team === t).length);
+    const phereWinner = Object.keys(ph).sort((a, b) => per(b) - per(a))[0] || null;
+    s.phereWinner = phereWinner;
     for (const p of ps) {
-      if (g.hasRelic(p.team, 'diary')) {
+      if (g.hasRelic(p.team, 'diary') || p.team === phereWinner) {
         const extra = B.extraTruths[ti++] || B.whispers[g.rng.int(B.whispers.length)];
         s.whispers[p.id].push({ text: extra, red: false, diary: true });
       }
