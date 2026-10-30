@@ -1,1 +1,58 @@
-{}
+{
+ "baraat": {
+  "tv": "baraat.webp",
+  "phone": "baraat.phone.webp"
+ },
+ "ch-arena": {
+  "tv": "ch-arena.webp",
+  "phone": "ch-arena.phone.webp"
+ },
+ "ch-dawn": {
+  "tv": "ch-dawn.webp",
+  "phone": "ch-dawn.phone.webp"
+ },
+ "ch-guestbook": {
+  "tv": "ch-guestbook.webp",
+  "phone": "ch-guestbook.phone.webp"
+ },
+ "ch-hunt": {
+  "tv": "ch-hunt.webp",
+  "phone": "ch-hunt.phone.webp"
+ },
+ "ch-library": {
+  "tv": "ch-library.webp",
+  "phone": "ch-library.phone.webp"
+ },
+ "ch-nursery": {
+  "tv": "ch-nursery.webp",
+  "phone": "ch-nursery.phone.webp"
+ },
+ "ch-reception": {
+  "tv": "ch-reception.webp",
+  "phone": "ch-reception.phone.webp"
+ },
+ "ch-vow": {
+  "tv": "ch-vow.webp",
+  "phone": "ch-vow.phone.webp"
+ },
+ "chandravati-scare": {
+  "tv": "chandravati-scare.webp",
+  "phone": "chandravati-scare.phone.webp"
+ },
+ "chandravati": {
+  "tv": "chandravati.webp",
+  "phone": "chandravati.phone.webp"
+ },
+ "dulhanein": {
+  "tv": "dulhanein.webp",
+  "phone": "dulhanein.phone.webp"
+ },
+ "haveli": {
+  "tv": "haveli.webp",
+  "phone": "haveli.phone.webp"
+ },
+ "vikram": {
+  "tv": "vikram.webp",
+  "phone": "vikram.phone.webp"
+ }
+}

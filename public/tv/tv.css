@@ -1,6 +1,6 @@
 /* NIGHTFALL — TV. Everything lives on a fixed 1920×1080 stage that is scaled to fit the screen. */
 html, body { overflow: hidden; background: #000; cursor: default; }
-#stage { position: fixed; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: 50% 50%; overflow: hidden; background: #000; }
+#stage { position: fixed; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: 50% 50%; overflow: hidden; background: #000; transform: translate(-50%, -50%) scale(var(--fit, 1)); }
 #bg { position: absolute; inset: 0; width: 1920px; height: 1080px; }
 #ui { position: absolute; inset: 0; z-index: 5; }
 /* Painted art (optional, from ART_PROMPTS.md) floats over the procedural scene with a slow Ken Burns drift. */
@@ -20,7 +20,14 @@ html, body { overflow: hidden; background: #000; cursor: default; }
 #grain { position: absolute; inset: 0; width: 1920px; height: 1080px; z-index: 30; pointer-events: none; mix-blend-mode: overlay; opacity: .55; image-rendering: pixelated; }
 body.rt #vignette { opacity: .3; }
 #vignette { position: absolute; inset: 0; z-index: 31; pointer-events: none; background: radial-gradient(ellipse at 50% 46%, rgba(0,0,0,0) 48%, rgba(0,0,0,.55) 78%, rgba(0,0,0,.92) 100%); }
-#stage.shake { animation: shake .45s linear; }
+/* the shake must repeat the fit transform, or the whole picture jumps half a screen while it plays */
+#stage.shake { animation: stageShake .45s linear; }
+@keyframes stageShake {
+  0%, 100% { transform: translate(-50%, -50%) scale(var(--fit, 1)); }
+  25% { transform: translate(-50%, -50%) scale(var(--fit, 1)) translate(-6px, 3px); }
+  50% { transform: translate(-50%, -50%) scale(var(--fit, 1)) translate(5px, -4px); }
+  75% { transform: translate(-50%, -50%) scale(var(--fit, 1)) translate(-3px, -2px); }
+}
 #stage.fade-flash::after { content: ''; position: absolute; inset: 0; background: #000; z-index: 35; animation: fadeOut 1.2s ease both; pointer-events: none; }
 @keyframes fadeOut { from { opacity: 1 } to { opacity: 0 } }
 #pause { position: absolute; inset: 0; z-index: 45; background: rgba(0,0,0,.72); display: grid; place-content: center; text-align: center; }

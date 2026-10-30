@@ -79,8 +79,10 @@ export class ScreenFx {
     const now = performance.now();
     if (now - this.lastScare < 1200) return; // never stack scares
     this.lastScare = now;
-    const src = (pid && getPossessed(pid)) || art.url('chandravati-scare') || drawChudail();
+    const painted = !(pid && getPossessed(pid)) && art.url('chandravati-scare');
+    const src = (pid && getPossessed(pid)) || painted || drawChudail();
     this.scareEl.style.backgroundImage = `url(${src})`;
+    this.scareEl.style.backgroundSize = painted ? 'auto 100%' : ''; // the painted face is square: fit the height, never crop it
     this.scareEl.classList.remove('on');
     void this.scareEl.offsetWidth;
     this.scareEl.classList.add('on');

@@ -39,7 +39,7 @@ let rtOn = null; // which real-time renderer is consuming snapshots
 // ---------- fit the 1920×1080 stage to any screen ----------
 function fit() {
   const s = Math.min(innerWidth / VW, innerHeight / VH);
-  stage.style.transform = `translate(-50%, -50%) scale(${s})`;
+  stage.style.setProperty('--fit', s); // the transform lives in CSS so the shake keyframes can keep it
 }
 addEventListener('resize', fit);
 fit();
@@ -164,7 +164,8 @@ function renderArt(v) {
   const url = name && art.url(name);
   el.classList.toggle('on', !!url && !rtOn);
   if (url && name !== artName) { artName = name; el.firstChild.style.backgroundImage = `url(${url})`; }
-  el.style.setProperty('--art-a', v.kind === 'chapterTitle' || v.kind === 'lobby' ? '.8' : '.55');
+  // Paintings fully cover the procedural scene for story and title moments; behind game screens they stay dim.
+  el.style.setProperty('--art-a', ['chapterTitle', 'lobby', 'story', 'credits'].includes(v.kind) ? '.92' : v.kind === 'brides' ? '.45' : '.6');
 }
 art.ready.then(() => { art.preload(); if (view) renderArt(view); });
 
