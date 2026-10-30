@@ -475,6 +475,13 @@ function chapterEnd(root, v) {
 const arena = simple((box, v) => {
   const s = v.step;
   box.classList.add('arena-ov');
+  if (s.brk) {
+    add(box, h('div', { class: 'brk-panel' },
+      h('div', { class: 'brk-k' }, '🎺 BARAAT BREAK · sahi jawaab = power'),
+      h('div', { class: 'brk-q' }, s.brk.q),
+      h('div', { class: 'brk-opts' }, s.brk.opts.map((o, i) => h('div', { class: `brk-o ${s.brk.done && o === s.brk.a ? 'right' : ''}` }, h('b', {}, 'ABCD'[i]), o))),
+      h('div', { class: 'brk-n' }, s.brk.done ? `${s.brk.right} ne sahi jawaab diya` : `${s.brk.answered} ne jawaab diya…`)));
+  }
   if (s.sub !== 'results' || !s.board) return;
   add(box, h('div', { class: 'arena-res' }, h('div', { class: 'scr-title' }, 'Baagh saaf hai'),
     h('div', { class: 'results-row' }, Object.entries(s.teamKills || {}).sort((a, b) => b[1] - a[1]).map(([t, n]) => h('div', { class: 'res-chip', style: { '--tc': teamColor(v, t) } }, h('b', {}, teamName(v, t)), h('span', {}, `${n} kills`)))),

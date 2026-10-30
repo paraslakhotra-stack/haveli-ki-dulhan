@@ -194,8 +194,8 @@ test('arena: kills level weapons up, downed players get back up, waves always en
   while (!sim.done && steps < 30 * 60 * 12) {
     sim.step(1 / 30);
     const snap = sim.snapshot();
-    if (snap.ev.some((e) => e.e === 'down')) downed = true;
-    if (snap.ev.some((e) => e.e === 'level')) leveled = true;
+    if (snap.meta.ev.some((e) => e.e === 'down')) downed = true;
+    if (snap.meta.ev.some((e) => e.e === 'level')) leveled = true;
     steps++;
   }
   assert.ok(sim.done, 'arena finished (timeouts guarantee it)');

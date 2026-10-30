@@ -1,4 +1,4 @@
-node_modules/
 nightfall-save.json
+node_modules/
 test-artifacts/
 tools/vo/*.mp3

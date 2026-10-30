@@ -73,6 +73,8 @@ export function botsAct(g, rng = Math.random, accuracy = 0.85) {
         send({ type: 'move', x: rng() * 2 - 1, y: rng() * 2 - 1 });
         if (rng() < 0.01) send({ type: 'power' });
         if (rng() < 0.01) send({ type: 'throw' });
+        if (rng() < 0.01) send({ type: 'dash' });
+        if (v.brk && v.brk.mine == null && !v.brk.done) send({ type: 'brk', i: Math.floor(rng() * v.brk.opts.length) });
         break;
       case 'crypt':
         if (v.sub === 'play' && rng() < 0.05) send({ type: 'code', code: rng() < 0.7 ? g.secrets.crypt.code : '0000' });

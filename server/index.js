@@ -11,6 +11,7 @@ import QRCode from 'qrcode';
 import { Game } from './engine/game.js';
 import { STEPS } from './engine/steps/index.js';
 import { GROOM_QUESTION_SUGGESTIONS } from './content/quiz.js';
+import { encode as encodeSnap } from '../public/shared/rtcodec.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -43,7 +44,8 @@ export function lanAddress() {
 export function createServer({ fast = FAST, port = Number(opt('port', process.env.PORT || 3000)), seed, restore = !flag('new'), persist = !NO_SAVE } = {}) {
   const app = express();
   const server = http.createServer(app);
-  const io = new Server(server, { maxHttpBufferSize: 2e5, pingInterval: 10000, pingTimeout: 20000 });
+  // perMessageDeflate off: compressing tiny 30 Hz frames costs latency and CPU for no gain.
+  const io = new Server(server, { maxHttpBufferSize: 2e5, pingInterval: 10000, pingTimeout: 20000, perMessageDeflate: false });
 
   // ---------- static ----------
   const nm = (p) => path.join(ROOT, 'node_modules', p);
@@ -72,11 +74,13 @@ export function createServer({ fast = FAST, port = Number(opt('port', process.en
     res.redirect(/Mobi|Android|iPhone|iPad/i.test(ua) ? '/play/' : '/tv/');
   });
   app.get('/health', (req, res) => res.json({ ok: true, kind: game.step.kind, players: game.players.size }));
+  app.get('/stats', (req, res) => res.json(rtStats()));
 
   // ---------- game ----------
   let flushTimer = null;
   let photosDirty = false;
-  const game = new Game({
+  let game = null; // assigned below; the constructor may already call onChange
+  game = new Game({
     fast,
     seed,
     onChange: (photos) => { if (photos) photosDirty = true; scheduleFlush(); },
@@ -102,7 +106,8 @@ export function createServer({ fast = FAST, port = Number(opt('port', process.en
   const sent = new Map(); // socket.id -> { view: string, photos: Map<pid, len> }
   function scheduleFlush() {
     if (flushTimer) return;
-    flushTimer = setTimeout(flush, 40);
+    // During the action chapters views carry nothing urgent (positions go over the rt channel), so batch harder.
+    flushTimer = setTimeout(flush, game && STEPS[game.step.kind]?.simTick ? 150 : 40);
   }
   function sendPhotos(sock, st) {
     for (const p of game.players.values()) {
@@ -168,6 +173,15 @@ export function createServer({ fast = FAST, port = Number(opt('port', process.en
     });
     sock.on('photo', (msg) => { if (sock.data.pid) game.setPhoto(sock.data.pid, msg?.photo); });
     sock.on('input', (msg) => { if (sock.data.pid) game.input(sock.data.pid, msg); });
+    // Real-time stick state for the action chapters: [mx, my, ax, ay] as -100..100, sent volatile at up to 30 Hz.
+    // It goes straight into the simulation — no acks, no view diffs.
+    sock.on('rt', (a) => {
+      const pid = sock.data.pid;
+      if (!pid || !Array.isArray(a) || game.paused) return;
+      const st = STEPS[game.step.kind];
+      const p = game.players.get(pid);
+      if (st?.rtInput && p) st.rtInput(game, game.s, p, a);
+    });
     sock.on('host', (msg, ack) => {
       const reply = typeof ack === 'function' ? ack : () => {};
       const allowed = sock.data.role === 'tv' || (sock.data.pid && game.isHost(sock.data.pid));
@@ -190,15 +204,45 @@ export function createServer({ fast = FAST, port = Number(opt('port', process.en
 
   // ---------- loops ----------
   const tick = setInterval(() => { game.tick(); }, 100);
-  let last = performance.now();
-  const arenaLoop = setInterval(() => {
+  // Real-time loop for the action chapters: a drift-corrected 30 Hz clock (setInterval drifts and bunches up).
+  // Each tick steps the active simulation, sends the TV one binary snapshot, and every ~165 ms each phone a tiny HUD.
+  const RT_HZ = 30;
+  const tickMs = [];
+  let rtNext = performance.now();
+  let rtLast = rtNext;
+  let hudAcc = 0;
+  let rtTimer = null;
+  function rtTick() {
     const now = performance.now();
-    const dt = Math.min(0.05, (now - last) / 1000);
-    last = now;
-    if (game.step.kind !== 'arena' || game.paused) return;
-    const snap = STEPS.arena.simTick(game, game.s, dt);
-    if (snap) io.to('tv').volatile.emit('arena', snap);
-  }, 1000 / 30);
+    const dt = Math.min(0.1, (now - rtLast) / 1000);
+    rtLast = now;
+    const st = STEPS[game.step.kind];
+    if (st?.simTick && !game.paused) {
+      const out = st.simTick(game, game.s, dt);
+      if (out) io.to('tv').volatile.emit('rt', encodeSnap(out.t, out.tables), out.meta);
+      hudAcc += dt;
+      if (st.hud && hudAcc >= 0.165) {
+        hudAcc = 0;
+        for (const sock of io.sockets.sockets.values()) {
+          if (!sock.data.pid) continue;
+          const hud = st.hud(game, game.s, sock.data.pid);
+          if (hud) sock.volatile.emit('hud', hud);
+        }
+      }
+      tickMs.push(performance.now() - now);
+      if (tickMs.length > 900) tickMs.splice(0, tickMs.length - 900);
+    }
+    rtNext += 1000 / RT_HZ;
+    const wait = rtNext - performance.now();
+    if (wait < -200) rtNext = performance.now(); // asleep (laptop lid) — don't try to catch up
+    rtTimer = setTimeout(rtTick, Math.max(0, wait));
+  }
+  rtTimer = setTimeout(rtTick, 1000 / RT_HZ);
+  function rtStats() {
+    const s = [...tickMs].sort((a, b) => a - b);
+    const q = (f) => (s.length ? +s[Math.min(s.length - 1, Math.floor(s.length * f))].toFixed(2) : 0);
+    return { kind: game.step.kind, samples: s.length, p50: q(0.5), p99: q(0.99), max: q(1), sockets: io.sockets.sockets.size };
+  }
   const autosave = setInterval(save, 15000);
 
   async function listen() {
@@ -225,7 +269,7 @@ export function createServer({ fast = FAST, port = Number(opt('port', process.en
   }
 
   function close() {
-    clearInterval(tick); clearInterval(arenaLoop); clearInterval(autosave);
+    clearInterval(tick); clearTimeout(rtTimer); clearInterval(autosave);
     io.close();
     server.close();
   }

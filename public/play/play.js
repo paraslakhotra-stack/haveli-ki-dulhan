@@ -54,10 +54,13 @@ const net = connect({
   onStatus: (st) => { $('dot').className = st; },
   onView: (v) => { view = v; render(); },
   onFx: (e) => current?.comp?.fx?.(e),
+  onHud: (u) => current?.comp?.hud?.(u),
 });
 
 export const send = (msg) => { if (view) net.socket.emit('input', { seq: view.seq, ...msg }); };
 export const sendRaw = (msg) => net.socket.emit('input', msg);
+// Real-time stick state: volatile (a dropped packet is replaced 33 ms later anyway).
+const rt = (arr) => net.socket.volatile.emit('rt', arr);
 export const hostCmd = (cmd, args) => net.call('host', { cmd, args });
 
 // ---------- join ----------
@@ -173,5 +176,5 @@ export function openSheet(fill) {
 export function closeSheet() { $('sheet').classList.add('hidden'); }
 $('sheet').addEventListener('click', (e) => { if (e.target.id === 'sheet') closeSheet(); });
 
-const ctx = { send, sendRaw, hostCmd, buzz, flash, openSheet, closeSheet, changePhoto, get view() { return view; }, leave: () => { net.socket.emit('leave'); store.del(TOKEN_KEY); joined = false; showJoin(); } };
+const ctx = { send, sendRaw, rt, hostCmd, buzz, flash, openSheet, closeSheet, changePhoto, get view() { return view; }, leave: () => { net.socket.emit('leave'); store.del(TOKEN_KEY); joined = false; showJoin(); } };
 window.__nightfall = ctx;

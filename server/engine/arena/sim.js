@@ -1,5 +1,7 @@
-// Chapter V — "The Dead Don't Dance". An authoritative top-down zombie arena simulated at 30 Hz.
-// The TV renders compact snapshots; phones send a thumbstick vector plus POWER / THROW taps.
+// Chapter VI — "Murda Baraat". An authoritative top-down zombie arena simulated at 30 Hz.
+// Phones are twin-stick gamepads: left stick moves, right stick aims; guns never stop firing (with no aim
+// input they lock onto the nearest zombie). Buttons: dash, nimbu-mirchi bomb, power.
+// The TV gets compact binary snapshots (see public/shared/rtcodec.js) and interpolates between them.
 import { makeRng } from '../util.js';
 
 export const W = 1600;
@@ -24,6 +26,10 @@ export const ZTYPES = {
 const ZTYPE_BY_I = Object.keys(ZTYPES);
 
 export const POWERS = ['coldfeet', 'prenup', 'lastdance', 'bestman', 'bouquet'];
+export const PICKUP_KINDS = ['grenade', ...POWERS];
+const DASH_TIME = 0.2;
+const DASH_SPEED = 820;
+const DASH_COOLDOWN = 3;
 
 export const OBSTACLES = [
   { x: 800, y: 450, r: 62, kind: 'fountain' },
@@ -61,7 +67,7 @@ function waveDefs(n, fast) {
 }
 
 export class ArenaSim {
-  constructor({ seed = 1, fast = false, players = [], hooks = {} } = {}) {
+  constructor({ seed = 1, fast = false, players = [], hooks = {}, breakAfter = 1, waves = null } = {}) {
     this.rng = makeRng(seed);
     this.fast = fast;
     this.hooks = hooks; // { kill(pid, type), down(pid), revive(pid, by), bossDmg(pid, n) }
@@ -82,30 +88,58 @@ export class ArenaSim {
     this.boss = null;
     this.done = false;
     this.waves = waveDefs(Math.max(1, players.length), fast);
+    if (waves) this.waves = this.waves.slice(this.waves.length - waves); // short night: drop the opening waves
+    this.breakAfter = breakAfter; // wave index after which the "Baraat Break" quiz pauses the fight (-1: never)
+    this.inBreak = false;
     for (const p of players) this.addPlayer(p);
   }
 
   // ---------- players ----------
-  addPlayer({ id, team, perks = [], relics = [] }) {
+  // items: how many solah-shringar pieces the player's team recovered in the treasure hunt.
+  addPlayer({ id, team, perks = [], relics = [], items = 0 }) {
     if (this.players.has(id)) return;
     const a = (this.players.size / 8) * Math.PI * 2;
-    const tier = relics.includes('musicbox') ? 1 : 0;
-    const maxHp = relics.includes('wine') ? 150 : 100;
+    const tier = Math.min(WEAPONS.length - 1, (relics.includes('musicbox') ? 1 : 0) + (items >= 2 ? 1 : 0));
+    const maxHp = Math.round((relics.includes('wine') ? 150 : 100) * (items >= 1 ? 1.15 : 1));
     this.players.set(id, {
       id, team, perks, relics, x: 800 + Math.cos(a) * 130, y: 450 + Math.sin(a) * 130,
-      mx: 0, my: 0, aim: 0, hp: maxHp, maxHp, down: false, downAt: 0, revive: 0, reviver: null,
-      kills: 0, tier, tierFloor: tier, cool: 0, firing: 0, power: perks.includes('lullaby') ? 'bestman' : null,
+      mx: 0, my: 0, ax: 0, ay: 0, aim: 0, hp: maxHp, maxHp, down: false, downAt: 0, revive: 0, reviver: null,
+      kills: 0, tier, tierFloor: tier, cool: 0, firing: 0,
+      power: perks.includes('lullaby') ? 'bestman' : items >= 3 ? this.rng.pick(POWERS) : null,
       grenades: 2, speedUntil: 0, shieldUntil: 0, allyUntil: 0, allyCool: 0,
+      dashUntil: 0, dashReady: 0, dashCd: items >= 4 ? DASH_COOLDOWN / 2 : DASH_COOLDOWN, dx: 1, dy: 0, hitAt: -9,
     });
   }
   removePlayer(id) { this.players.delete(id); }
-  setMove(id, x, y) {
+  setMove(id, x, y) { this.setInput(id, x, y, 0, 0); }
+  // Twin-stick state, each axis -1..1. An aim vector shorter than 0.3 means "auto-aim".
+  setInput(id, mx, my, ax = 0, ay = 0) {
     const p = this.players.get(id);
     if (!p) return;
-    x = Number(x) || 0; y = Number(y) || 0;
-    const m = Math.hypot(x, y);
-    if (m > 1) { x /= m; y /= m; }
-    p.mx = x; p.my = y;
+    const norm = (x, y) => {
+      x = Number(x) || 0; y = Number(y) || 0;
+      const m = Math.hypot(x, y);
+      return m > 1 ? [x / m, y / m] : [x, y];
+    };
+    [p.mx, p.my] = norm(mx, my);
+    [p.ax, p.ay] = norm(ax, ay);
+  }
+  dash(id) {
+    const p = this.players.get(id);
+    if (!p || p.down || this.t < p.dashReady) return;
+    const m = Math.hypot(p.mx, p.my);
+    if (m > 0.2) { p.dx = p.mx / m; p.dy = p.my / m; } else { p.dx = Math.cos(p.aim); p.dy = Math.sin(p.aim); }
+    p.dashUntil = this.t + DASH_TIME;
+    p.dashReady = this.t + p.dashCd;
+    this.ev({ e: 'dash', pid: id, x: p.x | 0, y: p.y | 0, a: Math.round(Math.atan2(p.dy, p.dx) * 100) });
+  }
+  // The Baraat Break quiz hands out a power to every correct answer.
+  grantPower(id) {
+    const p = this.players.get(id);
+    if (!p) return;
+    if (p.power) { p.grenades = Math.min(5, p.grenades + 2); this.ev({ e: 'pickup', pid: id, kind: 'grenade' }); return; }
+    p.power = this.rng.pick(POWERS);
+    this.ev({ e: 'pickup', pid: id, kind: p.power });
   }
   usePower(id) {
     const p = this.players.get(id);
@@ -124,9 +158,11 @@ export class ArenaSim {
     const p = this.players.get(id);
     if (!p || p.down || p.grenades <= 0) return;
     p.grenades--;
-    const tgt = this.nearestZombie(p.x, p.y, 380);
+    // Thrown where you're aiming; with no aim input, lobbed at the nearest zombie.
+    const manual = Math.hypot(p.ax, p.ay) >= 0.3;
+    const tgt = manual ? null : this.nearestZombie(p.x, p.y, 380);
     const ang = tgt ? Math.atan2(tgt.y - p.y, tgt.x - p.x) : p.aim;
-    const dist = tgt ? Math.min(340, Math.hypot(tgt.x - p.x, tgt.y - p.y)) : 260;
+    const dist = tgt ? Math.min(340, Math.hypot(tgt.x - p.x, tgt.y - p.y)) : 120 + 220 * Math.min(1, Math.hypot(p.ax, p.ay));
     this.grenades.push({ x: p.x, y: p.y, tx: p.x + Math.cos(ang) * dist, ty: p.y + Math.sin(ang) * dist, t0: this.t, dur: 0.7, pid: id });
     this.ev({ e: 'throw', pid: id });
   }
@@ -194,7 +230,7 @@ export class ArenaSim {
       for (const o of this.zombies.slice()) { this.ev({ e: 'kill', x: o.x | 0, y: o.y | 0, z: ZTYPES[o.type].i, burn: 1 }); }
       this.zombies = [];
     } else {
-      this.ev({ e: 'kill', x: z.x | 0, y: z.y | 0, z: ZTYPES[z.type].i });
+      this.ev({ e: 'kill', x: z.x | 0, y: z.y | 0, z: ZTYPES[z.type].i, pid: pid || null, v: z.id % 4 });
       if (z.type === 'bloater') this.explode(z.x, z.y, 100, 45, pid, false, true);
     }
     if (p) {
@@ -222,8 +258,9 @@ export class ArenaSim {
     }
   }
   hurt(p, amount) {
-    if (p.down || this.t < p.shieldUntil) return;
+    if (p.down || this.t < p.shieldUntil || this.t < p.dashUntil) return;
     p.hp -= amount;
+    p.hitAt = this.t;
     if (p.hp <= 0) {
       p.hp = 0;
       p.down = true;
@@ -245,8 +282,13 @@ export class ArenaSim {
     for (const p of this.players.values()) {
       let sp = 235 * (p.perks.includes('quickdraw') ? 1.2 : 1) * (this.t < p.speedUntil ? 1.7 : 1);
       if (p.down) sp = 55;
-      p.x += p.mx * sp * dt;
-      p.y += p.my * sp * dt;
+      if (!p.down && this.t < p.dashUntil) {
+        p.x += p.dx * DASH_SPEED * dt;
+        p.y += p.dy * DASH_SPEED * dt;
+      } else {
+        p.x += p.mx * sp * dt;
+        p.y += p.my * sp * dt;
+      }
       this.collide(p, PR, 20);
       if (p.down) {
         const helper = this.standing().find((o) => Math.hypot(o.x - p.x, o.y - p.y) < 64);
@@ -262,7 +304,7 @@ export class ArenaSim {
         }
         continue;
       }
-      this.fire(p, dt);
+      if (!this.inBreak) this.fire(p, dt);
       if (this.t < p.allyUntil) this.allyFire(p, dt);
       for (const k of this.pickups.slice()) {
         if (Math.hypot(k.x - p.x, k.y - p.y) > 34) continue;
@@ -304,6 +346,7 @@ export class ArenaSim {
           for (const o of this.zombies) if (Math.hypot(o.x - z.x, o.y - z.y) < 280) o.frenzyUntil = this.t + 3.5;
         }
       }
+      if (z.type === 'bloater') z.swell = Math.sqrt(bd) < 150; // Fufaji puffs up before he blows
       if (z.type === 'bloater' && Math.sqrt(bd) < z.r + PR + 6 && !tgt.down) { this.damage(z, 9999, null); continue; }
       if (!tgt.down && Math.sqrt(bd) < z.r + PR + 4) this.hurt(tgt, ZTYPES[z.type].dps * dt);
     }
@@ -353,9 +396,13 @@ export class ArenaSim {
   fire(p, dt) {
     p.cool -= dt;
     const w = this.weapon(p);
-    const tgt = this.nearestZombie(p.x, p.y, w.range);
-    if (!tgt) { p.firing = Math.max(0, p.firing - dt); return; }
-    p.aim = Math.atan2(tgt.y - p.y, tgt.x - p.x);
+    if (Math.hypot(p.ax, p.ay) >= 0.3) p.aim = Math.atan2(p.ay, p.ax); // manual aim
+    else {
+      const tgt = this.nearestZombie(p.x, p.y, w.range);
+      if (tgt) p.aim = Math.atan2(tgt.y - p.y, tgt.x - p.x);
+    }
+    // Guns never stop — but between waves (nothing to shoot) they rest so the yard can breathe.
+    if (this.phase !== 'fight' && !this.zombies.length) { p.firing = Math.max(0, p.firing - dt); return; }
     if (p.cool > 0) return;
     p.cool = 1 / w.rate;
     p.firing = 0.25;
@@ -365,7 +412,7 @@ export class ArenaSim {
         const hit = this.rayHit(p.x, p.y, a, w.range);
         const len = hit ? hit.t : w.range;
         if (hit) this.damage(hit.z, w.dmg, p.id);
-        this.ev({ e: 'shot', w: p.tier, x: p.x | 0, y: p.y | 0, a: Math.round(a * 100), l: len | 0 });
+        this.ev({ e: 'shot', w: p.tier, x: p.x | 0, y: p.y | 0, a: Math.round(a * 100), l: len | 0, h: hit ? 1 : 0 });
       }
     } else if (w.kind === 'flame') {
       for (const z of this.zombies.slice()) {
@@ -402,7 +449,7 @@ export class ArenaSim {
     const a = Math.atan2(tgt.y - ay, tgt.x - ax);
     const hit = this.rayHit(ax, ay, a, 360);
     if (hit) this.damage(hit.z, 18, p.id);
-    this.ev({ e: 'shot', w: 9, x: ax | 0, y: ay | 0, a: Math.round(a * 100), l: hit ? hit.t | 0 : 360 });
+    this.ev({ e: 'shot', w: 9, x: ax | 0, y: ay | 0, a: Math.round(a * 100), l: hit ? hit.t | 0 : 360, h: hit ? 1 : 0 });
   }
   rayHit(x, y, a, range) {
     const c = Math.cos(a);
@@ -487,7 +534,16 @@ export class ArenaSim {
       } else if ((!this.queue.length && !this.zombies.length) || t >= this.waveEnds) this.endWave(t >= this.waveEnds);
     } else if (this.phase === 'cleared' && t >= this.phaseEnds) {
       if (this.waveIdx >= this.waves.length - 1) { this.phase = 'victory'; this.phaseEnds = t + (this.fast ? 0.8 : 5); this.ev({ e: 'victory' }); }
-      else this.startTitle();
+      else if (this.waveIdx === this.breakAfter && !this.breakDone) {
+        this.breakDone = true;
+        this.inBreak = true;
+        this.phase = 'break';
+        this.phaseEnds = t + (this.fast ? 1.5 : 22);
+        this.ev({ e: 'break' });
+      } else this.startTitle();
+    } else if (this.phase === 'break' && t >= this.phaseEnds) {
+      this.inBreak = false;
+      this.startTitle();
     } else if (this.phase === 'victory' && t >= this.phaseEnds) {
       this.done = true;
     }
@@ -523,28 +579,36 @@ export class ArenaSim {
   }
 
   // ---------- snapshots ----------
+  // Binary tables (Int16) + a small meta object. Row order of `p` matches meta.ids.
   snapshot() {
-    const r = (v) => Math.round(v);
-    const out = {
-      t: Math.round(this.t * 1000),
+    const t = this.t;
+    const ids = [];
+    const p = [];
+    for (const q of this.players.values()) {
+      ids.push(q.id);
+      p.push([q.x, q.y, q.aim * 100, (q.hp / q.maxHp) * 100,
+        (q.down ? 1 : 0) | (t < q.shieldUntil ? 2 : 0) | (t < q.speedUntil ? 4 : 0) | (q.firing > 0 ? 8 : 0) | (t < q.allyUntil ? 16 : 0)
+          | (t < q.dashUntil ? 32 : 0) | (t - q.hitAt < 0.12 ? 64 : 0) | (q.relics.includes('candle') ? 128 : 0),
+        q.tier, q.revive * 50, q.kills, q.power ? POWERS.indexOf(q.power) : -1]);
+    }
+    const z = this.zombies.map((o) => [o.id, ZTYPES[o.type].i, o.x, o.y, o.angle * 100, (o.hp / o.maxHp) * 100,
+      (t < o.frenzyUntil ? 1 : 0) | (o.state === 'stun' ? 2 : 0) | (o.state === 'tele' ? 4 : 0) | (o.state === 'charge' ? 8 : 0)
+        | (o.hit && t - o.hit < 0.08 ? 16 : 0) | (o.type === 'bloater' && o.swell ? 32 : 0)]);
+    const k = this.pickups.map((o) => [o.id, PICKUP_KINDS.indexOf(o.kind), o.x, o.y]);
+    const g = this.grenades.map((gr) => { const f = Math.min(1, (t - gr.t0) / gr.dur); return [gr.x + (gr.tx - gr.x) * f, gr.y + (gr.ty - gr.y) * f, f * 100]; });
+    const meta = {
       phase: this.phase,
       wave: this.waveIdx + 1,
       waves: this.waves.length,
       title: this.waves[this.waveIdx]?.title || '',
-      left: Math.max(0, Math.round(this.phaseEnds - this.t)),
-      slow: this.t < this.slowUntil ? 1 : 0,
-      p: [...this.players.values()].map((p) => [p.id, r(p.x), r(p.y), r(p.aim * 100), r((p.hp / p.maxHp) * 100),
-        (p.down ? 1 : 0) | (this.t < p.shieldUntil ? 2 : 0) | (this.t < p.speedUntil ? 4 : 0) | (p.firing > 0 ? 8 : 0) | (this.t < p.allyUntil ? 16 : 0),
-        p.tier, r(p.revive * 50), p.kills, p.power || '', p.relics.includes('candle') ? 1 : 0]),
-      z: this.zombies.map((z) => [z.id, ZTYPES[z.type].i, r(z.x), r(z.y), r(z.angle * 100), r((z.hp / z.maxHp) * 100),
-        (this.t < z.frenzyUntil ? 1 : 0) | (z.state === 'stun' ? 2 : 0) | (z.state === 'tele' ? 4 : 0) | (z.state === 'charge' ? 8 : 0) | (z.hit && this.t - z.hit < 0.08 ? 16 : 0)]),
-      k: this.pickups.map((k) => [k.id, k.kind, r(k.x), r(k.y)]),
-      g: this.grenades.map((gr) => { const f = Math.min(1, (this.t - gr.t0) / gr.dur); return [r(gr.x + (gr.tx - gr.x) * f), r(gr.y + (gr.ty - gr.y) * f), r(f * 100)]; }),
-      boss: this.boss ? { hp: r((this.boss.hp / this.boss.maxHp) * 100), state: this.boss.state } : null,
+      left: Math.max(0, Math.round(this.phaseEnds - t)),
+      slow: t < this.slowUntil ? 1 : 0,
+      boss: this.boss ? { hp: Math.round((this.boss.hp / this.boss.maxHp) * 100), state: this.boss.state } : null,
+      ids,
       ev: this.events,
     };
     this.events = [];
-    return out;
+    return { t: Math.round(t * 1000), tables: { p, z, k, g }, meta };
   }
   hud(id) {
     const p = this.players.get(id);
@@ -555,6 +619,7 @@ export class ArenaSim {
       hp: Math.round(p.hp), maxHp: p.maxHp, down: p.down, revive: Math.round((p.revive / 1.8) * 100),
       kills: p.kills, tier: p.tier, weapon: w.name, next: nextW ? { name: nextW.name, at: nextW.at } : null,
       power: p.power, grenades: p.grenades, phase: this.phase, wave: this.waveIdx + 1, title: this.waves[this.waveIdx]?.title || '',
+      dash: Math.max(0, Math.min(100, Math.round(((p.dashReady - this.t) / p.dashCd) * 100))), hit: this.t - p.hitAt < 0.25,
       shield: this.t < p.shieldUntil, speed: this.t < p.speedUntil, ally: this.t < p.allyUntil,
       bossHp: this.boss ? Math.round((this.boss.hp / this.boss.maxHp) * 100) : null,
     };

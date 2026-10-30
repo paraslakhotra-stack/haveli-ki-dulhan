@@ -30,6 +30,7 @@ const ctx = { backdrop, arena, narrator, fx, petals, embers };
 let view = null;
 let current = null; // { key, comp }
 let arenaOn = false;
+let rtOn = null; // which real-time renderer is consuming snapshots
 
 // ---------- fit the 1920×1080 stage to any screen ----------
 function fit() {
@@ -42,11 +43,16 @@ fit();
 // ---------- render loop ----------
 let last = performance.now();
 let frame = 0;
+let drawMs = 0;
+window.__drawMs = () => drawMs;
 function loop(now) {
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
+  const t0 = performance.now();
   if (arenaOn) arena.draw(ctx2d, dt);
   else backdrop.draw(ctx2d, now / 1000, dt);
+  const ms = performance.now() - t0;
+  drawMs = drawMs * 0.95 + ms * 0.05; // exposed for perf checks
   if (frame++ % 3 === 0) fx.tickGrain();
   requestAnimationFrame(loop);
 }
@@ -68,7 +74,7 @@ const net = connect({
   onStatus: (st) => $('offline').classList.toggle('hidden', st === 'online'),
   onView: render,
   onFx: onFx,
-  onArena: (snap) => { if (arenaOn) arena.ingest(snap); },
+  onRt: (buf, meta) => { if (rtOn === 'arena') arena.ingest(buf, meta); },
 });
 const host = (cmd, args) => net.socket.emit('host', { cmd, args });
 
@@ -96,6 +102,7 @@ function render(v) {
   const wantArena = v.kind === 'arena';
   if (wantArena && !arenaOn) arena.reset();
   arenaOn = wantArena;
+  rtOn = wantArena ? 'arena' : null;
   if (!wantArena) {
     const scene = sceneFor(v);
     backdrop.setScene(scene, backdrop.name === scene ? backdrop.params : {});

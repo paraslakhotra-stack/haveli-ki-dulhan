@@ -4,7 +4,7 @@ import { face, nameOf } from '/shared/photos.js';
 import { runeSvg, glassSvg, brideSvg, clockSvg, diyaSvg } from '/shared/figures.js';
 import { audio, LULLABY } from '/shared/audio.js';
 import { drawChudail } from '/tv/fx.js';
-import nipplejs from '/vendor/nipplejs.mjs';
+import { createPad, goImmersive, leaveImmersive } from '/play/pad.js';
 
 const ROMAN = ['I', 'II', 'III'];
 const card = (...kids) => h('div', { class: 'card' }, ...kids);
@@ -483,68 +483,76 @@ const unmask = rerender((box, v, ctx) => {
 function arena(root, v, ctx) {
   const box = h('div', { class: 'p-screen pad-screen' });
   add(root, box);
-  const hud = h('div', { class: 'hud' });
-  const zone = h('div', { class: 'stick-zone' }, h('div', { class: 'stick-hint' }, 'Yahan drag karke chalo'));
-  const powerBtn = h('button', { class: 'act power' });
-  const throwBtn = h('button', { class: 'act throw' });
-  const down = h('div', { class: 'downed hidden' }, h('div', { class: 'p-title' }, 'TUM GIR GAYE'), h('div', { class: 'fine' }, 'Kisi dost tak ghisatte jao — ya uthne ka intezaar karo…'), h('div', { class: 'revive' }, h('div', {})));
-  add(box, hud, h('div', { class: 'pad-row' }, zone, h('div', { class: 'acts' }, powerBtn, throwBtn)), down);
-  let mx = 0; let my = 0; let dirty = true; let lastHp = null;
-  const manager = nipplejs.create({ zone, mode: 'dynamic', color: '#efe6d8', size: 140, multitouch: false, fadeTime: 120, restOpacity: 0.6 });
-  manager.on('move', (_, data) => {
-    const f = Math.min(1, (data.force || 0) * 1.15);
-    const vx = data.vector?.x || 0;
-    const vy = data.vector?.y || 0;
-    const m = Math.hypot(vx, vy) || 1;
-    mx = (vx / m) * f; my = -(vy / m) * f;
-    dirty = true;
-  });
-  manager.on('end', () => { mx = 0; my = 0; dirty = true; });
-  let lastSent = 0;
-  let alive = true;
-  const stop = () => { if (!alive) return; alive = false; clearInterval(iv); try { manager.destroy(); } catch { /* already gone */ } };
-  const iv = setInterval(() => {
-    const now = performance.now();
-    if (dirty || now - lastSent > 400) { ctx.send({ type: 'move', x: +mx.toFixed(3), y: +my.toFixed(3) }); dirty = false; lastSent = now; }
-  }, 50);
-  powerBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); ctx.send({ type: 'power' }); ctx.buzz([20, 30, 60]); });
-  throwBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); ctx.send({ type: 'throw' }); ctx.buzz(30); });
   const ICON = { coldfeet: '🏃', prenup: '🧿', lastdance: '💃', bestman: '👬', bouquet: '🎨' };
   const NAME = { coldfeet: 'Bhaag Milkha', prenup: 'Nazar Battu', lastdance: 'Naagin Dance', bestman: 'Bestie Bhai', bouquet: 'Gulaal Bomb' };
+  const pad = createPad(box, {
+    rt: ctx.rt,
+    leftHint: 'CHALO',
+    rightHint: 'NISHANA · goli khud chalti hai',
+    buttons: [
+      { id: 'dash', icon: '💨', label: 'Dash', onPress: () => { ctx.send({ type: 'dash' }); ctx.buzz(18); } },
+      { id: 'throw', icon: '🍋', label: 'Bomb', onPress: () => { ctx.send({ type: 'throw' }); ctx.buzz(30); } },
+      { id: 'power', icon: '✦', label: 'Power', onPress: () => { ctx.send({ type: 'power' }); ctx.buzz([20, 30, 60]); } },
+    ],
+  });
+  const hpFill = h('div', { class: 'hp-fill' });
+  const top = h('div', { class: 'gp-top' });
+  const tierEl = h('div', { class: 'gp-tier' });
+  add(pad.hud, h('div', { class: 'hp' }, hpFill), top, tierEl);
+  const down = h('div', { class: 'downed hidden' }, h('div', { class: 'p-title' }, 'TUM GIR GAYE'), h('div', { class: 'fine' }, 'Kisi dost tak ghisatte jao — ya uthne ka intezaar karo…'), h('div', { class: 'revive' }, h('div', {})));
+  const brk = h('div', { class: 'brk-ov hidden' });
+  add(box, down, brk);
+  let lastHp = null;
   let lastTier = null;
+  let lastKills = null;
+  let immersive = false;
+  box.addEventListener('pointerdown', () => { if (!immersive) { immersive = true; goImmersive(); } }, { capture: true });
+
+  const hud = (u) => {
+    if (!u) return;
+    const hpPct = Math.max(0, Math.min(100, (u.hp / u.maxHp) * 100));
+    hpFill.style.width = `${hpPct}%`;
+    hpFill.classList.toggle('low', hpPct < 30);
+    clear(top);
+    add(top, h('span', {}, u.phase === 'warmup' ? 'GET READY' : u.phase === 'break' ? 'BARAAT BREAK' : `WAVE ${u.wave} · ${u.title}`), h('b', {}, `${u.kills} 💀`));
+    clear(tierEl);
+    add(tierEl, h('span', { class: 'weapon' }, `🔫 ${u.weapon}`), u.next ? h('small', {}, `${u.next.name} @ ${u.next.at}`) : h('small', {}, 'MAX POWER'),
+      u.bossHp != null ? h('div', { class: 'hp boss' }, h('div', { class: 'hp-fill', style: { width: `${u.bossHp}%` } })) : null);
+    pad.btn('dash', { cooldown: u.dash, disabled: u.down });
+    pad.btn('throw', { label: `Bomb ×${u.grenades}`, disabled: !u.grenades || u.down });
+    pad.btn('power', { icon: u.power ? ICON[u.power] : '✦', label: u.power ? NAME[u.power] : 'koi power nahi', disabled: !u.power || u.down, hot: !!u.power });
+    down.classList.toggle('hidden', !u.down);
+    down.querySelector('.revive > div').style.width = `${u.revive}%`;
+    if ((lastHp != null && u.hp < lastHp - 3) || u.hit) { if (lastHp != null && u.hp < lastHp - 3) ctx.buzz(35); box.classList.remove('hurt'); void box.offsetWidth; box.classList.add('hurt'); }
+    if (lastTier != null && u.tier > lastTier) { ctx.buzz([40, 30, 40, 30, 120]); ctx.flash('rgba(255,210,122,.5)', 500); }
+    if (lastKills != null && u.kills > lastKills && u.kills % 10 === 0) ctx.buzz([15, 20, 15]);
+    lastHp = u.hp; lastTier = u.tier; lastKills = u.kills;
+  };
+  const drawBreak = (b) => {
+    brk.classList.toggle('hidden', !b);
+    if (!b) return;
+    clear(brk);
+    add(brk, h('div', { class: 'brk-k' }, '🎺 BARAAT BREAK'), h('div', { class: 'brk-q' }, b.q));
+    if (b.mine == null && !b.done) {
+      add(brk, h('div', { class: 'brk-opts' }, b.opts.map((o, i) => h('button', { class: 'btn', onclick: () => { ctx.send({ type: 'brk', i }); ctx.buzz(20); } }, h('b', {}, 'ABCD'[i]), ' ', o))));
+    } else {
+      add(brk, h('div', { class: `brk-res ${b.mine ? 'ok' : 'bad'}` }, b.mine == null ? 'Time up!' : b.mine ? '✓ Sahi! Power mil gayi' : '✗ Galat'), b.a ? h('div', { class: 'fine center' }, `Jawaab: ${b.a}`) : null);
+    }
+  };
   const draw = (vv) => {
     const s = vv.step;
     if (s.sub === 'results') {
-      stop();
+      pad.destroy();
+      leaveImmersive();
       clear(box);
       add(box, title('Baagh saaf hai', ''), card(h('div', { class: 'big-num' }, `${s.kills ?? 0} 💀`), h('div', { class: 'fine' }, 'murde waapas zameen mein')));
       return;
     }
-    const u = s.hud;
-    clear(hud);
-    if (!u) { add(hud, h('div', { class: 'fine' }, 'Jang mein shaamil ho rahe ho…')); return; }
-    const hpPct = Math.max(0, Math.min(100, (u.hp / u.maxHp) * 100));
-    add(hud, 
-      h('div', { class: 'hud-top' }, h('span', {}, u.phase === 'warmup' ? 'GET READY' : `WAVE ${u.wave} · ${u.title}`), h('b', {}, `${u.kills} 💀`)),
-      h('div', { class: 'hp' }, h('div', { class: `hp-fill ${hpPct < 30 ? 'low' : ''}`, style: { width: `${hpPct}%` } })),
-      h('div', { class: 'hud-top' }, h('span', { class: 'weapon' }, `🔫 ${u.weapon}`), u.next ? h('small', {}, `${u.next.name} at ${u.next.at} kills`) : h('small', {}, 'MAX POWER')),
-      u.bossHp != null ? h('div', { class: 'hp boss' }, h('div', { class: 'hp-fill', style: { width: `${u.bossHp}%` } })) : null,
-    );
-    clear(powerBtn);
-    add(powerBtn, h('span', { class: 'ic' }, u.power ? ICON[u.power] : '✦'), h('small', {}, u.power ? NAME[u.power] : 'koi power nahi'));
-    powerBtn.disabled = !u.power || u.down;
-    clear(throwBtn);
-    add(throwBtn, h('span', { class: 'ic' }, '🍋'), h('small', {}, `Nimbu-mirchi ×${u.grenades}`));
-    throwBtn.disabled = !u.grenades || u.down;
-    down.classList.toggle('hidden', !u.down);
-    down.querySelector('.revive > div').style.width = `${u.revive}%`;
-    if (lastHp != null && u.hp < lastHp - 3) { ctx.buzz(40); box.classList.remove('hurt'); void box.offsetWidth; box.classList.add('hurt'); }
-    if (lastTier != null && u.tier > lastTier) { ctx.buzz([40, 30, 40, 30, 120]); ctx.flash('rgba(255,210,122,.5)', 500); }
-    lastHp = u.hp;
-    lastTier = u.tier;
+    if (s.hud) hud(s.hud);
+    drawBreak(s.brk);
   };
   draw(v);
-  return { update: draw, destroy() { stop(); box.remove(); } };
+  return { update: draw, hud, destroy() { pad.destroy(); leaveImmersive(); box.remove(); } };
 }
 
 // ------------------------------------------------------------------ CRYPT

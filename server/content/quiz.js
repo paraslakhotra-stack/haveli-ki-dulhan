@@ -32,6 +32,62 @@ export const TRIVIA = [
   { q: 'Bollywood horror mein "Ramsay Brothers" kis cheez ke liye famous the?', a: 'Low-budget horror films', w: ['Romantic songs', 'Action movies', 'Comedy shows'] },
 ];
 
+// Shaadi pool — rituals, Rajasthani & Punjabi customs, Bollywood weddings, and shaadi chaos.
+// Drawn (without repeats) by Chapter II, the treasure-hunt stations, the Baraat Break and the Phere Quiz.
+export const SHAADI = [
+  // Rasmein (rituals)
+  { q: 'Phere kis cheez ke chaaron taraf liye jaate hain?', a: 'Agni (the sacred fire)', w: ['A banyan tree', 'The mandap pillars', 'The dulha\'s ghodi'] },
+  { q: '"Kanyadaan" kaun karta hai?', a: "The bride's parents", w: ["The groom's parents", 'The pandit ji', 'The best friend'] },
+  { q: 'Phere ke time dulha-dulhan ke kapde aapas mein baandhne ko kya kehte hain?', a: 'Gathbandhan', w: ['Kalawa', 'Rakhi', 'Mauli-milan'] },
+  { q: 'Shaadi ke baad dulhan ki maang mein kya bhara jaata hai?', a: 'Sindoor', w: ['Haldi', 'Chandan', 'Gulal'] },
+  { q: 'Saptapadi mein kitne kadam (steps) hote hain?', a: 'Seven', w: ['Five', 'Nine', 'Eleven'] },
+  { q: 'Dulhan ki vidaai pe woh peeche ki taraf kya phenkti hai?', a: 'Rice (chawal)', w: ['Flowers', 'Coins', 'Mehendi cones'] },
+  { q: 'Sasural mein pehli baar aate hi dulhan kya girati hai (Grih Pravesh)?', a: 'A kalash of rice, with her right foot', w: ['A glass of milk', 'A plate of laddoos', 'Her sandals'] },
+  { q: 'Shaadi ke din dulhe ke saath ghodi pe aksar kaun baithta hai?', a: 'A little boy — the sarbala', w: ['The pandit ji', 'Fufaji', 'The DJ'] },
+  { q: 'Haldi kyon lagaate hain — traditionally?', a: 'For glow & to ward off evil', w: ['To make the mehendi darker', 'For good luck in cards', 'To keep mosquitoes away'] },
+  { q: 'Wedding ke baad ka game jisme doodh-paani ke bartan mein anguthi dhoondhte hain?', a: 'Anguthi dhoondhna (ring-finding game)', w: ['Joota chupai', 'Kaleera drop', 'Antakshari'] },
+  { q: 'Mangalsutra traditionally kis rang ke moti se banta hai?', a: 'Black beads with gold', w: ['Red beads', 'White pearls', 'Green glass'] },
+  { q: 'Phere ke baad dulha-dulhan aasmaan mein kaunsa taara dekhte hain (tradition)?', a: 'Dhruv tara (Pole star)', w: ['Shukra (Venus)', 'Mangal (Mars)', 'Saptarishi only'] },
+  // Punjabi shaadi
+  { q: 'Punjabi dulhan ka laal-safed choodiyon ka set kehlata hai…', a: 'Chooda', w: ['Kangan', 'Kada', 'Payal'] },
+  { q: 'Kaleere jhatkaate waqt agar kisi ke sir pe gire, toh maana jaata hai…', a: "She'll be the next to marry", w: ['She pays for dinner', 'She must dance', 'Bad luck for a week'] },
+  { q: 'Punjabi shaadi mein "Jaggo" kya hai?', a: 'A night procession with a decorated pot of lamps', w: ['A breakfast ritual', 'The haldi ceremony', 'A song for the vidaai'] },
+  { q: 'Punjabi dulhe ki ghodi ko feed karne aur sehra baandhne ki rasm kya kehlati hai?', a: 'Sehrabandi', w: ['Ghodi-chadhi only', 'Milni', 'Roka'] },
+  { q: 'Anand Karaj (Sikh wedding) mein kitni laavan hoti hain?', a: 'Four', w: ['Seven', 'Three', 'Five'] },
+  { q: 'Punjabi shaadi mein "Ghara Gharoli" mein kya hota hai?', a: 'Water is brought from a gurdwara/well to bathe the couple', w: ['Pots are broken for luck', 'The groom carries water to the bride', 'Guests fill pots with money'] },
+  { q: 'Doli ke time dulhan ke bhai kya karte hain (Punjabi vidaai)?', a: 'Help carry/escort her doli', w: ['Hide her shoes', 'Sing a ghazal', 'Collect the shagun envelopes'] },
+  { q: '"Shagun" lifafe mein amount aksar kis number pe khatam hota hai?', a: 'One (₹101, ₹501, ₹1101…)', w: ['Zero', 'Five', 'Nine'] },
+  // Rajasthani shaadi
+  { q: 'Rajasthani dulha ki talwar ke saath pehni jaane waali pagdi kehlati hai…', a: 'Safa', w: ['Topi', 'Kalgi', 'Pheta'] },
+  { q: 'Rajasthani shaadi mein dulhe ka darwaze pe neem ki daal ya toran ko chhoona kehlata hai…', a: 'Toran ki rasm', w: ['Milni', 'Grih Pravesh', 'Roka'] },
+  { q: 'Rajasthani dulhan ki naak ki badi nath ko aur kis naam se jaana jaata hai?', a: 'Nathni / Bhanwariya', w: ['Jhumka', 'Maang tikka', 'Bichhua'] },
+  { q: 'Rajasthani dulhan ke maathe ka gol gehna kehlata hai…', a: 'Borla / Rakhdi', w: ['Haathphool', 'Kamarbandh', 'Payal'] },
+  { q: 'Rajasthan ka famous tie-dye print jo shaadiyon mein pehna jaata hai?', a: 'Bandhani / Leheriya', w: ['Ikat', 'Kalamkari', 'Chikankari'] },
+  { q: 'Rajasthani dulhan ki choodiyan jo haath se upar tak hoti hain, kis material ki hoti thi?', a: 'Ivory/bone (now plastic) — "chooda"', w: ['Gold only', 'Glass only', 'Wood'] },
+  // Solah shringar
+  { q: 'Solah shringar mein kitni cheezein hoti hain?', a: 'Sixteen', w: ['Seven', 'Twelve', 'Twenty-one'] },
+  { q: 'Pairon ki ungliyon mein pehni jaane waali anguthi kehlati hai…', a: 'Bichhiya', w: ['Payal', 'Haathphool', 'Nath'] },
+  { q: 'Haath ke peeche anguthiyon se judi chain ko kya kehte hain?', a: 'Haathphool', w: ['Kamarbandh', 'Baajuband', 'Chooda'] },
+  { q: 'Baalon mein lagaaya jaane waala phoolon ka gajra aksar kis phool ka hota hai?', a: 'Mogra (jasmine)', w: ['Gulab', 'Genda', 'Kamal'] },
+  { q: 'Maathe ke beech latakne waala gehna kya kehlata hai?', a: 'Maang tikka', w: ['Jhoomar', 'Borla', 'Nath'] },
+  // Bollywood shaadi
+  { q: '"London Thumakda" kis film ka gaana hai?', a: 'Queen', w: ['Band Baaja Baaraat', 'Bride & Prejudice', 'Veere Di Wedding'] },
+  { q: '"Mehendi Laga Ke Rakhna" kis film ka hai?', a: 'Dilwale Dulhania Le Jayenge', w: ['Hum Aapke Hain Koun..!', 'Kuch Kuch Hota Hai', 'Mohabbatein'] },
+  { q: '"Hum Aapke Hain Koun..!" mein joota chupai pe kaunsa gaana hai?', a: 'Joote Do Paise Lo', w: ['Didi Tera Devar Deewana', 'Wah Wah Ramji', 'Lo Chali Main'] },
+  { q: 'Wedding planners ki kahani — Anushka & Ranveer ki film?', a: 'Band Baaja Baaraat', w: ['Ladies vs Ricky Bahl', 'Befikre', 'Dil Dhadakne Do'] },
+  { q: '"Monsoon Wedding" kis sheher mein set hai?', a: 'Delhi', w: ['Mumbai', 'Jaipur', 'Amritsar'] },
+  { q: '"Gallan Goodiyaan" kis film mein hai?', a: 'Dil Dhadakne Do', w: ['Kapoor & Sons', 'Baar Baar Dekho', 'Jab Harry Met Sejal'] },
+  { q: '"Navrai Majhi" gaana kis film ka hai?', a: 'English Vinglish', w: ['Queen', 'Piku', 'Dear Zindagi'] },
+  { q: '"Tenu Leke Main Jawanga" kis film ka gaana hai?', a: 'Salaam-e-Ishq', w: ['Namastey London', 'Singh Is Kinng', 'Jab We Met'] },
+  { q: '"Kajra Re" mein kaun kaun naache?', a: 'Aishwarya, Abhishek & Amitabh Bachchan', w: ['Kareena, Saif & Shahid', 'Madhuri, SRK & Salman', 'Katrina, Akshay & Hrithik'] },
+  // Shaadi chaos (fun)
+  { q: 'Shaadi mein sabse common "naraazgi" kiski hoti hai (internet ke hisaab se)?', a: 'Fufaji', w: ['The DJ', 'The photographer', 'The ghodi'] },
+  { q: 'Baraat ke time sabse common gaana kaunsa bajta hai?', a: '"Aaj Mere Yaar Ki Shaadi Hai"', w: ['"Tujhe Dekha To"', '"Kal Ho Naa Ho"', '"Channa Mereya"'] },
+  { q: 'Joota chupai mein saaliyan aksar kya maangti hain?', a: 'Cash (negotiated loudly)', w: ['A song', 'A new phone', 'The groom\'s safa'] },
+  { q: 'Wedding buffet mein sabse pehle kya khatam hota hai (universal law)?', a: 'Paneer', w: ['Salad', 'Plain rice', 'Water'] },
+  { q: 'Shaadi ka "Roka" kya hota hai?', a: 'The families formally fix the match', w: ['The final vidaai', 'A dance-off', 'The pre-wedding shoot'] },
+];
+
 // "Kaun hai jo…" — everyone votes for a guest. Majority voters score.
 export const ACCUSE = {
   mild: [
